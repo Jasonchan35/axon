@@ -7,7 +7,7 @@
 //
 
 #define	GC_DEBUG	1
-#include "../3rd_party/bdwgc-gc7_4_2/include/gc.h"
+#include "../../../../bdwgc/include/gc.h"
 
 #include <ax/core/base/Memory.h>
 
