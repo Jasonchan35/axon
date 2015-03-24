@@ -58,23 +58,32 @@ typedef uint32_t	ax_unichar;
 #define ax_sz32(sz)		( U##sz)
 #define ax_szW(sz)		( L##sz)
 
+#define ax_ch8(c)		(    c)
+#define ax_ch16(c)		( u##c)
+#define ax_ch32(c)		( U##c)
+#define ax_chW(c)		( L##c)
+
 #if ax_char_define_type == 'a' // char
 	#define ax_sz(sz)	ax_sz8(sz)
+	#define ax_ch(c)	ax_ch8(c)
 	#define ax_txt(sz)	ax_txt8(sz)
 	typedef	char		ax_char;
 	
 #elif ax_char_define_type == 'u'
 	#define ax_sz(sz)	ax_sz16(sz)
+	#define ax_ch(c)	ax_ch16(c)
 	#define ax_txt(sz)	ax_txt16(sz)
 	typedef	char16_t	ax_char;
 
 #elif ax_char_define_type == 'U'
 	#define ax_sz(sz)	ax_sz32(sz)
+	#define ax_ch(c)	ax_ch32(c)
 	#define ax_txt(sz)	ax_txt32(sz)
 	typedef	char32_t	ax_char;
 
 #elif ax_char_define_type == 'w'
 	#define ax_sz(sz)	ax_szW(sz)
+	#define ax_ch(c)	ax_chW(c)
 	#define ax_txt(sz)	ax_txtW(sz)
 	typedef	wchar_t		ax_char;
 

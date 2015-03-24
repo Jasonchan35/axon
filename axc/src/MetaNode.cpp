@@ -12,6 +12,10 @@
 namespace ax {
 namespace Compile {
 
+ax_ImplObject(MetaNode);
+ax_ImplObject(Node_namespace);
+
+
 void MetaNode::reset( ax_NullableObj< MetaNode > parent, LexerPos & pos, const ax_string & name ) {
 	this->parent = parent;
 	this->name	 = name;

@@ -23,14 +23,14 @@ struct Path : public StaticClass {
 	static	const ax_char	k_seperator_Windows;	// '\\'
 	
 	// e.g. ChangeExtension( "a.txt", ".doc" );
-	static	String	ChangeExtension	( const String & path, const String & new_extension );
+	static	ax_string	ChangeExt	( const ax_string & path, const ax_string & new_extension );
 	
-	static	String	GetFileName		( const String & path, bool with_extension );
+	static	ax_string	GetFileName	( const ax_string & path, bool with_extension );
 	
 	// e.g. return '.txt'
-	static	String	GetExtension	( const String	& path );
+	static	ax_string	GetExt		( const ax_string	& path );
 	
-	static	String	GetDirectoryName( const String & path );
+	static	ax_string	GetDirName	( const ax_string & path );
 };
 
 

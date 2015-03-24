@@ -39,9 +39,7 @@ enum class TypeCode {
 
 class TypeInfo {
 public:
-	typedef	void	(*InitFunc)( TypeInfo & t );
-
-	TypeInfo( const String & name, TypeCode typeCode, const TypeInfo* baseType, InitFunc init_func );
+	TypeInfo( const String & name, TypeCode typeCode, const TypeInfo* baseType );
 
 	const	String &		name		() const { return _name; }
 	const	TypeInfo*		baseType	() const { return _baseType; }
@@ -83,8 +81,13 @@ template< typename T > 		 ax_TypeCode	ax_get_typecode();
 template< typename T > const ax_TypeInfo &	ax_get_typeinfo();
 
 template< typename T > inline
+ax::System::Type	ax_typeof() {
+	return ax::System::Type( T::ax_typeinfo );
+}
+
+template< typename T > inline
 ax::System::Type	ax_typeof( const T & p ) {
-	return ax::System::Type( ax_get_typeinfo<T>() );
+	return ax_typeof<T>();
 }
 
 #define ax_TYPE_LIST_ITEM( NAME, T ) \

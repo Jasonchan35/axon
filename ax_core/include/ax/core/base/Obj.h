@@ -10,6 +10,7 @@
 #define ax_core_Obj_h 
 
 #include "Memory.h"
+#include "Type.h"
 #include "Nullable.h"
 #include "../string/String.h"
 
@@ -18,11 +19,16 @@
 
 #define ax_DefObject( T, BASE ) \
 	private:\
-		typedef BASE	base; \
+		typedef BASE		base; \
 	public: \
-		typedef	T		THIS_CLASS; \
+		typedef	T			THIS_CLASS; \
+		static const ax_TypeInfo	ax_typeinfo; \
 	private: \
 //-------------
+
+#define ax_ImplObject( T ) \
+	const ax_TypeInfo	T::ax_typeinfo( ax_txt(#T), ax_TypeCode::k_Object, & T::base::ax_typeinfo );
+//---------
 
 
 namespace ax {
@@ -32,6 +38,8 @@ template< typename T > class Obj;
 
 class Object : public NonCopyable {
 public:
+	static	const ax_TypeInfo	ax_typeinfo;
+
 	virtual	~Object() {
 	}
 	

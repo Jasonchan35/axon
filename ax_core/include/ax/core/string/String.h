@@ -43,6 +43,17 @@ public:
 		if( _data == rhs._data && _size == rhs._size ) return true;
 		return ax_str_equals( _data, rhs._data );
 	}
+	
+	StringX	operator+( const StringX<T> & rhs ) const {
+		if( rhs.size() == 0 ) return *this;
+		
+		auto len = _size + rhs.size();
+		auto p = Memory::Alloc<T>( len + 1 );
+		ArrayUtility::Copy( p, _data, _size );
+		ArrayUtility::Copy( p+_size, rhs.c_str(), rhs.size() );
+		p[len] = 0;
+		return StringX::MakeExternal( p, len );
+	}
 
 	ax_int		size	() const				{ return _size; }
 		
