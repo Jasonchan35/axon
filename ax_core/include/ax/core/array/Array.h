@@ -110,18 +110,17 @@ protected:
 			void	_release		( bool call_from_destructor );
 };
 
-
 //! Array with LocalBuffer
-template< typename T, ax_int LOCAL_BUF_SIZE >
-class ArrayL : public Array<T>, private LocalBuffer< T, LOCAL_BUF_SIZE >  {
+template< typename T, ax_int LOCAL_BUF_SIZE = ( sizeof(void*)*4 ) / sizeof(T) >
+class Array_ : public Array<T>, private LocalBuffer< T, LOCAL_BUF_SIZE >  {
 	typedef	Array< T >	base;
 	typedef	LocalBuffer< T, LOCAL_BUF_SIZE >	BUF;
 public:
 
-	virtual	~ArrayL() { base::_release(true); }
+	virtual	~Array_() { base::_release(true); }
 
-	ArrayL			() {}
-	ArrayL			( Array<T>    && rhs ) { base::move(rhs); }
+	Array_			() {}
+	Array_			( Array<T>    && rhs ) { base::move(rhs); }
 	void operator=	( Array<T>    && rhs ) { base::move(rhs); }
 
 	virtual	bool	isDataOnHeap	() const { return base::dataPtr() != nullptr && base::dataPtr() != getLocalBufferPtr(); }
@@ -154,7 +153,11 @@ protected:
 			out_capacity = LOCAL_BUF_SIZE;
 			return BUF::localBufPtr();
 		}else{
-			return base::onMalloc( req_size, out_capacity );
+			auto s = base::size();
+			auto n = ax_max( s + s/2, req_size ); //auto resize to 1.5x times
+
+			auto p =  Memory::AllocUncollect<T>( n );
+			return p;
 		}
 	}
 	
@@ -165,13 +168,13 @@ protected:
 				ArrayUtility::SetAllZero( p, LOCAL_BUF_SIZE );
 			}
 		}else{
-			base::onFree( p, call_from_destructor );
+			Memory::DeallocUncollect<T>( p );
 		}
 	}
 
 };
 
-
+typedef	Array< ax_byte >	ByteArray;
 
 
 
@@ -273,25 +276,6 @@ void	Array<T>::_do_reserve( ax_int new_size ) {
 		_data = np;
 	}
 }
-
-template< typename T > inline
-T*		Array<T>::onMalloc	( ax_int req_size, ax_int & out_capacity ) {
-	//std::cout << this << " onMalloc " << reqSize <<"\n";
-
-	auto s = size();
-	auto n = ax_max( s + s/2, req_size ); //auto resize to 1.5x times
-
-	auto p =  Memory::AllocUncollect<T>( n );
-	return p;
-}
-
-template< typename T > inline
-void	Array<T>::onFree		( T* p, bool call_from_destructor ) {
-	//std::cout << this << " onFree   " << "\n";
-	Memory::DeallocUncollect<T>( p );
-}
-
-
 
 }} //namespace
 

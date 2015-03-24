@@ -16,7 +16,7 @@
 
 template< typename T > inline
 void _ax_to_string_req_bool( ax::System::ToStringReq_<T> & req, const bool & v ) {
-	auto s = v ? ax_str("true") : ax_str("false");
+	auto s = v ? ax_txt("true") : ax_txt("false");
 	req.outbuf().append_static_cast( s );
 }
 

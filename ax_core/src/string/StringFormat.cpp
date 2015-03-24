@@ -20,15 +20,15 @@ StringX<T> StringFormat_<T>::ToString_Params( const StringX<T> & fmt, const Para
 }
 
 template< typename T >
-StringBuilderX<T> & StringFormat_<T>::AppendToBuffer_Params( StringBuilderX<T> & buf, const StringX<T> & fmt_str, const Params< StringFormatArg_<T> > & args ) {
+MutStringX<T> & StringFormat_<T>::AppendToBuffer_Params( MutStringX<T> & buf, const StringX<T> & fmt_str, const Params< StringFormatArg_<T> > & args ) {
 	if( fmt_str.size() <= 0 ) return buf;
 	
-	StringBuilderX_<T>		tmp_buf;
+	MutStringX_<T>		tmp_buf;
 	
 	ToStringReq_<T>	req( tmp_buf, &buf );
 
-	StringBuilderX_<T>		_str_idx;
-	StringBuilderX_<T>		_str_padding;
+	MutStringX_<T>		_str_idx;
+	MutStringX_<T>		_str_padding;
 
 	ax_int	curParamIdx = 0;
 	

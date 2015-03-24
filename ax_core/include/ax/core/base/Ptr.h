@@ -49,7 +49,7 @@ public:
 			const 	T*	operator->	() const	{ return  _p; }
 
 //	template< typename R >
-//	void	to_string( ToStringRequest_<R> & req ) const;
+//	void	OnStringReq( ToStringRequest_<R> & req ) const;
 private:
 	T*	_p;
 };

@@ -9,30 +9,24 @@
 #ifndef ax_core_basic_types_h
 #define ax_core_basic_types_h
 
-namespace ax {
-namespace System {
+#define ax_string			ax::System::String
+#define ax_TempString		ax::System::TempString
 
-class StaticClass {
-private:
-	StaticClass(); // cannot create instance !!!
-};
+#define ax_MutString		ax::System::MutString
+#define ax_MutString_		ax::System::MutString_
+#define ax_MutStringX		ax::System::MutStringX
+#define ax_MutStringX_		ax::System::MutStringX_
 
-class NonCopyable {
-public:
-	NonCopyable()	{}
+#define ax_Obj				ax::System::Obj
+#define ax_Array			ax::System::Array
+#define	ax_Dict				ax::System::Dict
 
-// C+11 delete function
-//	NonCopyable 	( const NonCopyable &s ) = delete; //!< not allow by default
-//	void operator=	( const NonCopyable &s ) = delete; //!< not allow by default
+#define ax_Nullable			ax::System::Nullable
 
-private:
-	NonCopyable 	( const NonCopyable &s ); //!< not allow by default
-	void operator=	( const NonCopyable &s ); //!< not allow by default
-};
-	
-template< typename T > class ToStringReq_;
 
-}} //namespace
+#define ax_ToStringReq		ax::System::ToStringReq
+
+#define ax_byte				uint8_t
 
 #define	ax_params			ax::System::Params
 #define	ax_ptr				ax::System::Ptr
@@ -64,27 +58,54 @@ typedef uint32_t	ax_unichar;
 
 #if ax_char_define_type == 'a' // char
 	#define ax_sz(sz)	ax_sz8(sz)
-	#define ax_str(sz)	ax_str8(sz)
+	#define ax_txt(sz)	ax_txt8(sz)
 	typedef	char		ax_char;
 	
 #elif ax_char_define_type == 'u'
 	#define ax_sz(sz)	ax_sz16(sz)
-	#define ax_str(sz)	ax_str16(sz)
+	#define ax_txt(sz)	ax_txt16(sz)
 	typedef	char16_t	ax_char;
 
 #elif ax_char_define_type == 'U'
 	#define ax_sz(sz)	ax_sz32(sz)
-	#define ax_str(sz)	ax_str32(sz)
+	#define ax_txt(sz)	ax_txt32(sz)
 	typedef	char32_t	ax_char;
 
 #elif ax_char_define_type == 'w'
 	#define ax_sz(sz)	ax_szW(sz)
-	#define ax_str(sz)	ax_strW(sz)
+	#define ax_txt(sz)	ax_txtW(sz)
 	typedef	wchar_t		ax_char;
 
 #else
 	#error
 #endif
+
+namespace ax {
+namespace System {
+
+class StaticClass {
+private:
+	StaticClass(); // cannot create instance !!!
+};
+
+class NonCopyable {
+public:
+	NonCopyable()	{}
+
+// C+11 delete function
+//	NonCopyable 	( const NonCopyable &s ) = delete; //!< not allow by default
+//	void operator=	( const NonCopyable &s ) = delete; //!< not allow by default
+
+private:
+	NonCopyable 	( const NonCopyable &s ); //!< not allow by default
+	void operator=	( const NonCopyable &s ); //!< not allow by default
+};
+	
+template< typename T > class ToStringReq_;
+typedef ToStringReq_< ax_char >	ToStringReq;
+
+}} //namespace
+
 
 
 

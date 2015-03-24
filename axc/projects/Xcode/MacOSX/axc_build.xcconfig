@@ -1,0 +1,11 @@
+HEADER_SEARCH_PATHS = ../../../../ax_core/include
+
+ax_core_path = ../../../../ax_core/
+#include      "../../../../ax_core/projects/Xcode/MacOSX/ax_core/lib.xcconfig"
+
+OTHER_CFLAGS  = $(OTHER_CFLAGS)  $(ax_core_CFLAGS)
+OTHER_LDFLAGS = $(OTHER_LDFLAGS) $(ax_core_LDFLAGS)
+
+
+GCC_PRECOMPILE_PREFIX_HEADER = YES
+GCC_PREFIX_HEADER = ../../../src/pch/pch.h

@@ -16,6 +16,12 @@
 
 #include "core/string/StringFormat.h"
 #include "core/base/Obj.h"
+#include "core/base/Nullable.h"
 #include "core/base/Dict.h"
+
+#include "core/io/Path.h"
+#include "core/io/File.h"
+#include "core/io/FileStream.h"
+#include "core/io/Directory.h"
 
 #endif

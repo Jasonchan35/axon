@@ -17,18 +17,18 @@ namespace System {
 template< typename T >
 class ToStringReq_ : public NonCopyable {
 public:
-	StringBuilderX_< T >	opt;
+	MutStringX_< T >	opt;
 	ax_int				paramIndex;
 	ax_int				padding;
 	ax_int				indentLevel;
 
-	ToStringReq_&	indent()	{ if( indentLevel > 0 ) outbuf().appendRepeat( ax_sz("  "), indentLevel ); return *this; }
+	ToStringReq_&	indent()	{ if( indentLevel > 0 ) outbuf().appendRepeat( ax_txt("  "), indentLevel ); return *this; }
 	ToStringReq_&	newLine() 	{ outbuf().append('\n'); /*indent(); */ return *this; }
 
 	template< typename VALUE >
 	ToStringReq_&	operator << ( const VALUE & value );
 
-	ToStringReq_( StringBuilderX<T> & tmp_buf, StringBuilderX<T>* final_buf = nullptr )
+	ToStringReq_( MutStringX<T> & tmp_buf, MutStringX<T>* final_buf = nullptr )
 	: paramIndex(0)
 	, padding(0)
 	, indentLevel(0)
@@ -38,7 +38,7 @@ public:
 	
 	}
 
-	StringBuilderX<T> &	outbuf() {
+	MutStringX<T> &	outbuf() {
 		if( _final_buf && padding == 0 ) return *_final_buf;
 		return *_tmp_buf;
 	}
@@ -60,8 +60,8 @@ public:
 
 private:
 // output to buffer
-	StringBuilderX<T>*	_tmp_buf;
-	StringBuilderX<T>*	_final_buf;
+	MutStringX<T>*	_tmp_buf;
+	MutStringX<T>*	_final_buf;
 
 };
 
@@ -76,7 +76,7 @@ void ax_to_string_req( ax::System::ToStringReq_<T> & req, const VALUE & v );
 
 template< typename T, typename VALUE > inline
 void ax_to_string_req( ax::System::ToStringReq_<T> & req, const VALUE & v ) {
-	v.to_string(req);
+	v.OnStringReq(req);
 }
 
 #define ax_TYPE_LIST_ITEM( NAME, VALUE ) \
@@ -114,10 +114,17 @@ ToStringReq_<T> & ToStringReq_<T>::operator << ( const VALUE & value ) {
 }
 
 template< typename C >
-template< typename T > inline
-void StringX<C>::to_string( ax::System::ToStringReq_<T> & req ) const {
+template< typename R > inline
+void StringX<C>::OnStringReq( ax::System::ToStringReq_<R> & req ) const {
 	req.outbuf().appendUtf( *this );
 }
+
+template< typename C >
+template< typename R > inline
+void MutStringX<C>::OnStringReq( ax::System::ToStringReq_<R> & req ) const {
+	req.outbuf().appendUtf( *this );
+}
+
 
 }} //namespace
 

@@ -12,17 +12,16 @@
 #include "ax_c_str.h"
 #include "ax_c_str_to.h"
 #include "../base/Exception.h"
-#include "../base/Obj.h"
 #include "../array/ArrayUtility.h"
 
 namespace ax {
 namespace System {
 
 
-#define ax_str8( sz )	( ax::System::StringX<char>    ::MakeExternal( u8##sz, sizeof( u8##sz ) / sizeof(char)     -1 ) )
-#define ax_str16( sz )	( ax::System::StringX<char16_t>::MakeExternal(  u##sz, sizeof(  u##sz ) / sizeof(char16_t) -1 ) )
-#define ax_str32( sz )	( ax::System::StringX<char32_t>::MakeExternal(  U##sz, sizeof(  U##sz ) / sizeof(char32_t) -1 ) )
-#define ax_strW( sz )	( ax::System::StringX<wchar_t> ::MakeExternal(  L##sz, sizeof(  L##sz ) / sizeof(wchar_t)  -1 ) )
+#define ax_txt8( sz )	( ax::System::StringX<char>    ::MakeExternal( u8##sz, sizeof( u8##sz ) / sizeof(char)     -1 ) )
+#define ax_txt16( sz )	( ax::System::StringX<char16_t>::MakeExternal(  u##sz, sizeof(  u##sz ) / sizeof(char16_t) -1 ) )
+#define ax_txt32( sz )	( ax::System::StringX<char32_t>::MakeExternal(  U##sz, sizeof(  U##sz ) / sizeof(char32_t) -1 ) )
+#define ax_txtW( sz )	( ax::System::StringX<wchar_t> ::MakeExternal(  L##sz, sizeof(  L##sz ) / sizeof(wchar_t)  -1 ) )
 
 //! Immutable string	Literal / GC Memory
 template< typename T >
@@ -37,6 +36,10 @@ public:
 	
 	ax_ALWAYS_INLINE(		bool	inBound		( ax_int  i ) const	) { return i >= 0 && i < _size; }
 
+	bool	operator==( const StringX & rhs ) const {
+		if( _data == rhs._data && _size == rhs._size ) return true;
+		return ax_str_equals( _data, rhs._data );
+	}
 
 	ax_int		size	() const				{ return _size; }
 		
@@ -50,7 +53,7 @@ public:
 	}
 
 	template< typename R >
-	ax_ALWAYS_INLINE(	void	to_string( ToStringReq_<R> & req ) const );
+	ax_ALWAYS_INLINE(	void	OnStringReq( ToStringReq_<R> & req ) const );
 
 	
 	static	StringX	Make_c_str ( const T* sz ) 	{ return Make( sz, ax_strlen(sz) ); }
@@ -69,13 +72,15 @@ public:
 		return StringX(sz,len);
 	}
 	
+	ax_int	GetHash() const { return ax_c_str_hash(_data); }
+	
+	StringX() : _data(nullptr), _size(0) {}
 
 protected:
 
 	const T*	_data;
 	ax_int		_size;
 
-	StringX() : _data(nullptr), _size(0) {}
 	StringX( const T* sz, ax_int size ) : _data(sz),_size(size) {}
 
 	ax_ALWAYS_INLINE( void 	_checkBound			( ax_int i ) const ) { if( ! inBound(i) ) throw Err_Array_OutOfRange(); }
@@ -88,6 +93,7 @@ protected:
 };
 
 typedef	StringX< ax_char >	String;
+typedef StringX< char >		StringA;
 
 template< typename T > inline
 std::ostream& operator<< ( std::ostream& o, const StringX<T>& v ) {

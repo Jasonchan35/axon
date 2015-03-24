@@ -1,0 +1,15 @@
+//
+//  pch.h
+//  Compile
+//
+//  Created by Jason on 2014-03-21.
+//  Copyright (c) 2014 Jason Chan. All rights reserved.
+//
+
+#ifndef axc_pch_h
+#define axc_pch_h
+
+#include <ax/core.h>
+
+
+#endif

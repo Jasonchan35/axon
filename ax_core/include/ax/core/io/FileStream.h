@@ -16,7 +16,7 @@ namespace System {
 namespace IO {
 
 class FileStream : public Object {
-	ax_ObjectBody( FileStream, Object )
+	ax_DefObject( FileStream, Object )
 public:
 
 	void		open			( const String & filename, FileMode mode, FileAccess access, FileShareMode share );
@@ -51,22 +51,18 @@ public:
 	void		setFileSize		( FileSize n );
 	
 //------	
-	void		readBytes		(       void* buf, Int byte_size );
-	void		writeBytes		( const void* buf, Int byte_size );
+	void		readBytes		(       void* buf, ax_int byte_size );
+	void		writeBytes		( const void* buf, ax_int byte_size );
 		
 	void		writeText		( const String  & s );
-	void		writeUtf8		( const IStringA & s );
+	void		writeUtf8		( const StringA & s );
 	
 	void		write_c_str		( const char* sz );
 	
-	void		readAllBytesToBuffer( IByteArray & buf );
-	void		readAllTextToBuffer	( String    & buf );
-	void		readAllUtf8ToBuffer	( IStringA   & buf );
+	void		readAllBytesToBuffer( ByteArray    & buf );
+	void		readAllTextToBuffer	( MutString    & buf );
+	void		readAllUtf8ToBuffer	( MutStringA   & buf );
 	
-	ByteArray	readAllBytes	() { ByteArray	buf; readAllBytesToBuffer( buf ); return buf; }
-	String		readAllText		() { String		buf; readAllTextToBuffer ( buf ); return buf; }
-	StringA		readAllUtf8		() { StringA	buf; readAllUtf8ToBuffer ( buf ); return buf; }
-
 	void		flush			();
 
 	FileStream();

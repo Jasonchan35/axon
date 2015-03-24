@@ -11,9 +11,8 @@
 namespace ax {
 namespace System {
 
-
 template< typename T >
-void	StringBuilderX<T>::_do_reserve( ax_int new_size ) {
+void	MutStringX<T>::_do_reserve( ax_int new_size ) {
 	auto np = onMalloc( new_size+1, _capacity );
 	if( np != _data ) {
 		ArrayUtility::Copy( np, dataPtr(), _size );
@@ -27,14 +26,14 @@ void	StringBuilderX<T>::_do_reserve( ax_int new_size ) {
 }
 
 template< typename T >
-void StringBuilderX<T>::append	( const T& ch ) {
+void MutStringX<T>::append	( const T& ch ) {
 	auto old_size = size();
 	resize( old_size + 1 );
 	unsafe_at( old_size ) = ch;
 }
 
 template< typename T >
-void StringBuilderX<T>::appendRepeat	( const T& ch, ax_int repeat ) {
+void MutStringX<T>::appendRepeat	( const T& ch, ax_int repeat ) {
 	if( repeat <= 0 ) return;
 
 	auto old_size = size();
@@ -49,7 +48,7 @@ void StringBuilderX<T>::appendRepeat	( const T& ch, ax_int repeat ) {
 
 
 template< typename T >
-void	StringBuilderX<T>::_append	( const T*	 data, ax_int data_size, ax_int repeat ) {
+void	MutStringX<T>::_append	( const T*	 data, ax_int data_size, ax_int repeat ) {
 	if( repeat    <= 0 ) return;
 	if( data_size <= 0 ) return;
 
@@ -68,7 +67,7 @@ void	StringBuilderX<T>::_append	( const T*	 data, ax_int data_size, ax_int repea
 //-----------
 template< typename T >
 template< typename R >
-void	StringBuilderX<T>::_append_static_cast	( const R*	 data, ax_int data_size, ax_int repeat ) {
+void	MutStringX<T>::_append_static_cast	( const R*	 data, ax_int data_size, ax_int repeat ) {
 	if( repeat    <= 0 ) return;
 	if( data_size <= 0 ) return;
 
@@ -87,7 +86,7 @@ void	StringBuilderX<T>::_append_static_cast	( const R*	 data, ax_int data_size, 
 //-----------
 template< typename T >
 template< typename UTF >
-void	StringBuilderX<T>::_appendUtf( const UTF* data, ax_int data_size, ax_int repeat ) { \
+void	MutStringX<T>::_appendUtf( const UTF* data, ax_int data_size, ax_int repeat ) { \
 	if( repeat    <= 0 ) return;
 	if( data_size <= 0 ) return;
 	ax_int req_len = UtfConverter::GetConvertedCount< UTF,T >( data, data_size );
@@ -118,9 +117,9 @@ void	StringBuilderX<T>::_appendUtf( const UTF* data, ax_int data_size, ax_int re
 #define	ax_TYPE_LIST_ITEM( NAME, T )	\
 	template<> \
 	template<> \
-	inline void	StringBuilderX<T>::_appendUtf( const T* data, ax_int data_size, ax_int repeat ) { _append( data, data_size, repeat ); } \
+	inline void	MutStringX<T>::_appendUtf( const T* data, ax_int data_size, ax_int repeat ) { _append( data, data_size, repeat ); } \
 	/*---- The explicit instantiation ---*/ \
-	template class StringBuilderX<T>; \
+	template class MutStringX<T>; \
 //--------
 	ax_TYPE_LIST_all_char	
 #undef	ax_TYPE_LIST_ITEM

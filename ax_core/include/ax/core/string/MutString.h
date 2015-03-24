@@ -17,12 +17,14 @@
 namespace ax {
 namespace System {
 
+const ax_int MutString_default_LOCAL_BUF_SIZE = 40; // LOCAL_BUF_SIZE default is 40 to ensure large enough for GUID/UUID
+
 //! Mutable String Interface
 template< typename T >
-class StringBuilderX : public Object {
+class MutStringX : public Object {
 	typedef	StringX<T>		base;
 public:
-	virtual	~StringBuilderX() {}
+	virtual	~MutStringX() {}
 
 	ax_ALWAYS_INLINE(  void	clear()		);
 	ax_ALWAYS_INLINE(  void	release()	)	{ _release(false); }
@@ -67,26 +69,30 @@ public:
 	
 	ax_int	capacity() const { return _capacity; }
 
-						void		move		( StringBuilderX<T> &  rhs ) { onMove( rhs ); }
+						void		move		( MutStringX<T> &  rhs ) { onMove( rhs ); }
 
+	bool	operator==( const MutStringX & rhs ) const {
+		if( _data == rhs._data && _size == rhs._size ) return true;
+		return ax_str_equals( _data, rhs._data );
+	}
 //---------------
 	ax_ALWAYS_INLINE(	void		operator=	( const StringX<T>     &  rhs 		) )	{ clear(); append( rhs ); }
-	ax_ALWAYS_INLINE(	void		operator=	( const StringBuilderX &  rhs 		) )	{ clear(); append( rhs ); }
-	ax_ALWAYS_INLINE(	void		operator=	(		StringBuilderX && rhs 		) ) { move(rhs); }
+	ax_ALWAYS_INLINE(	void		operator=	( const MutStringX &  rhs 		) )	{ clear(); append( rhs ); }
+	ax_ALWAYS_INLINE(	void		operator=	(		MutStringX && rhs 		) ) { move(rhs); }
 
 	ax_ALWAYS_INLINE( 	void		assign			( const T& ch ) )							{ clear(); append( ch );  }
 	ax_ALWAYS_INLINE( 	void		assignRepeat	( const T& ch, ax_int repeat ) )			{ clear(); appendRepeat( ch, repeat );  }
 	
 	ax_ALWAYS_INLINE( 	void		assign			( const StringX<T>    &  rhs ) )			{ clear(); append( rhs ); }
-	ax_ALWAYS_INLINE( 	void		assign			( const StringBuilderX<T> &  rhs ) )			{ clear(); append( rhs ); }
-	ax_ALWAYS_INLINE( 	void		assign			(       StringBuilderX<T> && rhs ) )			{ move(rhs); }
+	ax_ALWAYS_INLINE( 	void		assign			( const MutStringX<T> &  rhs ) )		{ clear(); append( rhs ); }
+	ax_ALWAYS_INLINE( 	void		assign			(       MutStringX<T> && rhs ) )		{ move(rhs); }
 	
 	ax_ALWAYS_INLINE( 	void		assign			( const T* data, ax_int data_size ) )		{ clear(); append( data, data_size ); }
 	
 	ax_ALWAYS_INLINE( 	void		append			( const T& ch ) );
 	ax_ALWAYS_INLINE( 	void		append			( const StringX<T>    &  rhs ) )			{ _append( rhs.c_str(), rhs.size(), 1 ); }
-	ax_ALWAYS_INLINE( 	void		append			( const StringBuilderX<T> &  rhs ) )			{ _append( rhs.c_str(), rhs.size(), 1 ); }
-	ax_ALWAYS_INLINE( 	void		append			(       StringBuilderX<T> && rhs ) );
+	ax_ALWAYS_INLINE( 	void		append			( const MutStringX<T> &  rhs ) )		{ _append( rhs.c_str(), rhs.size(), 1 ); }
+	ax_ALWAYS_INLINE( 	void		append			(       MutStringX<T> && rhs ) );
 	
 	ax_ALWAYS_INLINE( 	void		append			( const T* data, ax_int data_size ) )		{ _append( data, data_size, 1 ); }
 	
@@ -97,24 +103,33 @@ public:
 	#define ax_TYPE_LIST_ITEM( NAME, UTF ) \
 		ax_ALWAYS_INLINE(	void	assignUtf			( const UTF& ch )									)	{ clear(); appendUtf( ch ); } \
 		ax_ALWAYS_INLINE(	void	assignUtf			( const StringX<UTF> & s )							)	{ clear(); appendUtf( s ); } \
+		ax_ALWAYS_INLINE(	void	assignUtf			( const MutStringX<UTF> & s )						)	{ clear(); appendUtf( s ); } \
 		ax_ALWAYS_INLINE(	void	assignUtf			( const UTF* data, ax_int data_size )				)	{ clear(); appendUtf( data, data_size ); } \
 		ax_ALWAYS_INLINE(	void	assignUtfRepeat		( const UTF& ch, ax_int repeat )					)	{ clear(); appendUtfRepeat( ch, repeat ); } \
 		\
 		ax_ALWAYS_INLINE(	void	appendUtf			( const UTF& ch  ) 									)	{ _appendUtf( &ch, 1, 1 ); } \
-		ax_ALWAYS_INLINE(	void	appendUtf			( const StringX<UTF> & s ) 						)	{ _appendUtf( s.c_str(), s.size(), 1 ); } \
+		ax_ALWAYS_INLINE(	void	appendUtf			( const StringX<UTF> & s ) 							)	{ _appendUtf( s.c_str(), s.size(), 1 ); } \
+		ax_ALWAYS_INLINE(	void	appendUtf			( const MutStringX<UTF> & s ) 						)	{ _appendUtf( s.c_str(), s.size(), 1 ); } \
 		ax_ALWAYS_INLINE(	void	appendUtf			( const UTF* data, ax_int data_size )				)	{ _appendUtf( data, data_size, 1 ); } \
 		\
 		ax_ALWAYS_INLINE(	void	appendUtfRepeat		( const UTF& ch, ax_int repeat )					)	{ _appendUtf( &ch, 1, repeat ); } \
 		ax_ALWAYS_INLINE(	void	appendUtfRepeat		( const StringX<UTF> & s, ax_int repeat ) 			)	{ _appendUtf( s.c_str(), s.size(), repeat ); } \
+		ax_ALWAYS_INLINE(	void	appendUtfRepeat		( const MutStringX<UTF> & s, ax_int repeat ) 		)	{ _appendUtf( s.c_str(), s.size(), repeat ); } \
 		ax_ALWAYS_INLINE(	void	appendUtfRepeat		( const UTF* data, ax_int data_size, ax_int repeat ))	{ _appendUtf( data, data_size, repeat ); } \
 		\
-		ax_ALWAYS_INLINE(	void	append_static_cast	( const StringX<UTF> & s ) 						)	{ _append_static_cast( s.c_str(), s.size(), 1 ); } \
+		ax_ALWAYS_INLINE(	void	append_static_cast	( const StringX<UTF> & s ) 							)	{ _append_static_cast( s.c_str(), s.size(), 1 ); } \
+		ax_ALWAYS_INLINE(	void	append_static_cast	( const MutStringX<UTF> & s ) 						)	{ _append_static_cast( s.c_str(), s.size(), 1 ); } \
 		ax_ALWAYS_INLINE(	void	append_static_cast	( const UTF* data, ax_int data_size ) 				)	{ _append_static_cast( data, data_size, 1 ); } \
 	//-------------
 		ax_TYPE_LIST_all_char
 	#undef ax_TYPE_LIST_ITEM
 	
+	ax_int	GetHash() const { return ax_c_str_hash(_data); }
+	
 	StringX<T>	to_String() { return StringX<T>::Make( c_str(), size() ); }
+	
+	template< typename R >
+	ax_ALWAYS_INLINE(	void	OnStringReq( ToStringReq_<R> & req ) const );
 	
 	virtual	bool	isDataOnHeap	() const { return false; }
 	
@@ -123,9 +138,9 @@ public:
 	ax_int		_capacity;
 	
 protected:
-	StringBuilderX() : _data(nullptr), _size(0), _capacity(0) {}
+	MutStringX() : _data(nullptr), _size(0), _capacity(0) {}
 	
-	virtual	void	onMove			( StringBuilderX<T> &  rhs );
+	virtual	void	onMove			( MutStringX<T> &  rhs );
 	
 	virtual	T*		onMalloc		( ax_int req_size, ax_int & capacity ) = 0;
 	virtual	void	onFree			( T* p, bool call_from_destructor ) = 0;
@@ -147,26 +162,24 @@ private:
 
 };
 
-
-//! Buffered string, LOCAL_BUF_SIZE default is 40 to ensure large enough for GUID/UUID
-template< typename T, ax_int LOCAL_BUF_SIZE = 40 >
-class StringBuilderX_ : public StringBuilderX<T>, private LocalBuffer< T, LOCAL_BUF_SIZE > {
-	typedef	StringBuilderX<T>	base;
+template< typename T, ax_int LOCAL_BUF_SIZE = MutString_default_LOCAL_BUF_SIZE >
+class MutStringX_ : public MutStringX<T>, private LocalBuffer< T, LOCAL_BUF_SIZE > {
+	typedef	MutStringX<T>	base;
 	typedef	LocalBuffer< T, LOCAL_BUF_SIZE >	BUF;	
 public:
-	virtual ~StringBuilderX_() { base::_release(true); }
+	virtual ~MutStringX_() { base::_release(true); }
 
-	StringBuilderX_	() {}
-	StringBuilderX_	( StringBuilderX<T>    && rhs ) { base::move(rhs); }
-	void operator=	( StringBuilderX<T>    && rhs ) { base::move(rhs); }
+	MutStringX_	() {}
+	MutStringX_	( MutStringX<T>    && rhs ) { base::move(rhs); }
+	void operator=	( MutStringX<T>    && rhs ) { base::move(rhs); }
 	
 	
 	template< typename UTF >
-	StringBuilderX_		( const StringX<UTF> & s ) { base::appendUtf(s); }
+	MutStringX_		( const StringX<UTF> & s ) { base::appendUtf(s); }
 	
 	virtual	bool	isDataOnHeap	() const { return base::dataPtr() != nullptr && base::dataPtr() != getLocalBufferPtr(); }
 	
-	virtual	void	onMove( StringBuilderX<T> & rhs ) {
+	virtual	void	onMove( MutStringX<T> & rhs ) {
 		if( rhs.isDataOnHeap() ) {
 			base::release();
 			
@@ -182,7 +195,7 @@ public:
 		}
 	}
 	
-	StringBuilderX<T> &		asIMutString() { return static_cast< StringBuilderX<T> >( *this ); }
+	MutStringX<T> &		asIMutString() { return static_cast< MutStringX<T> >( *this ); }
 
 	virtual	const	T*	getLocalBufferPtr() const { return BUF::localBufPtr(); }
 	
@@ -194,7 +207,10 @@ protected:
 			out_capacity = LOCAL_BUF_SIZE;
 			return BUF::localBufPtr();
 		}else{
-			return base::onMalloc( req_size, out_capacity );
+			auto s = base::size();
+			auto n = ax_max( s + s/2, req_size ); //auto resize to 1.5x times
+			auto p = Memory::AllocUncollect<T>( n );
+			return p;
 		}
 	}
 	
@@ -204,27 +220,29 @@ protected:
 				ArrayUtility::SetAllZero( p, LOCAL_BUF_SIZE );
 			}
 		}else{
-			base::onFree( p, call_from_destructor );
+			Memory::DeallocUncollect<T>( p );
 		}
 	}
 };
 
 
-typedef	StringBuilderX< ax_char >	MutString;
-typedef StringBuilderX_< ax_char >	MutStringL;
+typedef	MutStringX< ax_char >	MutString;
+typedef MutStringX< char >		MutStringA;
 
-template< typename T >	using TempString_ = StringBuilderX_<T,256>;
+template< ax_int LOCAL_BUF_SIZE = MutString_default_LOCAL_BUF_SIZE > using MutString_ = MutStringX_< ax_char, LOCAL_BUF_SIZE >;
+
+template< typename T >	using TempString_ = MutStringX_<T,256>;
 typedef	TempString_< ax_char >	TempString;
 
 //-----------
 template< typename T > inline
-void 	StringBuilderX<T>::clear() {
+void 	MutStringX<T>::clear() {
 	_size = 0;
 }
 
 //-----------
 template< typename T > inline
-void 	StringBuilderX<T>::_release( bool call_from_destructor ) {
+void 	MutStringX<T>::_release( bool call_from_destructor ) {
 	clear();
 	if( dataPtr() ) {
 		onFree( dataPtr(), call_from_destructor );
@@ -236,7 +254,7 @@ void 	StringBuilderX<T>::_release( bool call_from_destructor ) {
 
 //-----------
 template< typename T > inline
-void 	StringBuilderX<T>::resize( ax_int new_size ) {
+void 	MutStringX<T>::resize( ax_int new_size ) {
 	if( new_size < 0 ) throw Err_Undefined();
 	auto old_size = _size;
 	if( new_size == old_size ) return;
@@ -252,13 +270,13 @@ void 	StringBuilderX<T>::resize( ax_int new_size ) {
 }
 
 template< typename T > inline
-void	StringBuilderX<T>::reserve		( ax_int new_size ) {
+void	MutStringX<T>::reserve		( ax_int new_size ) {
 	if( new_size <= _capacity ) return;
 	_do_reserve( new_size );
 }
 
 template< typename T > inline
-void	StringBuilderX<T>::onMove	( StringBuilderX<T> & rhs ) {
+void	MutStringX<T>::onMove	( MutStringX<T> & rhs ) {
 	clear();
 	
 	auto old_size = _size;
@@ -268,7 +286,7 @@ void	StringBuilderX<T>::onMove	( StringBuilderX<T> & rhs ) {
 }
 
 template< typename T > inline
-void	StringBuilderX<T>::append ( StringBuilderX<T> && rhs ) {
+void	MutStringX<T>::append ( MutStringX<T> && rhs ) {
 	if( _size == 0 ) return move( rhs );
 
 	auto old_size = _size;
@@ -277,32 +295,14 @@ void	StringBuilderX<T>::append ( StringBuilderX<T> && rhs ) {
 	rhs._size = 0;
 }
 
-
 template< typename T > inline
-T*	StringBuilderX<T>::onMalloc	( ax_int req_size, ax_int & out_capacity ) {
-	//std::cout << this << " onMalloc " << reqSize <<"\n";
-	
-	auto s = size();
-	auto n = ax_max( s + s/2, req_size ); //auto resize to 1.5x times
-	auto p = Memory::AllocUncollect<T>( n );
-	
-	return p;
-}
-
-template< typename T > inline
-void	StringBuilderX<T>::onFree	( T* p, bool call_from_destructor ) {
-	Memory::DeallocUncollect<T>( p );
-}
-
-
-template< typename T > inline
-std::ostream& operator<< ( std::ostream& o, const StringBuilderX<T>& v ) {
+std::ostream& operator<< ( std::ostream& o, const MutStringX<T>& v ) {
 	o << v.c_str();
 	return o;
 }
 
 template< typename T, ax_int LOCAL_BUF_SIZE > inline
-std::ostream& operator<< ( std::ostream& o, const StringBuilderX_< T, LOCAL_BUF_SIZE >& v ) {
+std::ostream& operator<< ( std::ostream& o, const MutStringX_< T, LOCAL_BUF_SIZE >& v ) {
 	o << v.c_str();
 	return o;
 }

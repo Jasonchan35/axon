@@ -38,11 +38,11 @@ struct StringFormat_ : public StaticClass {
 	ax_Func_Params1( static StringX<T>,	ToString,  	   		const StringX<T> & /*fmt*/,               StringFormatArg_<T> );
 					 static	StringX<T>	ToString_Params ( 	const StringX<T> &   fmt,   const Params< StringFormatArg_<T> > & args );
 	
-	ax_Func_Params2( static StringBuilderX<T>&, AppendToBuffer,	    StringBuilderX<T> & /*buf*/, const StringX<T> & /*fmt*/,               StringFormatArg_<T> );
-					 static	StringBuilderX<T>&  AppendToBuffer_Params( StringBuilderX<T> &   buf,   const StringX<T> &   fmt,   const Params< StringFormatArg_<T> > & args );
+	ax_Func_Params2( static MutStringX<T>&, AppendToBuffer,	    MutStringX<T> & /*buf*/, const StringX<T> & /*fmt*/,               StringFormatArg_<T> );
+					 static	MutStringX<T>&  AppendToBuffer_Params( MutStringX<T> &   buf,   const StringX<T> &   fmt,   const Params< StringFormatArg_<T> > & args );
 	
-	ax_Func_Params2( static StringBuilderX<T>&, ToBuffer,			    StringBuilderX<T> & /*buf*/, const StringX<T> & /*fmt*/,               StringFormatArg_<T> );
-					 static	StringBuilderX<T>&  ToBuffer_Params	(   StringBuilderX<T> &   buf,   const StringX<T> &   fmt,   const Params< StringFormatArg_<T> > & args ) {
+	ax_Func_Params2( static MutStringX<T>&, ToBuffer,			    MutStringX<T> & /*buf*/, const StringX<T> & /*fmt*/,               StringFormatArg_<T> );
+					 static	MutStringX<T>&  ToBuffer_Params	(   MutStringX<T> &   buf,   const StringX<T> &   fmt,   const Params< StringFormatArg_<T> > & args ) {
 					 	buf.clear();
 						AppendToBuffer_Params( buf, fmt, args );
 						return buf;
@@ -51,9 +51,9 @@ struct StringFormat_ : public StaticClass {
 
 //----------------
 
-#define ax_format( fmt, ... )						ax::System::StringFormat_< ax_char >::ToString 		 ( 		ax_str(fmt), __VA_ARGS__ )
-#define ax_format_to_buffer( buf, fmt, ... )		ax::System::StringFormat_< ax_char >::ToBuffer 		 ( buf,	ax_str(fmt), __VA_ARGS__ )
-#define ax_format_append_to_buffer( buf, fmt, ... )	ax::System::StringFormat_< ax_char >::AppendToBuffer ( buf, ax_str(fmt), __VA_ARGS__ )
+#define ax_format( fmt, ... )						ax::System::StringFormat_< ax_char >::ToString 		 ( 		ax_txt(fmt), __VA_ARGS__ )
+#define ax_format_to_buffer( buf, fmt, ... )		ax::System::StringFormat_< ax_char >::ToBuffer 		 ( buf,	ax_txt(fmt), __VA_ARGS__ )
+#define ax_format_append_to_buffer( buf, fmt, ... )	ax::System::StringFormat_< ax_char >::AppendToBuffer ( buf, ax_txt(fmt), __VA_ARGS__ )
 
 typedef	StringFormat_< ax_char >	StringFormat;
 typedef StringFormatArg_< ax_char >	StringFormatArg;

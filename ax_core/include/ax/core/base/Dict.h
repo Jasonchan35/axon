@@ -12,12 +12,14 @@
 #include "Intrusive_LinkedList.h"
 #include "UPtr.h"
 #include "../array/Array.h"
+#include "Nullable.h"
+#include "Obj.h"
 
 namespace ax {
 namespace System {
 
 template< typename KEY, typename VALUE >
-class Dict : public NonCopyable {
+class Dict : public Object {
 public:
 	struct	ax_type_on_gc_trace : public std::true_type {};
 
@@ -31,8 +33,8 @@ public:
 		const	KEY &	key		() const { return _key;  }
 				UInt	hash	() const { return _hash; }
 					
-		void	to_string( ToStringReq & req ) const {
-			req << _key << ax_str(":") << value;
+		void	OnStringReq( ToStringReq & req ) const {
+			req << _key << ax_txt(":") << value;
 		}
 		
 		struct	HashNode : public Intrusive_LinkedListNode< HashNode > {
@@ -124,7 +126,7 @@ public:
 		return getValue( key );
 	}
 	
-	ax_ALWAYS_INLINE(	 VALUE&	getValue	( const KEY & key ) 	){
+	ax_ALWAYS_INLINE(	 VALUE &	getValue	( const KEY & key ) 	){
 		auto p = tryGetPair( key );
 		if( !p ) throw Err_Dict_NoSuchKey();
 		return p->value;
@@ -134,9 +136,11 @@ public:
 		return tryGetPair( key ) != nullptr;
 	}
 	
-	ax_ALWAYS_INLINE(	 VALUE*	tryGet( const KEY & key ) 	) {
+	ax_ALWAYS_INLINE(	 Nullable<VALUE>	tryGetValue( const KEY & key ) 	) {
+		Nullable<VALUE>	o;
 		auto p = tryGetPair( key );
-		return p ? &p->value : nullptr;
+		if( p ) o = p->value;
+		return o;
 	}
 	
 	ax_ALWAYS_INLINE(	 Pair*	tryGetPair( const KEY & key ) 	) {
@@ -144,7 +148,7 @@ public:
 		auto ts = _table.size();
 		if( ts == 0 ) return nullptr;
 		
-		auto & list = _table[ h.value % ts ];
+		auto & list = _table[ h % ts ];
 		return _getPairFromList( list, h, key );
 	}
 		
@@ -153,37 +157,27 @@ public:
 		_setTableSize( n );
 	}
 	
-	void	to_string( ToStringReq & req ) const {
-		req << ax_str("[");
+	void	OnStringReq( ToStringReq & req ) const {
+		req << ax_txt("[");
 		ax_int i=0;
 		ax_foreach( auto & p, pairs() ) {
-			if( i>0 ) req << ax_str(", ");
-			req << p.key() << ax_str(":") << p.value;
+			if( i>0 ) req << ax_txt(", ");
+			req << p.key() << ax_txt(":") << p.value;
 			i++;
 		}
-		req << ax_str("]");
+		req << ax_txt("]");
 	}
 
 		
 //--------------------
-#if ax_DEBUG_Enumerating
-	RefCount	_enumerating;
-#endif
+	DebugEnumeratingCounter		_enumerating;
 
 	template< typename D, typename P >
 	class PairEnumerator {
 		D*	_dict;
 	public:
-		PairEnumerator( D* dict ) : _dict(dict) {
-		#if ax_DEBUG_Enumerating
-			++_dict->_enumerating;
-		#endif
-		}
-		~PairEnumerator() {
-		#if ax_DEBUG_Enumerating
-			--_dict->_enumerating;
-		#endif
-		}
+		PairEnumerator( D* dict ) : _dict(dict) { ++_dict->_enumerating; }
+		~PairEnumerator() { --_dict->_enumerating; }
 
 		class	iterator {
 		public:
@@ -295,12 +289,25 @@ public:
 		iterator				end		()			{ return iterator( nullptr ); }
 	};
 	
+	template< typename D, typename P, typename V >
+	class Values {
+		D*	_dict;
+	public:
+		Values ( D* dict ) : _dict(dict)	{ ++_dict->_enumerating; }
+		~Values() 							{ --_dict->_enumerating; }
+	
+		ValueEnumerator< D,P,V >	getEnumerator()		{ return ValueEnumerator< D,P,V >( _dict ); }
+	};
+
+	Values< Dict,       Pair,       VALUE >	values()			{ return Values< Dict,       Pair,       VALUE >( this ); }
+	Values< Dict, const Pair, const VALUE >	values()	const 	{ return Values< Dict, const Pair, const VALUE >( ax_const_cast(this) ); }
+	
+	
 	ValueEnumerator< Dict,       Pair,       VALUE >	getEnumerator()			{ return ValueEnumerator< Dict,       Pair,       VALUE >( this ); }
 	ValueEnumerator< Dict, const Pair, const VALUE >	getEnumerator()	const 	{ return ValueEnumerator< Dict, const Pair, const VALUE >( ax_const_cast(this) ); }
 	
-	
 private:
-	typedef	ArrayL< HashList, 0 >		Table;
+	typedef	Array_< HashList, 0 >		Table;
 	
 	PairList	_pairs;
 	

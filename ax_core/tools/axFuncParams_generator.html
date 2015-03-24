@@ -1,6 +1,6 @@
 <html>
-#ifndef __ax_core_macro_Params_h__<br>
-#define __ax_core_macro_Params_h__<br>
+#ifndef __ax_core_macro_FuncParams_h__<br>
+#define __ax_core_macro_FuncParams_h__<br>
 <br>
 
 <br>
@@ -63,7 +63,7 @@
 			fixed_var += " f"+i+",";
 		}
 
-		write("    ax_ptr&lt const Arg &gt args[] = {");
+		write("    ax_Ptr&lt const Arg &gt args[] = {");
 		
 		for( var i=0; i<n_arg; i++ ) {
 			if( i > 0 ) write(", ")
@@ -123,7 +123,7 @@
 	}
 </script>
 
-#endif //__ax_core_macro_Params_h__
+#endif //__ax_core_macro_FuncParams_h__
 
 </pre>
 </html>

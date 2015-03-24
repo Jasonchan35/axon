@@ -69,8 +69,12 @@ private:
 
 class Type {
 public:
+	Type( const TypeInfo & info ) : _info( info ) {}
+	const TypeInfo & _info;
 	
-	Ptr< TypeInfo >	_info;
+	void OnStringReq( ax_ToStringReq & req ) const {
+//		req << _info.name();
+	}
 };
 
 }} //namespace
@@ -78,6 +82,10 @@ public:
 template< typename T > 		 ax_TypeCode	ax_get_typecode();
 template< typename T > const ax_TypeInfo &	ax_get_typeinfo();
 
+template< typename T > inline
+ax::System::Type	ax_typeof( const T & p ) {
+	return ax::System::Type( ax_get_typeinfo<T>() );
+}
 
 #define ax_TYPE_LIST_ITEM( NAME, T ) \
 	extern	ax_TypeInfo		ax_TypeInfo_##NAME; \

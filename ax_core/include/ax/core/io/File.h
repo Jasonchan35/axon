@@ -12,7 +12,7 @@
 #include "../String/String.h"
 #include "../Array/Array.h"
 
-#include "../Object.h"
+#include "../base/Obj.h"
 #include "../Time/TimeStamp.h"
 
 namespace ax {
@@ -38,7 +38,7 @@ enum class FileShareMode {
 	ReadWrite,
 };
 
-typedef	Int64	FileSize;
+typedef	int64_t	FileSize;
 
 
 struct File : public StaticClass {
@@ -47,10 +47,10 @@ struct File : public StaticClass {
 	static	void		ReadAllTextToBuffer	( String  & buf, const String & filename );
 
 	static	StringA		ReadAllUtf8			( const String & filename );
-	static	void		ReadAllUtf8ToBuffer	( IStringA & buf, const String & filename );
+	static	void		ReadAllUtf8ToBuffer	( MutStringA & buf, const String & filename );
 
-	static	void		WriteAllText		( const String & filename, const String  & text );
-	static	void		WriteAllUtf8		( const String & filename, const IStringA & text );
+	static	void		WriteAllText		( const String & filename, const String     & text );
+	static	void		WriteAllUtf8		( const String & filename, const MutStringA & text );
 };
 
 

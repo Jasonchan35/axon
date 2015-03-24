@@ -51,6 +51,9 @@ private:
 
 typedef	AtomicNumber< ax_int >	RefCount;
 
+//typedef AtomicNumber< ax_int >	DebugEnumeratingCounter;
+typedef ax_int	DebugEnumeratingCounter;
+
 }} //namespace
 
 #endif

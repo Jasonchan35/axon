@@ -9,7 +9,7 @@
 #include <ax/core/base/Type.h>
 
 #define ax_TYPE_LIST_ITEM( NAME, T ) \
-	ax_TypeInfo		ax_TypeInfo_##NAME( ax_str(#NAME), ax_TypeCode::k_##NAME, nullptr, nullptr ); \
+	ax_TypeInfo		ax_TypeInfo_##NAME( ax_txt(#NAME), ax_TypeCode::k_##NAME, nullptr, nullptr ); \
 //----
 	ax_TYPE_LIST_all_int
 	ax_TYPE_LIST_all_uint
