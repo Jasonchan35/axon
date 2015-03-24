@@ -16,7 +16,7 @@ namespace Compile {
 
 class DeclarePass : public CompilePass {
 public:
-	void	process( SourceFile & srcFile );
+	void	process( ax_Obj< SourceFile > srcFile );
 
 private:
 	void	_process();

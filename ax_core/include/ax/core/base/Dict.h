@@ -160,7 +160,7 @@ public:
 	void	OnStringReq( ToStringReq & req ) const {
 		req << ax_txt("[");
 		ax_int i=0;
-		ax_foreach( auto & p, pairs() ) {
+		ax_foreach( & p, pairs() ) {
 			if( i>0 ) req << ax_txt(", ");
 			req << p.key() << ax_txt(":") << p.value;
 			i++;
@@ -329,7 +329,7 @@ private:
 	}
 
 	Pair*	_getPairFromList( HashList & list, ax_int hash, const KEY & key ) {
-		ax_foreach( auto & node, list ) {
+		ax_foreach( & node, list ) {
 			auto & p = node.pair();
 			if( p._hash != hash ) continue;
 			if( p._key  == key  ) return &p;
@@ -342,13 +342,13 @@ private:
 			throw Err_Undefined();
 		}
 
-		ax_foreach( auto & t, _table ) {
+		ax_foreach( & t, _table ) {
 			t.removeAll();
 		}
 		
 		_table.resize( n );
 		
-		ax_foreach( auto & p, _pairs ) {
+		ax_foreach( & p, _pairs ) {
 			auto & list = _table[ p._hash % n ];
 			list.append( &p._hashNode );
 		}		

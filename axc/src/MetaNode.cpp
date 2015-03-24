@@ -12,11 +12,12 @@
 namespace ax {
 namespace Compile {
 
-void MetaNode::init( MetaNode* parent, LexerPos & pos, const ax_string & name ) {
+void MetaNode::reset( ax_NullableObj< MetaNode > parent, LexerPos & pos, const ax_string & name ) {
 	this->parent = parent;
 	this->name	 = name;
-	if( parent ) {
-		parent->children->add( name, ax_as_obj( this ) );
+	
+	ax_if_let( p, parent ) {
+		p->children->add( name, ax_ThisObj );
 	}
 }
 
@@ -33,20 +34,20 @@ void MetaNode::OnStringReq( ax_ToStringReq & req ) const {
 	
 	req.indentLevel++;
 	
-	ax_foreach( auto & c, *children ) {
+	ax_foreach( & c, *children ) {
 		req << c;
 	}
 	req.indentLevel--;
 }
 
-Node_namespace::Node_namespace(  MetaNode* parent, LexerPos & pos, const ax_string & name ) {
-	base::init( parent, pos, name );
+Node_namespace::Node_namespace( ax_NullableObj< MetaNode > parent, LexerPos & pos, const ax_string & name ) {
+	base::reset( parent, pos, name );
 }
 
 ax_Obj< Node_namespace >	Node_namespace::getOrAddNamespace	( const ax_string & name, LexerPos & pos ) {
 
 	ax_if_not_let( p, children->tryGetValue( name ) ) {
-		return ax_new_obj( Node_namespace, this, pos, name );
+		return ax_new_obj( Node_namespace, ax_ThisObj, pos, name );
 	}
 
 	if( ! p->ax_is< Node_namespace >() ) {

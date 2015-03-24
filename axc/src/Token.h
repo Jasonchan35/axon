@@ -179,10 +179,10 @@ public:
 	bool	is_newLine_or_semiColon()	{ return is_newLine() || is_semiColon(); }
 	bool	is_operator	() { return Token_opPrec(type) > 0; }
 
-	TokenType			type;
-	ax_MutString_<>		str;
-	LexerPos			pos;
-	int					opPrec()	{ return Token_opPrec(type); }
+	TokenType	type;
+	ax_string	str;
+	LexerPos	pos;
+	int			opPrec()	{ return Token_opPrec(type); }
 	
 	bool		checkKeyword();
 	

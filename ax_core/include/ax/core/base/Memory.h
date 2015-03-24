@@ -12,7 +12,7 @@
 #include "Exception.h"
 
 
-#define	ax_new(  T, ... )			( ::new( ax::System::Memory::Alloc<T>(1) ) T(__VA_ARGS__) )
+#define	ax_new(  T, ... )			( ::new( ax::System::Memory::Alloc<T>(1) ) 			T(__VA_ARGS__) )
 #define	ax_new_uncollect(  T, ... )	( ::new( ax::System::Memory::AllocUncollect<T>(1) ) T(__VA_ARGS__) )
 
 #define ax_delete( p )				( ax::System::Memory::Delete(p) )

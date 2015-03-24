@@ -33,7 +33,7 @@
 #define ax_call_destructor(  T, p )			( p->~T() )
 
 
-#define ax_foreach( IT, LIST )	for( IT : (LIST).getEnumerator() )
+#define ax_foreach( IT, LIST )	for( auto IT : (LIST).getEnumerator() )
 
 // use for Nullable<T> / Weak<T>
 #define ax_if_let( VAR_NAME, RHS ) \

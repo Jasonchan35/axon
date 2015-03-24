@@ -11,12 +11,12 @@
 namespace ax {
 namespace Compile {
 
-void DeclarePass::process( SourceFile & sourceFile ) {
+void DeclarePass::process( ax_Obj< SourceFile > sourceFile ) {
 
-	ax_log( "compiling... [{?}]", sourceFile.filename );
+	ax_log( "compiling... [{?}]", sourceFile->filename );
 	
-	parser.init( sourceFile );
-	parser.lexer.c.pos.inNode = g_compiler->metadata.root.get();
+	parser.reset( sourceFile );
+	parser.lexer.c.pos.inNode = g_compiler->metadata.root;
 	
 	parser.nextToken();
 	_process();
@@ -57,9 +57,13 @@ void DeclarePass::parse_namespace() {
 
 	auto scope_inNode = ax_scope_value( pos.inNode );
 	
-	auto ns0 = pos.inNode->getUpperByType< Node_namespace >();
-	auto ns = *ns0.getValue();
-
+	ax_if_not_let( ns0, pos.inNode ) {
+		throw System::Err_Undefined();
+	}
+	
+	ax_if_not_let( ns, ns0->getUpperByType< Node_namespace >() ) {
+		throw System::Err_Undefined();
+	}
 	
 	for(;;) {
 		auto scope_ns = ax_scope_value( ns );		
@@ -76,7 +80,7 @@ void DeclarePass::parse_namespace() {
 				parser.nextToken();
 				continue;
 			}			
-			pos.inNode = ns.get();
+			pos.inNode = ns;
 			
 			break;
 		}

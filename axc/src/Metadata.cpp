@@ -15,7 +15,7 @@ Metadata::Metadata() {
 	root->name = ax_txt("<root>");
 }
 
-void Metadata::OnStringReq( ax_ToStringRequest & req ) const {
+void Metadata::OnStringReq( ax_ToStringReq & req ) const {
 	req << ax_txt("======= Metadata =======\n");
 	req << root;	
 	req << ax_txt("======= End Metadata =======\n");

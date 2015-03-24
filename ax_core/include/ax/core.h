@@ -24,4 +24,7 @@
 #include "core/io/FileStream.h"
 #include "core/io/Directory.h"
 
+#include "core/base/ScopeValue.h"
+#include "core/time/StopWatch.h"
+
 #endif

@@ -14,7 +14,7 @@
 #include "../string/String.h"
 
 #define	ax_new_obj( T, ... )	( ax::System::Obj<T>::_NewObject( ax_new(T,__VA_ARGS__) ) )
-#define ax_as_obj( p )			Obj_AsObj(p)
+#define ax_ThisObj				( ax::System::Obj_FromPtr(this) )
 
 #define ax_DefObject( T, BASE ) \
 	private:\
@@ -53,10 +53,16 @@ template< typename T >
 class Obj {
 public:
 	struct	ax_type_on_gc_trace : public std::true_type {};
-
-	Obj( T* p = nullptr ) : _p(p) { _checkIsObject(p); }
 	
-	Obj( const Obj<T> & rhs ) { _p = rhs._p; }
+	Obj	() : _p(nullptr) {}
+	Obj	( const Obj<T> & rhs ) { _p = ax_const_cast( rhs.ptr() ); }
+	
+	template< typename R >
+	Obj	( const Obj<R> & rhs ) { _p = ax_const_cast( rhs.ptr() ); }
+	
+	template< typename R >
+	void operator=	( const Obj<R> & rhs ) 	{ _p = ax_const_cast( rhs.ptr() ); }
+	
 	
 					T*	ptr()		{ return _p; }
 			const	T*	ptr() const	{ return _p; }
@@ -68,6 +74,7 @@ public:
 			const 	T*	operator->	() const	{ return  _p; }
 
 	static	Obj		_NewObject( T* p ) { Object_RegisterFinalizer(p); return Obj(p); }
+	static	Obj		_FromPtr( T* p )   { return Obj(p); }
 	
 	template< typename R >
 	void	OnStringReq( ToStringReq_<R> & req ) const {
@@ -77,7 +84,9 @@ public:
 			_p->OnStringReq(req);
 		}
 	}
+	
 private:
+	Obj( T* p ) : _p(p) { _checkIsObject(p); }
 
 	static void _checkIsObject( Object* p ) {}
 
@@ -85,8 +94,10 @@ private:
 };
 
 template< typename T > inline
-Obj<T>	Obj_AsObj( T* p ) { return Obj<T>(p); }
+Obj<T> Obj_FromPtr( T* p ) { return Obj<T>::_FromPtr(p); }
 
+
+template< typename T > using NullableObj = Nullable< Obj<T> >;
 
 }} //namespace
 

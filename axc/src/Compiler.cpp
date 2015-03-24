@@ -21,16 +21,16 @@ Compiler::Compiler() {
 void Compiler::loadAllSourceFiles() {
 	auto list = System::IO::Directory::GetFilesWithExtension( project_root, ax_txt(".ax"), true );
 
-	ax_foreach( & filename, list ) {
+	ax_foreach( & filename, *list ) {
 		auto ext		= System::IO::Path::GetExtension( filename );
 		
 		auto dir		= System::IO::Path::GetDirectoryName( filename );
 		auto basename	= System::IO::Path::GetFileName( filename, false );
 		ax_dump( dir, basename, ext );
 		
-		auto src = ax_make_obj( new SourceFile() );
+		auto src = ax_new_obj( SourceFile );
 		
-		sourceFiles->append( src );
+		sourceFiles.append( src );
 		src->loadFile( filename );
 		
 	}
@@ -40,7 +40,7 @@ void Compiler::declarePass() {
 	ax_foreach( & f, sourceFiles ) {
 //		ax_dump( f->filename );
 		DeclarePass	pass;
-		pass.process( *f );
+		pass.process( f );
 	}
 }
 

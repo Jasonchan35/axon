@@ -22,7 +22,9 @@ public:
 	Nullable( std::nullptr_t t ) {}
 
 	Nullable( const Nullable &  rhs ) 	{ operator=(rhs); }
-	Nullable( T v ) 					{ operator=( v ); }
+	
+	template< typename R >
+	Nullable( const R & v ) 			{ operator=( v ); }
 
 			T		get			( T defaultValue ) const 	{ return _p ? *_p : defaultValue; }
 			
@@ -53,7 +55,8 @@ public:
 		_p = nullptr;
 	}
 	
-	void operator=( const T& v ) {
+	template< typename R >
+	void operator=( const R & v ) {
 		if( _p ) {
 			*_p = v;
 		}else{
@@ -69,9 +72,9 @@ private:
 	char	_buf[ sizeof(T) ];
 };
 
-template< typename T > inline
-Nullable<T>	ax_make_nullable( const T & v ) { return Nullable<T>( v ); }
-
 }} //namespace
+
+template< typename T > inline
+ax_Nullable<T>	ax_make_nullable( const T & v ) { return ax_Nullable<T>( v ); }
 
 #endif

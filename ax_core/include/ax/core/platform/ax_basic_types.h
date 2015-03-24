@@ -18,18 +18,20 @@
 #define ax_MutStringX_		ax::System::MutStringX_
 
 #define ax_Obj				ax::System::Obj
-#define ax_Array			ax::System::Array
 #define	ax_Dict				ax::System::Dict
 
-#define ax_Nullable			ax::System::Nullable
+#define ax_Array			ax::System::Array
+#define ax_Array_			ax::System::Array_
 
+#define ax_Nullable			ax::System::Nullable
+#define ax_NullableObj		ax::System::NullableObj
 
 #define ax_ToStringReq		ax::System::ToStringReq
 
 #define ax_byte				uint8_t
 
 #define	ax_params			ax::System::Params
-#define	ax_ptr				ax::System::Ptr
+#define	ax_Ptr				ax::System::Ptr
 
 #define ax_Locked			ax::System::Locked
 

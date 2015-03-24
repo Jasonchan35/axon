@@ -226,6 +226,14 @@ protected:
 };
 
 
+template< typename T > inline
+StringX<T>::StringX( const MutStringX<T> & rhs )
+: _data(nullptr)
+, _size(0) {
+	_dup( rhs.c_str(), rhs.size() );
+}
+
+
 typedef	MutStringX< ax_char >	MutString;
 typedef MutStringX< char >		MutStringA;
 

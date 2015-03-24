@@ -17,7 +17,7 @@ Lexer::Cursor::Cursor( LexerPos & pos ) : pos(pos) {
 	ch = 0;
 }
 
-void Lexer::Cursor::init( ax_Obj< SourceFile > sourceFile ) {
+void Lexer::Cursor::reset( ax_Obj< SourceFile > sourceFile ) {
 	pos.valid = true;
 	pos.file = sourceFile;
 	pos.filePos = 0;
@@ -120,7 +120,7 @@ void	Lexer::_setToken( Token & token, TokenType type, const ax_string & str ) {
 
 void	Lexer::_getToken( Token & token ) {
 	token.type = TokenType::t_unknown;
-	token.str.clear();
+	token.str = ax_txt("");
 
 	c.trimSeperators();
 	token.pos = c.pos;
@@ -348,7 +348,7 @@ void	Lexer::_getToken( Token & token ) {
 		
 		// char
 		case '\'': {
-			ax_string	tmp;
+			ax_MutString_<>	tmp;
 			c++;
 			for( ; c; c++ ) {
 				if( c == '\\' ) {
@@ -379,7 +379,7 @@ void	Lexer::_getToken( Token & token ) {
 	if( c.isDigit() ) return _getToken_number( token, false );
 
 	if( c.isAlpha() || c == '_' ) {
-		ax_string	tmp;
+		ax_MutString_<>	tmp;
 		for( ; c; c++ ) {
 			if( c.isAlpha() || c.isDigit() || c == '_' ) {
 				tmp.append(c);

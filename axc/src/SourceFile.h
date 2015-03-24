@@ -17,6 +17,7 @@ namespace Compile {
 class SourceFile : public System::Object {
 	ax_DefObject( SourceFile, System::Object );
 public:
+	struct	ax_type_on_gc_trace : public std::true_type {};
 
 	void	loadFile( const ax_string & filename );
 

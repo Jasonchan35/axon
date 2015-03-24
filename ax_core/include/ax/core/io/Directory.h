@@ -20,12 +20,12 @@ struct Directory : StaticClass {
 	static	String	GetCurrent();
 	static	void	SetCurrent( const String & path );
 
-	static	Array< String >	GetFiles				( const String & path, bool  recursively = false );
-	static	Array< String >	GetFilesWithExtension	( const String & path, const String & file_ext, bool recursively = false );
-	static	Array< String >	GetDirectories			( const String & path, bool  recursively = false );
-	static	Array< String >	GetFileSystemEntries	( const String & path, bool  recursively = false );
+	static	Obj< Array< String > >	GetFiles				( const String & path, bool  recursively = false );
+	static	Obj< Array< String > >	GetFilesWithExtension	( const String & path, const String & file_ext, bool recursively = false );
+	static	Obj< Array< String > >	GetDirectories			( const String & path, bool  recursively = false );
+	static	Obj< Array< String > >	GetFileSystemEntries	( const String & path, bool  recursively = false );
 	
-	static	Array< String > & GetFileSystemEntries (  Array< String > & buf, const String & path, bool recursively = false, bool need_file=true, bool need_dir=true );
+	static	void GetFileSystemEntries (  Array< String > & buf, const String & path, bool recursively = false, bool need_file=true, bool need_dir=true );
 
 };
 

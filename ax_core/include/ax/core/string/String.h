@@ -17,6 +17,7 @@
 namespace ax {
 namespace System {
 
+template< typename T > class MutStringX;
 
 #define ax_txt8( sz )	( ax::System::StringX<char>    ::MakeExternal( u8##sz, sizeof( u8##sz ) / sizeof(char)     -1 ) )
 #define ax_txt16( sz )	( ax::System::StringX<char16_t>::MakeExternal(  u##sz, sizeof(  u##sz ) / sizeof(char16_t) -1 ) )
@@ -27,6 +28,8 @@ namespace System {
 template< typename T >
 class StringX /* copyable */{
 public:
+	StringX() : _data(nullptr), _size(0) {}
+	StringX( const MutStringX<T> & rhs ); // function body in MutString.h
 
 	ax_ALWAYS_INLINE(	const T &	operator[]	( ax_int  i ) const	) { return at(i); }
 	ax_ALWAYS_INLINE(	const T &	at			( ax_int  i ) const	) { _checkBound(i); 	  return _data[i]; }
@@ -58,13 +61,9 @@ public:
 	
 	static	StringX	Make_c_str ( const T* sz ) 	{ return Make( sz, ax_strlen(sz) ); }
 	static	StringX	Make ( const T* sz, ax_int len ) {
-		if( ! sz || len == 0 ) return StringX();
-		
-		auto p = Memory::Alloc<T>( len + 1 );
-		ArrayUtility::Copy( p, sz, len );
-		p[len] = 0;
-		
-		return StringX(p,len);
+		StringX	o;
+		o._dup( sz, len );
+		return o;
 	}
 	
 	static	StringX	MakeExternal_c_str( const T* sz ) { return MakeExternal(sz, ax_strlen(sz)); }
@@ -74,14 +73,25 @@ public:
 	
 	ax_int	GetHash() const { return ax_c_str_hash(_data); }
 	
-	StringX() : _data(nullptr), _size(0) {}
-
 protected:
 
 	const T*	_data;
 	ax_int		_size;
 
 	StringX( const T* sz, ax_int size ) : _data(sz),_size(size) {}
+	
+	void	_dup( const T* sz, ax_int len ) {
+		if( ! sz || len == 0 ) {
+			_data = nullptr;
+			_size = 0;
+		}else{
+			auto p = Memory::Alloc<T>( len + 1 );
+			ArrayUtility::Copy( p, sz, len );
+			p[len] = 0;
+			_data = p;
+			_size = len;
+		}
+	}
 
 	ax_ALWAYS_INLINE( void 	_checkBound			( ax_int i ) const ) { if( ! inBound(i) ) throw Err_Array_OutOfRange(); }
 	ax_ALWAYS_INLINE( void	_debug_checkBound	( ax_int i ) const ) {
