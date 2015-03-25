@@ -16,7 +16,7 @@ template< typename T >
 StringX<T> StringFormat_<T>::ToString_Params( const StringX<T> & fmt, const Params< StringFormatArg_<T> > & args ) {
 	TempString_<T>	tmp;
 	AppendToBuffer_Params( tmp, fmt, args );
-	return tmp.to_String();
+	return tmp.to_StringX();
 }
 
 template< typename T >

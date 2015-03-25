@@ -32,7 +32,7 @@ void File::Remove	( const ax_string & filename ) {
 
 	auto ret = ::remove( tmp.c_str() );
 	if( ret != 0 ) {
-		throw Exception::ErrUndefined();
+		throw Err_Undefined();
 	}
 }
 
@@ -52,7 +52,7 @@ void File::Rename	( const ax_string & old_name, const ax_string & new_name ) {
 
 	auto ret = ::rename( old_name_.c_str(), new_name_.c_str() );
 	if( ret != 0 ) {
-		throw Exception::ErrUndefined();
+		throw Err_Undefined();
 	}
 }
 
@@ -63,37 +63,37 @@ void File::Rename	( const ax_string & old_name, const ax_string & new_name ) {
 #pragma mark ================= Common ====================
 #endif
 
-String	File::ReadText			( const IString & filename ) {
-	String	buf;
-	ReadTextToBuffer( buf, filename );
-	return buf;
+String	File::ReadText			( const ax_string & filename ) {
+	FileStream	s;
+	s.openRead( filename );
+	return s.readAllText();
 }
 
-void	File::ReadTextToBuffer	( IString & buf, const IString & filename ) {
+void	File::ReadTextToBuffer	( MutString & buf, const ax_string & filename ) {
 	FileStream	s;
 	s.openRead( filename );
 	s.readAllTextToBuffer( buf );
 }
 
-StringA	File::ReadUtf8			( const IString & filename ) {
-	StringA	buf;
-	ReadUtf8ToBuffer( buf, filename );
-	return buf;
+StringA	File::ReadUtf8			( const ax_string & filename ) {
+	FileStream	s;
+	s.openRead( filename );
+	return s.readAllUtf8();
 }
 
-void	File::ReadUtf8ToBuffer	( IStringA & buf, const IString & filename ) {
+void	File::ReadUtf8ToBuffer	( MutStringA & buf, const ax_string & filename ) {
 	FileStream	s;
 	s.openRead( filename );
 	s.readAllUtf8ToBuffer( buf );
 }
 
-void	File::WriteText		( const IString & filename, const IString & text ) {
+void	File::WriteText		( const ax_string & filename, const ax_string & text ) {
 	FileStream	s;
 	s.openWrite( filename, true );
 	s.writeText( text );
 }
 
-void	File::WriteUtf8		( const IString & filename, const IStringA & text ) {
+void	File::WriteUtf8		( const ax_string & filename, const ax_string & text ) {
 	FileStream	s;
 	s.openWrite( filename, true );
 	s.writeUtf8( text );

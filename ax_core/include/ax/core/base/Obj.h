@@ -23,6 +23,7 @@
 	public: \
 		typedef	T			THIS_CLASS; \
 		static const ax_TypeInfo	ax_typeinfo; \
+		virtual	const ax_TypeInfo	getTypeInfo() const { return ax_typeinfo; } \
 	private: \
 //-------------
 
@@ -39,13 +40,20 @@ template< typename T > class Obj;
 class Object : public NonCopyable {
 public:
 	static	const ax_TypeInfo	ax_typeinfo;
+	virtual	const ax_TypeInfo	getTypeInfo() const { return ax_typeinfo; }
 
+//----------
 	virtual	~Object() {
 	}
 	
+	template< typename R >	bool				ax_is	() {
+		auto s = getTypeInfo();
+		auto d = ax_get_typeinfo<R>();
+		return s.isTypeOf( d );
+	}
+
 	template< typename R >	Nullable< Obj<R> >	ax_as	();
 	template< typename R >	Obj<R>				ax_cast	();
-	template< typename R >	bool				ax_is	();
 };
 
 inline void Object_OnFinalize( void* obj, void* clientData ) {
@@ -75,11 +83,11 @@ public:
 					T*	ptr()		{ return _p; }
 			const	T*	ptr() const	{ return _p; }
 
-					T&	operator*	() 			{ return *_p; }
-			const 	T&	operator*	() const	{ return *_p; }
+					T&	operator*	() 			{ _checkNull(); return *_p; }
+			const 	T&	operator*	() const	{ _checkNull(); return *_p; }
 
-					T*	operator->	() 			{ return  _p; }
-			const 	T*	operator->	() const	{ return  _p; }
+					T*	operator->	() 			{ _checkNull(); return  _p; }
+			const 	T*	operator->	() const	{ _checkNull(); return  _p; }
 
 	static	Obj		_NewObject( T* p ) { Object_RegisterFinalizer(p); return Obj(p); }
 	static	Obj		_FromPtr( T* p )   { return Obj(p); }
@@ -96,7 +104,10 @@ public:
 private:
 	Obj( T* p ) : _p(p) { _checkIsObject(p); }
 
+	void	_checkNull() const { if( _p == nullptr ) throw Err_Undefined(); }
+
 	static void _checkIsObject( Object* p ) {}
+	
 
 	T*	_p;
 };
@@ -106,6 +117,20 @@ Obj<T> Obj_FromPtr( T* p ) { return Obj<T>::_FromPtr(p); }
 
 
 template< typename T > using NullableObj = Nullable< Obj<T> >;
+
+
+template< typename R >	inline
+Nullable< Obj<R> >	Object::ax_as	() {
+	if( ! ax_is<R>() ) return nullptr;
+	return Obj_FromPtr( reinterpret_cast<R*>( this ) );
+}
+
+template< typename R >	inline
+Obj<R>		Object::ax_cast	() {
+	if( ! ax_is<R>() ) throw Err_Undefined();
+	return Obj_FromPtr( reinterpret_cast<R*>( this ) );
+}
+
 
 }} //namespace
 

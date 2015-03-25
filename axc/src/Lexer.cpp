@@ -260,7 +260,7 @@ void	Lexer::_getToken( Token & token ) {
 				}
 				c++;
 				
-				return _setToken( token, TokenType::t_comment, tmp );
+				return _setToken( token, TokenType::t_comment, tmp.to_string() );
 			}
 			
 			if( c == '=' ) { c++; return _setToken( token, TokenType::t_divAssign, ax_txt("/=") ); }
@@ -343,7 +343,7 @@ void	Lexer::_getToken( Token & token ) {
 			}
 			c++;
 			
-			return _setToken( token, TokenType::t_stringLiteral, tmp );
+			return _setToken( token, TokenType::t_stringLiteral, tmp.to_string() );
 		}break;
 		
 		// char
@@ -365,7 +365,7 @@ void	Lexer::_getToken( Token & token ) {
 				tmp.append(c);		
 			}
 			c++;
-			return _setToken( token, TokenType::t_charLiteral, tmp );
+			return _setToken( token, TokenType::t_charLiteral, tmp.to_string() );
 		}break;
 		
 		case '.': {
@@ -379,7 +379,7 @@ void	Lexer::_getToken( Token & token ) {
 	if( c.isDigit() ) return _getToken_number( token, false );
 
 	if( c.isAlpha() || c == '_' ) {
-		ax_MutString_<>	tmp;
+		ax_TempString	tmp;
 		for( ; c; c++ ) {
 			if( c.isAlpha() || c.isDigit() || c == '_' ) {
 				tmp.append(c);
@@ -388,7 +388,7 @@ void	Lexer::_getToken( Token & token ) {
 			}
 		}
 		
-		_setToken( token, TokenType::t_identifier, tmp );
+		_setToken( token, TokenType::t_identifier, tmp.to_string() );
 		token.checkKeyword();
 		return;
 	}
@@ -481,7 +481,7 @@ void Lexer::_getToken_number( Token & token, bool dot ) {
 		tmp.append(c);
 	}
 	
-	return _setToken( token, TokenType::t_number, tmp );
+	return _setToken( token, TokenType::t_number, tmp.to_string() );
 }
 
 void	Lexer::nextToken() {

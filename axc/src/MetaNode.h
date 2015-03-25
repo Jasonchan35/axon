@@ -19,7 +19,7 @@ class MetaNode : public System::Object {
 	ax_DefObject( MetaNode, System::Object )
 public:
 
-	void reset( ax_NullableObj< MetaNode > parent, LexerPos & pos, const ax_string & name );
+	MetaNode( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name );
 
 	template< typename T >
 	ax_NullableObj<T>	getUpperByType	() {
@@ -39,9 +39,11 @@ public:
 
 
 	ax_string			name;
+	LexerPos			pos;
 
 	ax_NullableObj< MetaNode >	parent;
-	ax_Obj< ax_Dict< ax_string, ax_Obj< MetaNode > > >	children;
+	
+	ax_DictObj< ax_string, ax_Obj< MetaNode > >		children;
 	
 	virtual void OnStringReq( ax_ToStringReq & req ) const;
 };
@@ -51,7 +53,7 @@ class Node_namespace : public MetaNode {
 public:
 	struct	ax_type_on_gc_trace : public std::true_type {};
 
-	Node_namespace( ax_NullableObj< MetaNode > parent, LexerPos & pos, const ax_string & name );
+	Node_namespace( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name );
 
 	ax_Obj< Node_namespace > getOrAddNamespace	( const ax_string & name, LexerPos & pos );
 };

@@ -20,13 +20,16 @@ struct Directory : StaticClass {
 	static	String	GetCurrent();
 	static	void	SetCurrent( const String & path );
 
-	static	Obj< Array< String > >	GetFiles				( const String & path, bool  recursively = false );
-	static	Obj< Array< String > >	GetFilesWithExtension	( const String & path, const String & file_ext, bool recursively = false );
-	static	Obj< Array< String > >	GetDirectories			( const String & path, bool  recursively = false );
-	static	Obj< Array< String > >	GetFileSystemEntries	( const String & path, bool  recursively = false );
-	
-	static	void GetFileSystemEntries (  Array< String > & buf, const String & path, bool recursively = false, bool need_file=true, bool need_dir=true );
+	static	ArrayObj< String >	GetFileSystemEntries	( const String & path, bool sub_directory, bool hidden_file, const String & file_ext = ax_txt("") );
 
+	static	ArrayObj< String >	GetFiles				( const String & path, bool sub_directory, bool hidden_file, const String & file_ext = ax_txt("") );
+	static	ArrayObj< String >	GetDirectories			( const String & path, bool sub_directory, bool hidden_file );
+	
+	static	bool	Exists			( const String & path );
+	static	void	Create			( const String & path, bool sub_directory = true );
+	static	void	Remove			( const String & path, bool sub_directory );
+	static	void	RemoveIfExists	( const String & path, bool sub_directory );
+	
 };
 
 }}} //namespace

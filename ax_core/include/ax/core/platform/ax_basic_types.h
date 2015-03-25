@@ -19,9 +19,11 @@
 
 #define ax_Obj				ax::System::Obj
 #define	ax_Dict				ax::System::Dict
+#define ax_DictObj			ax::System::DictObj
 
 #define ax_Array			ax::System::Array
 #define ax_Array_			ax::System::Array_
+#define ax_ArrayObj			ax::System::ArrayObj
 
 #define ax_Nullable			ax::System::Nullable
 #define ax_NullableObj		ax::System::NullableObj
@@ -203,7 +205,6 @@ template< typename T > constexpr	T 		ax_type_default_value	();
 template< typename T > constexpr	ax_int	ax_type_fp_precision	();
 template< typename T > constexpr	bool	ax_type_is_pod			();
 
-
 template< typename A, typename B > inline constexpr bool ax_type_is_base_of	() 	{ return std::is_base_of<A,B>(); }
 template< typename A, typename B > inline constexpr bool ax_type_is_same	()	{ return std::is_same<A,B>(); }
 
@@ -228,6 +229,17 @@ template< typename T > 	struct	ax_type_gc_trace< T* > 					: public std::true_ty
 template< typename T > 	struct	ax_type_gc_trace< T* const > 			: public std::true_type {};
 template< typename T > 	struct	ax_type_gc_trace< T* volatile > 		: public std::true_type {};
 template< typename T > 	struct	ax_type_gc_trace< T* const volatile > 	: public std::true_type {};
+
+
+inline	uint8_t		ax_type_to_unsigned( int8_t  v ) { return static_cast<uint8_t >(v); }
+inline	uint16_t	ax_type_to_unsigned( int16_t v ) { return static_cast<uint16_t>(v); }
+inline	uint32_t	ax_type_to_unsigned( int32_t v ) { return static_cast<uint32_t>(v); }
+inline	uint64_t	ax_type_to_unsigned( int64_t v ) { return static_cast<uint64_t>(v); }
+
+inline	int8_t		ax_type_to_signed( uint8_t  v ) { return static_cast<int8_t >(v); }
+inline	int16_t		ax_type_to_signed( uint16_t v ) { return static_cast<int16_t>(v); }
+inline	int32_t		ax_type_to_signed( uint32_t v ) { return static_cast<int32_t>(v); }
+inline	int64_t		ax_type_to_signed( uint64_t v ) { return static_cast<int64_t>(v); }
 
 
 #define	ax_TYPE_LIST_ITEM( NAME, T )	\

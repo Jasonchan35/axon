@@ -78,7 +78,11 @@ public:
 }} //namespace
 
 template< typename T > 		 ax_TypeCode	ax_get_typecode();
-template< typename T > const ax_TypeInfo &	ax_get_typeinfo();
+
+template< typename T > inline
+const ax_TypeInfo &	ax_get_typeinfo() {
+	return T::ax_typeinfo;
+}
 
 template< typename T > inline
 ax::System::Type	ax_typeof() {

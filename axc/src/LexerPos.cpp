@@ -26,9 +26,9 @@ ax_string LexerPos::getSourceLine () const {
 	auto p = file_->source.c_str( lineStartPos );
 	auto e = ax_strchr( p, '\n' );
 	if( e ) {
-		return ax_string::Make( p, e-p );
+		return ax_string::Clone( p, e-p );
 	}else{
-		return ax_string::Make_c_str( p );
+		return ax_string::Clone_c_str( p );
 	}
 }
 
@@ -65,7 +65,7 @@ ax_string LexerPos::dumpSourceLine() const {
 	}
 	
 	ax_format_to_buffer( buf, "\n Source: {?}\n --------{?}\n   File: {?}:{?},{?}\n", sourceLine, arrow, filename, line, col );
-	return buf.to_String();
+	return buf.to_string();
 }
 
 }} //namespace

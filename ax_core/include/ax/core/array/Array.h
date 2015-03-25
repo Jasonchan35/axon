@@ -21,6 +21,7 @@ class Array : public Object {
 	typedef	Object		base;
 	typedef Array<T>	THIS_CLASS;
 public:
+	struct	ax_type_on_gc_trace : public std::true_type {};
 
 	Array() : _data(nullptr), _size(0), _capacity(0) {}
 	virtual ~Array() {}
@@ -155,8 +156,8 @@ protected:
 		}else{
 			auto s = base::size();
 			auto n = ax_max( s + s/2, req_size ); //auto resize to 1.5x times
-
 			auto p =  Memory::AllocUncollect<T>( n );
+			out_capacity = n;
 			return p;
 		}
 	}
@@ -174,7 +175,10 @@ protected:
 
 };
 
+template< typename T > using ArrayObj = Obj< Array<T> >;
+
 typedef	Array< ax_byte >	ByteArray;
+typedef ArrayObj< ax_byte >	ByteArrayObj;
 
 
 

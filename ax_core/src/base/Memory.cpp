@@ -15,7 +15,7 @@ namespace ax {
 namespace System {
 
 Memory::Init::Init() {
-	std::cout << "GC_INIT";
+	std::cout << "GC_INIT\n";
 	GC_INIT();
 	GC_enable_incremental(); // Incremental/Generational Collection
 }

@@ -11,9 +11,11 @@
 namespace ax {
 namespace Compile {
 
+ax_ImplObject( SourceFile );
+
 void SourceFile::loadFile( const ax_string & filename ) {
 	this->filename = filename;
-	this->source = System::IO::File::ReadAllText( filename );
+	this->source = System::IO::File::ReadText( filename );
 }
 
 }} //namespace

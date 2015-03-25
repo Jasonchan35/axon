@@ -20,7 +20,7 @@ int main() {
 	System::IO::Directory::SetCurrent( changeDir );
 
 	ax::Compile::Compiler	c;
-	c.compile( ax_txt("../../../../example/src/test003") );
+	c.compile( ax_txt("../example/test001") );
 
 	return 0;
 }

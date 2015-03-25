@@ -19,7 +19,7 @@ Compiler::Compiler() {
 }
 
 void Compiler::loadAllSourceFiles() {
-	auto list = System::IO::Directory::GetFilesWithExtension( project_root, ax_txt(".ax"), true );
+	auto list = System::IO::Directory::GetFiles( project_root, true, false, ax_txt(".ax") );
 
 	ax_foreach( & filename, *list ) {
 		auto ext		= System::IO::Path::GetExtension( filename );

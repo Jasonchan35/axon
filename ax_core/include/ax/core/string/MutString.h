@@ -24,6 +24,8 @@ template< typename T >
 class MutStringX : public Object {
 	typedef	StringX<T>		base;
 public:
+	struct	ax_type_on_gc_trace : public std::true_type {};
+
 	virtual	~MutStringX() {}
 
 	ax_ALWAYS_INLINE(  void	clear()		);
@@ -126,7 +128,9 @@ public:
 	
 	ax_int	GetHash() const { return ax_c_str_hash(_data); }
 	
-	StringX<T>	to_String() { return StringX<T>::Make( c_str(), size() ); }
+	StringX<T>	to_StringX() 	{ return StringX<T>::Clone( c_str(), size() ); }
+	
+	String		to_string()		{ return String::CloneUtf( c_str(), size() ); }
 	
 	template< typename R >
 	ax_ALWAYS_INLINE(	void	OnStringReq( ToStringReq_<R> & req ) const );
@@ -210,6 +214,7 @@ protected:
 			auto s = base::size();
 			auto n = ax_max( s + s/2, req_size ); //auto resize to 1.5x times
 			auto p = Memory::AllocUncollect<T>( n );
+			out_capacity = n;
 			return p;
 		}
 	}
@@ -225,15 +230,6 @@ protected:
 	}
 };
 
-
-template< typename T > inline
-StringX<T>::StringX( const MutStringX<T> & rhs )
-: _data(nullptr)
-, _size(0) {
-	_dup( rhs.c_str(), rhs.size() );
-}
-
-
 typedef	MutStringX< ax_char >	MutString;
 typedef MutStringX< char >		MutStringA;
 
@@ -241,6 +237,10 @@ template< ax_int LOCAL_BUF_SIZE = MutString_default_LOCAL_BUF_SIZE > using MutSt
 
 template< typename T >	using TempString_ = MutStringX_<T,256>;
 typedef	TempString_< ax_char >	TempString;
+
+typedef	TempString_< char >		TempStringA;
+typedef	TempString_< wchar_t >	TempStringW;
+
 
 //-----------
 template< typename T > inline

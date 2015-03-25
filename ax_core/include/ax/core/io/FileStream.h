@@ -56,12 +56,16 @@ public:
 		
 	void		writeText		( const String  & s );
 	void		writeUtf8		( const StringA & s );
+		
+	//! read all bytes to end of file
+	ax_Obj< ByteArray >	reallAllBytes();
+			void		readAllBytesToBuffer( ByteArray    & buf );
 	
-	void		write_c_str		( const char* sz );
-	
-	void		readAllBytesToBuffer( ByteArray    & buf );
 	void		readAllTextToBuffer	( MutString    & buf );
 	void		readAllUtf8ToBuffer	( MutStringA   & buf );
+	
+	String		readAllText();
+	StringA		readAllUtf8();
 	
 	void		flush			();
 

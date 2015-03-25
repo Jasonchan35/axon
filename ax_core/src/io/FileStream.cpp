@@ -7,6 +7,7 @@
 //
 
 #include <ax/core/io/FileStream.h>
+#include <ax/core/string/UtfConverter.h>
 
 #if ax_OS_Unix
 	#include <sys/stat.h>
@@ -15,6 +16,8 @@
 namespace ax {
 namespace System {
 namespace IO {
+
+ax_ImplObject( FileStream );
 
 #if 0
 #pragma mark ================= Common ====================
@@ -28,31 +31,62 @@ void FileStream::_handleCheck() const {
 	if( ! isOpened() ) throw Err_File_Handle();
 }
 
-void FileStream::readAllUtf8ToBuffer	( IStringA & buf ) {
+String		FileStream::readAllText() {
+#if ax_char_define_type == 'a'
+	return readAllUtf8();
+#else
+
+	MutString	buf;
+	readAllText( buf );	
+	return buf.to_string();
+
+#endif
+}
+
+StringA		FileStream::readAllUtf8() {
 	_handleCheck();
 	
 	FileSize cur = getPos();
-	
 	FileSize file_size = getFileSize();
 	
-	Int size;
-	if( ! ax_safe_assign( size, file_size ) ) throw Err_Undefined();
-
-	auto dst = buf.beginChange( size );
+	ax_int remain;
+	if( ! ax_safe_assign( remain, file_size - cur ) ) throw Err_Undefined();
 
 	try{
+		auto buf = StringA::AllocBuffer( remain );
+				
+		readBytes( buf, remain );
+		
+		return StringA::MakeExternal( buf, remain );
+
+	}catch(...) {
+		throw;
+	}
+}
+
+void FileStream::readAllUtf8ToBuffer	( MutStringA & buf ) {
+	_handleCheck();
+	
+	FileSize cur = getPos();
+	FileSize file_size = getFileSize();
+	
+	ax_int size;
+	if( ! ax_safe_assign( size, file_size ) ) throw Err_Undefined();
+
+	try{
+		buf.resize( size );
+				
 		setPos( 0 );
-		readBytes( dst, size );
+		readBytes( buf.dataPtr(), size );
 		setPos( cur );
 
-		buf.endChange( size );
 	}catch(...) {
 		buf.clear();
 		throw;
 	}
 }
 
-void FileStream::readAllTextToBuffer	( IString & buf ) {
+void FileStream::readAllTextToBuffer	( MutString & buf ) {
 #if ax_char_define_type == 'a'
 	readAllUtf8ToBuffer( buf );
 #else
@@ -62,7 +96,7 @@ void FileStream::readAllTextToBuffer	( IString & buf ) {
 #endif
 }
 
-void FileStream::writeText ( const IString & buf ) {
+void FileStream::writeText ( const String & buf ) {
 #if ax_char_define_type == 'a'
 	writeUtf8( buf );
 #else
@@ -72,16 +106,16 @@ void FileStream::writeText ( const IString & buf ) {
 #endif
 }
 
-void FileStream::writeUtf8 ( const IStringA & buf ) {
-	writeBytes( buf.dataPtr(), buf.size() );
+void FileStream::writeUtf8 ( const StringA & buf ) {
+	writeBytes( buf.c_str(), buf.size() );
 }
 
-void FileStream::readAllBytesToBuffer	( IByteArray & buf ) {
+void FileStream::readAllBytesToBuffer	( ByteArray & buf ) {
 	FileSize cur = getPos();
 	
 	FileSize	filesize = getFileSize();
-	Int size;
-	if( ! ax_safe_assign( size, filesize ) ) throw Exception::ErrUndefined();
+	ax_int size;
+	if( ! ax_safe_assign( size, filesize ) ) throw Err_Undefined();
 	
 	buf.resize( size );
 	
@@ -119,13 +153,13 @@ void FileStream::close() {
 
 void FileStream::flush () {
 	int b = fsync( h_ );
-	if( b != 0 ) throw Exception::ErrUndefined();
+	if( b != 0 ) throw Err_Undefined();
 }
 
 Time::Timestamp	FileStream::creationTime	( ) {
 	_handleCheck();
 	 struct stat info;
-	if( 0 != fstat( h_, &info ) ) throw Exception::ErrUndefined();
+	if( 0 != fstat( h_, &info ) ) throw Err_Undefined();
 	Time::Timestamp t;
 	t.set_timespec( info.st_birthtimespec );
 	return t;
@@ -134,7 +168,7 @@ Time::Timestamp	FileStream::creationTime	( ) {
 Time::Timestamp	FileStream::lastAccessTime 	() {
 	_handleCheck();
 	struct stat info;
-	if( 0 != fstat( h_, &info ) ) throw Exception::ErrUndefined();
+	if( 0 != fstat( h_, &info ) ) throw Err_Undefined();
 	Time::Timestamp t;
 	t.set_timespec( info.st_atimespec );
 	return t;
@@ -143,7 +177,7 @@ Time::Timestamp	FileStream::lastAccessTime 	() {
 Time::Timestamp	FileStream::lastWriteTime	( ) {
 	_handleCheck();
 	 struct stat info;
-	if( 0 != fstat( h_, &info ) ) throw Exception::ErrUndefined();
+	if( 0 != fstat( h_, &info ) ) throw Err_Undefined();
 	Time::Timestamp t;
 	t.set_timespec( info.st_mtimespec );
 	return t;
@@ -152,7 +186,7 @@ Time::Timestamp	FileStream::lastWriteTime	( ) {
 Time::Timestamp	FileStream::lastStatusChangeTime ( ) {
 	_handleCheck();
 	 struct stat info;
-	if( 0 != fstat( h_, &info ) ) throw Exception::ErrUndefined();
+	if( 0 != fstat( h_, &info ) ) throw Err_Undefined();
 	Time::Timestamp t;
 	t.set_timespec( info.st_ctimespec );
 	return t;
@@ -161,26 +195,26 @@ Time::Timestamp	FileStream::lastStatusChangeTime ( ) {
 void FileStream::setPos		( FileSize  n ) {
 	_handleCheck();
 	off_t ret = lseek( h_, n, SEEK_SET );
-	if( ret == -1 ) throw Exception::ErrUndefined();
+	if( ret == -1 ) throw Err_Undefined();
 }
 
 void FileStream::advPos		( FileSize  n ) {
 	_handleCheck();
 	off_t ret = lseek( h_, n, SEEK_CUR );
-	if( ret == -1 ) throw Exception::ErrUndefined();
+	if( ret == -1 ) throw Err_Undefined();
 }
 
 void FileStream::setPosEnd	( FileSize  n ) {
 	_handleCheck();
 	off_t ret = lseek( h_, n, SEEK_END );
-	if( ret == -1 ) throw Exception::ErrUndefined();
+	if( ret == -1 ) throw Err_Undefined();
 }
 
 FileSize FileStream::getPos () {
 	_handleCheck();
 	FileSize n = 0;
 	off_t ret = lseek( h_, n, SEEK_SET );
-	if( ret == -1 ) throw Exception::ErrUndefined();
+	if( ret == -1 ) throw Err_Undefined();
 	return FileSize( ret );
 }
 
@@ -190,10 +224,10 @@ FileSize FileStream::getFileSize() {
 	
 	off_t curr, r; 
 	
-	curr = lseek( h_, 0, SEEK_CUR );	if( curr == -1 ) throw Exception::ErrUndefined();
-	r = lseek( h_, 0, SEEK_END );		if( r == -1 ) throw Exception::ErrUndefined();
+	curr = lseek( h_, 0, SEEK_CUR );	if( curr == -1 ) throw Err_Undefined();
+	r = lseek( h_, 0, SEEK_END );		if( r == -1 ) throw Err_Undefined();
 	out = r;
-	r = lseek( h_, curr, SEEK_SET );	if( r == -1 ) throw Exception::ErrUndefined();
+	r = lseek( h_, curr, SEEK_SET );	if( r == -1 ) throw Err_Undefined();
 	
 	return FileSize( out );
 }
@@ -204,29 +238,29 @@ void FileStream::setFileSize( FileSize newSize ) {
 	FileSize	oldPos = getPos();
 	
 	off_t o = newSize;
-	if( 0 != ftruncate( h_, o ) ) throw Exception::ErrUndefined();
+	if( 0 != ftruncate( h_, o ) ) throw Err_Undefined();
 	
 	if( oldPos < newSize ) setPos( oldPos );
 }
 
-void FileStream::readBytes ( void* buf, Int byteSize ) {
+void FileStream::readBytes ( void* buf, ax_int byteSize ) {
 	_handleCheck();
 	
 	if( byteSize == 0 ) return;
 	auto ret = ::read( h_, buf, byteSize );
-	if( ret == -1 ) throw Exception::ErrUndefined();
+	if( ret == -1 ) throw Err_Undefined();
 }
 
-void FileStream::writeBytes		( const void* buf, Int byteSize ) {
+void FileStream::writeBytes		( const void* buf, ax_int byteSize ) {
 	_handleCheck();
 	
 	if( byteSize == 0 ) return;
 	auto ret = ::write( h_, buf, byteSize );
-	if( ret == -1 ) throw Exception::ErrUndefined();
+	if( ret == -1 ) throw Err_Undefined();
 }
 
 //----- open file
-void FileStream::_os_open( const IString & filename, int access_flag ) {
+void FileStream::_os_open( const String & filename, int access_flag ) {
 	close();
 #if axOS_Linux
 	access_flag |= O_LARGEFILE;
@@ -237,16 +271,16 @@ void FileStream::_os_open( const IString & filename, int access_flag ) {
 	h_ = ::open( filenameA.c_str(), access_flag, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH );
 	if( h_ == -1 ) {
 		switch( errno ) {
-			case EACCES: throw Exception::ErrFile_AccessDenied();
-			case EEXIST: throw Exception::ErrFile_AlreadyExists();
-			case ENFILE: throw Exception::ErrFile_OpenTooManyFiles();
-			case EMFILE: throw Exception::ErrFile_OpenTooManyFiles();
-			default:	 throw Exception::ErrFile_OpenError();
+			case EACCES: throw Err_File_AccessDenied();
+			case EEXIST: throw Err_File_AlreadyExists();
+			case ENFILE: throw Err_File_OpenTooManyFiles();
+			case EMFILE: throw Err_File_OpenTooManyFiles();
+			default:	 throw Err_File_OpenError();
 		}
 	}
 }
 
-void FileStream::open ( const IString & filename, FileMode mode, FileAccess access, FileShareMode share ) {
+void FileStream::open ( const String & filename, FileMode mode, FileAccess access, FileShareMode share ) {
 	int access_flag = 0;
 	
 	switch( mode ) {
@@ -278,9 +312,9 @@ bool	FileStream::_os_lock( int flags ) {
 
 void	FileStream::lock( bool exclusive ) {
 	if( exclusive ) {
-		if( ! _os_lock( LOCK_EX ) ) throw Exception::ErrFile_LockError();
+		if( ! _os_lock( LOCK_EX ) ) throw Err_File_LockError();
 	}else{
-		if( ! _os_lock( LOCK_SH ) ) throw Exception::ErrFile_LockError();
+		if( ! _os_lock( LOCK_SH ) ) throw Err_File_LockError();
 	}
 }
 
@@ -376,7 +410,7 @@ void FileStream::setPosEnd( FileSize n ) {
 	_handleCheck();
 
 	int64_t	i64;
-	if( ! ax_safe_assign( i64, n ) ) throw Exception::ErrUndefined();
+	if( ! ax_safe_assign( i64, n ) ) throw Err_Undefined();
 	LONG hi = i64 >> 32;
 	SetFilePointer( h_, (LONG)i64, &hi, FILE_END );
 }
@@ -407,7 +441,7 @@ void FileStream::readMem( void *buf, axSize byteSize ) {
 
 	if( byteSize == 0 ) return;
 	DWORD	n;
-	if( ! ax_safe_assign( n, byteSize ) ) throw Exception::ErrUndefined();
+	if( ! ax_safe_assign( n, byteSize ) ) throw Err_Undefined();
 	DWORD	result = 0;
 	BOOL ret = ::ReadFile( h_, buf, n, &result, nullptr );
 	if( !ret ) {
@@ -416,7 +450,7 @@ void FileStream::readMem( void *buf, axSize byteSize ) {
 		switch( e ) {
 			case ERROR_LOCK_VIOLATION: throw axFile::exception_lock_error();
 		}
-		throw Exception::ErrUndefined();
+		throw Err_Undefined();
 	}
 }
 
@@ -425,11 +459,11 @@ void FileStream::writeMem(const void *buf, axSize byteSize) {
 
 	if( byteSize == 0 ) return;
 	DWORD	n;
-	if( ! ax_safe_assign( n, byteSize ) ) throw Exception::ErrUndefined();
+	if( ! ax_safe_assign( n, byteSize ) ) throw Err_Undefined();
 	DWORD	result = 0;
 	BOOL ret = ::WriteFile( h_, buf, n, &result, nullptr );
 	if( !ret ) {
-		throw Exception::ErrUndefined();
+		throw Err_Undefined();
 	}
 }
 
@@ -470,7 +504,7 @@ void FileStream::open	( const char* filename, axFileMode mode, axFileAccess acce
 		switch( err ) {
 			case ERROR_FILE_EXISTS: throw axFile::exception_already_exists();
 		}
-		throw Exception::ErrUndefined();
+		throw Err_Undefined();
 	}
 
 }

@@ -25,7 +25,7 @@ namespace IO {
 #endif
 #if ax_OS_Unix
 
-bool	Directory::Exists	( const IString & path ) {
+bool	Directory::Exists	( const String & path ) {
 	TempStringA	path8;
 	path8.assignUtf( path );
 
@@ -35,24 +35,24 @@ bool	Directory::Exists	( const IString & path ) {
 }
 
 
-void	OS_Directory_Create	( const IString & path )	   {
+void	OS_Directory_Create	( const String & path )	   {
 	TempStringA	path8;
 	path8.assignUtf( path );
 
 	auto ret = ::mkdir( path8.c_str(), 0755 );
 	if( ret != 0 ) {
 		if( errno == EEXIST ) return; //already exists
-		throw Exception::ErrUndefined();
+		throw Err_Undefined();
 	}	
 }
 
-void	 OS_Directory_Remove ( const IString & path )    {
+void	 OS_Directory_Remove ( const String & path )    {
 	TempStringA	path8;
 	path8.assignUtf( path );
 
 	auto ret = ::rmdir( path8.c_str() );
 	if( ret != 0 ) {
-		throw Exception::ErrUndefined();
+		throw Err_Undefined();
 	}
 }
 
@@ -60,47 +60,41 @@ void	 OS_Directory_Remove ( const IString & path )    {
 String	Directory::GetCurrent() {
 	char  tmp[ Path::k_max_char + 1 ];
 	if( ! ::getcwd( tmp, Path::k_max_char ) ) {
-		throw Exception::ErrDirectory();
+		throw Err_Directory();
 	}
 	tmp[ Path::k_max_char ] = 0;
 	
-	return String::FromUtf_c_str( tmp );
+	return String::CloneUtf_c_str( tmp );
 }
 
-void	Directory::SetCurrent( const IString & path ) {
+void	Directory::SetCurrent( const String & path ) {
 	TempStringA tmp;
 	tmp.assignUtf( path );
 	::chdir( tmp.c_str() );
 }
 
-static void OS_Directory_GetFileSystemEntries (	IArray< String > & result, const IString & path, bool recursively,
-												bool need_file, const IString* file_ext, bool need_dir, bool dotFile )
-{
-
+void OS_Directory_GetFileSystemEntries ( Array< String > & result, const String & path, bool sub_directory, bool hidden_file, const String & file_ext, bool need_file, bool need_dir ) {
 	TempStringA		path_utf8;
 	path_utf8.assignUtf( path );
 
-//	DIR*			dir_;
 	struct dirent	entry;
 	struct dirent*	r = nullptr;
 	
 	auto h = ::opendir( path_utf8.c_str() );
 	if( ! h ) {
 		ax_dump( path );
-		throw Exception::ErrDirectory();
+		throw Err_Directory();
 	}
 
 	try{
-		String	name;
-	
 		for(;;) {
 			if( 0 != ::readdir_r( h, & entry, &r ) ) {
-				throw Exception::ErrDirectory();
+				throw Err_Directory();
 			}
 				
 			if( ! r ) break;
 			
-			if( ! dotFile ) {
+			if( ! hidden_file ) {
 				if( ax_str_has_prefix( r->d_name, ".") ) {
 					continue;
 				}
@@ -111,22 +105,26 @@ static void OS_Directory_GetFileSystemEntries (	IArray< String > & result, const
 
 			bool isDir = ( r->d_type & DT_DIR );
 			if( isDir ) {
-				if( need_dir || recursively ) {
-					ax_format_to_string( name, "{?}/{?}", path, String::FromUtf_c_str( r->d_name ) );
-					if( need_dir ) result.append( name );
-					if( recursively ) OS_Directory_GetFileSystemEntries( result, name, true, need_file, file_ext, need_dir, dotFile );
+				if( need_dir || sub_directory ) {
+					auto name = ax_format( "{?}/{?}", path, String::MakeExternal_c_str( r->d_name ) );
+					if( need_dir ) {
+						result.append( name );
+					}
+					if( sub_directory ) {
+						OS_Directory_GetFileSystemEntries( result, name, sub_directory, hidden_file, file_ext, need_file, need_dir );
+					}
 				}
 			}else{
-				if( ! need_file ) continue;
-				
-				ax_format_to_string( name, "{?}/{?}", path, String::FromUtf_c_str( r->d_name ) );
-				
-				if( file_ext ) {
-					auto ext = Path::GetExt( name );
-					if( ! file_ext->equals( ext, true ) ) continue;
+				if( need_file ) {					
+					auto name = ax_format( "{?}/{?}", path, String::MakeExternal_c_str( r->d_name ) );
+					
+					if( file_ext.size() > 0 ) {
+						auto ext = Path::GetExtension( name );
+						if( ! file_ext.equals( ext, true ) ) continue;
+					}
+					
+					result.append( name );
 				}
-				
-				result.append( name );
 			}
 		}
 	}catch(...){
@@ -148,7 +146,7 @@ static void	OS_Directoy_Remove	( const IString & path ) {
 	path_.appendUtf( path );
 	
 	if( 0 != ::_wrmdir( path_.c_str() ) ) {
-		throw Exception::ErrUndefined();
+		throw Err_Undefined();
 	}
 }
 
@@ -157,7 +155,7 @@ static	OS_Directory_Create	( const IString & path ) {
 	path_.appendUtf( path );
 	
 	if( 0 != ::_wmkdir( path_.c_str() ) ) {
-		throw Exception::ErrUndefined();
+		throw Err_Undefined();
 	}
 }
 
@@ -176,56 +174,48 @@ bool	Directory::Exists		( const IString & path ) {
 #pragma mark ================= Common ====================
 #endif
 
-
-ax_Obj< Array< String > >	Directory::GetFiles			( const IString & path, bool recursively, bool dotFile )	{
-	auto result = ax_new_obj( Array< String > );
-	OS_Directory_GetFileSystemEntries( *result, path, recursively, true, nullptr, false, dotFile );
+ArrayObj< String > 	Directory_GetFileSystemEntries ( const String & path, bool sub_directory, bool hidden_file, const String & file_ext, bool need_file, bool need_dir ) {
+	auto result = ax_new_obj( Array_< String > );
+	OS_Directory_GetFileSystemEntries( *result, path, sub_directory, hidden_file, file_ext, need_file, need_dir );
 	return result;
 }
 
-ax_Obj< Array< String > >	Directory::GetFilesWithExt	( const IString & path, const IString & file_ext, bool recursively, bool dotFile )	{
-	auto result = ax_new_obj( Array< String > );
-	OS_Directory_GetFileSystemEntries( *result, path, recursively, true, &file_ext, false, dotFile );
-	return result;
+ArrayObj< String >	Directory::GetFileSystemEntries	( const String & path, bool sub_directory, bool hidden_file, const String & file_ext ) {
+	return Directory_GetFileSystemEntries( path, sub_directory, hidden_file, file_ext, true, true );
 }
 
-ax_Obj< Array< String > >	Directory::GetDirs			( const IString & path, bool recursively, bool dotFile )	{
-	auto result = ax_new_obj( Array< String > );
-	OS_Directory_GetFileSystemEntries( *result, path, recursively, false, nullptr, true, dotFile );
-	return result;
+ArrayObj< String >	Directory::GetFiles			( const String & path, bool sub_directory, bool hidden_file, const String & file_ext  )	{
+	return Directory_GetFileSystemEntries( path, sub_directory, hidden_file, file_ext, true, false );
 }
 
-ax_Obj< Array< String > >	Directory::GetFileSystemEntries	( const IString & path, bool recursively, bool dotFile )	{
-	auto result = ax_new_obj( Array< String > );
-	OS_Directory_GetFileSystemEntries( *result, path, recursively, true, nullptr, true, dotFile );
-	return result;
+ArrayObj< String >	Directory::GetDirectories	( const String & path, bool sub_directory, bool hidden_file ) {
+	return Directory_GetFileSystemEntries( path, sub_directory, hidden_file, ax_txt(""), false, true );
 }
 
-void	Directory::RemoveIfExists	( const IString & path, bool recursively ) {
+void	Directory::RemoveIfExists	( const String & path, bool sub_directory ) {
 	if( Directory::Exists( path ) ) {
-		Directory::Remove( path, recursively );
+		Directory::Remove( path, sub_directory );
 	}
 }
 
-void	Directory::Remove ( const IString & path, bool recursively ) {
-	if( ! recursively ) return OS_Directory_Remove( path );
+void	Directory::Remove ( const String & path, bool sub_directory ) {
+	if( ! sub_directory ) return OS_Directory_Remove( path );
 
-	auto dirList = GetDirs( path, false, true );
-	ax_foreach( auto & p, *dirList ) {
-		Directory::Remove( p, recursively );
+	auto dirList = GetDirectories( path, false, true );
+	ax_foreach( & p, *dirList ) {
+		Directory::Remove( p, sub_directory );
 	}
 	
 	auto fileList = GetFiles( path, false, true );
-	ax_foreach( auto & p, *fileList ) {
+	ax_foreach( & p, *fileList ) {
 		File::Remove( p );
 	}
-	
 
 	OS_Directory_Remove( path );
 }
 
-void Directory::Create( const IString & path, bool recursive ) {
-	if( ! recursive ) {
+void Directory::Create( const String & path, bool sub_directory ) {
+	if( ! sub_directory ) {
 		OS_Directory_Create( path );
 	}
 
@@ -247,11 +237,11 @@ void Directory::Create( const IString & path, bool recursive ) {
 			token.assign( s, len );
 			
 			if( s != p ) { //skip the 1st 1
-				tmp.append( ax_str("/") );
+				tmp.append( ax_txt("/") );
 			}
 			
 			tmp.append( token );
-			OS_Directory_Create( tmp );
+			OS_Directory_Create( tmp.to_string() );
 			//ax_log("p {?}", tmp );			
 		}
 				

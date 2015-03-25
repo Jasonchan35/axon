@@ -15,10 +15,10 @@ namespace Compile {
 ax_ImplObject(MetaNode);
 ax_ImplObject(Node_namespace);
 
-
-void MetaNode::reset( ax_NullableObj< MetaNode > parent, LexerPos & pos, const ax_string & name ) {
+MetaNode::MetaNode( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name ) {
 	this->parent = parent;
 	this->name	 = name;
+	this->pos	 = pos;
 	
 	ax_if_let( p, parent ) {
 		p->children->add( name, ax_ThisObj );
@@ -44,8 +44,8 @@ void MetaNode::OnStringReq( ax_ToStringReq & req ) const {
 	req.indentLevel--;
 }
 
-Node_namespace::Node_namespace( ax_NullableObj< MetaNode > parent, LexerPos & pos, const ax_string & name ) {
-	base::reset( parent, pos, name );
+Node_namespace::Node_namespace( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name )
+: base( parent, pos, name ) {
 }
 
 ax_Obj< Node_namespace >	Node_namespace::getOrAddNamespace	( const ax_string & name, LexerPos & pos ) {

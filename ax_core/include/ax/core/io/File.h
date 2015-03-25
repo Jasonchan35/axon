@@ -43,14 +43,19 @@ typedef	int64_t	FileSize;
 
 struct File : public StaticClass {
 
-	static	String		ReadAllText			( const String & filename );
-	static	void		ReadAllTextToBuffer	( String  & buf, const String & filename );
+	static	bool 		Exists 				( const ax_string & filename );
+	static	void		Remove				( const ax_string & filename );
 
-	static	StringA		ReadAllUtf8			( const String & filename );
-	static	void		ReadAllUtf8ToBuffer	( MutStringA & buf, const String & filename );
+	static	void		Rename				( const ax_string & old_name, const ax_string & new_name );
 
-	static	void		WriteAllText		( const String & filename, const String     & text );
-	static	void		WriteAllUtf8		( const String & filename, const MutStringA & text );
+	static	String		ReadText			( const ax_string & filename );
+	static	void		ReadTextToBuffer	( MutString  & buf, const ax_string & filename );
+
+	static	StringA		ReadUtf8			( const ax_string & filename );
+	static	void		ReadUtf8ToBuffer	( MutStringA & buf, const ax_string & filename );
+
+	static	void		WriteText			( const ax_string & filename, const ax_string & text );
+	static	void		WriteUtf8			( const ax_string & filename, const ax_string & text );
 };
 
 

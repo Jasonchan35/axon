@@ -13,6 +13,7 @@
 #include "ax_c_str_to.h"
 #include "../base/Exception.h"
 #include "../array/ArrayUtility.h"
+#include "UtfConverter.h"
 
 namespace ax {
 namespace System {
@@ -28,8 +29,9 @@ template< typename T > class MutStringX;
 template< typename T >
 class StringX /* copyable */{
 public:
+	struct	ax_type_on_gc_trace : public std::true_type {};
+
 	StringX() : _data(nullptr), _size(0) {}
-	StringX( const MutStringX<T> & rhs ); // function body in MutString.h
 
 	ax_ALWAYS_INLINE(	const T &	operator[]	( ax_int  i ) const	) { return at(i); }
 	ax_ALWAYS_INLINE(	const T &	at			( ax_int  i ) const	) { _checkBound(i); 	  return _data[i]; }
@@ -39,11 +41,22 @@ public:
 	
 	ax_ALWAYS_INLINE(		bool	inBound		( ax_int  i ) const	) { return i >= 0 && i < _size; }
 
-	bool	operator==( const StringX & rhs ) const {
+	bool	operator==( const StringX & rhs ) const { return equals(rhs); }
+	
+	bool	equals( const StringX & rhs ) const {
 		if( _data == rhs._data && _size == rhs._size ) return true;
 		return ax_str_equals( _data, rhs._data );
 	}
 	
+	bool	equals( const StringX & rhs, bool ignoreCase ) const {
+		if( _data == rhs._data && _size == rhs._size ) return true;
+		if( ignoreCase ) {
+			return ax_str_case_equals( _data, rhs._data );
+		}else{
+			return ax_str_equals( _data, rhs._data );
+		}
+	}
+
 	StringX	operator+( const StringX<T> & rhs ) const {
 		if( rhs.size() == 0 ) return *this;
 		
@@ -69,12 +82,32 @@ public:
 	template< typename R >
 	ax_ALWAYS_INLINE(	void	OnStringReq( ToStringReq_<R> & req ) const );
 
+	static	T*	AllocBuffer( ax_int size ) {
+		if( size == 0 ) return nullptr;
+		
+		auto buf = Memory::Alloc<T>( size + 1 );
+		buf[size] = 0;
+		return buf;
+	}
+
+	template< typename R >
+	static	StringX	CloneUtf_c_str ( const R* sz ) 	{
+		return CloneUtf( sz, ax_strlen( sz ) );
+	}
+
+	template< typename R >
+	static	StringX	CloneUtf ( const R* sz, ax_int size ) 	{
+		auto req_len = UtfConverter::GetConvertedCount<R,T>( sz, size );
+		auto buf = AllocBuffer( req_len );				
+		UtfConverter::Convert( buf, req_len, sz, size );
+		return StringX( buf, req_len );
+	}
 	
-	static	StringX	Make_c_str ( const T* sz ) 	{ return Make( sz, ax_strlen(sz) ); }
-	static	StringX	Make ( const T* sz, ax_int len ) {
-		StringX	o;
-		o._dup( sz, len );
-		return o;
+	static	StringX	Clone_c_str ( const T* sz ) 	{ return Clone( sz, ax_strlen(sz) ); }
+	static	StringX	Clone ( const T* sz, ax_int len ) {
+		auto buf = AllocBuffer( len );
+		ArrayUtility::Copy( buf, sz, len );
+		return StringX( buf, len );
 	}
 	
 	static	StringX	MakeExternal_c_str( const T* sz ) { return MakeExternal(sz, ax_strlen(sz)); }
@@ -89,21 +122,11 @@ protected:
 	const T*	_data;
 	ax_int		_size;
 
-	StringX( const T* sz, ax_int size ) : _data(sz),_size(size) {}
-	
-	void	_dup( const T* sz, ax_int len ) {
-		if( ! sz || len == 0 ) {
-			_data = nullptr;
-			_size = 0;
-		}else{
-			auto p = Memory::Alloc<T>( len + 1 );
-			ArrayUtility::Copy( p, sz, len );
-			p[len] = 0;
-			_data = p;
-			_size = len;
-		}
+	StringX( const T* sz, ax_int size ) : _data(sz),_size(size) {
+		if( size < 0 ) throw Err_Undefined();
+		if( size > 0 && sz[size] != 0 ) throw Err_Undefined();
 	}
-
+	
 	ax_ALWAYS_INLINE( void 	_checkBound			( ax_int i ) const ) { if( ! inBound(i) ) throw Err_Array_OutOfRange(); }
 	ax_ALWAYS_INLINE( void	_debug_checkBound	( ax_int i ) const ) {
 		#if _DEBUG

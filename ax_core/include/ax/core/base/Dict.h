@@ -31,7 +31,7 @@ public:
 		Pair( ax_int hash, const KEY & key,       VALUE && value ) : _hash(hash), _key(key), value( ax_move(value) ) {}
 
 		const	KEY &	key		() const { return _key;  }
-				UInt	hash	() const { return _hash; }
+				ax_int	hash	() const { return _hash; }
 					
 		void	OnStringReq( ToStringReq & req ) const {
 			req << _key << ax_txt(":") << value;
@@ -148,7 +148,7 @@ public:
 		auto ts = _table.size();
 		if( ts == 0 ) return nullptr;
 		
-		auto & list = _table[ h % ts ];
+		auto & list = GetHashList( h );
 		return _getPairFromList( list, h, key );
 	}
 		
@@ -306,8 +306,17 @@ public:
 	ValueEnumerator< Dict,       Pair,       VALUE >	getEnumerator()			{ return ValueEnumerator< Dict,       Pair,       VALUE >( this ); }
 	ValueEnumerator< Dict, const Pair, const VALUE >	getEnumerator()	const 	{ return ValueEnumerator< Dict, const Pair, const VALUE >( ax_const_cast(this) ); }
 	
+		
 private:
 	typedef	Array_< HashList, 0 >		Table;
+	
+	ax_int		_size;
+
+	Table		_table; // please use GetHashList instead of _table[]
+	
+	HashList &	GetHashList( ax_int hash_code ) {
+	  	return _table[ ax_type_to_unsigned(hash_code) % ax_type_to_unsigned( _table.size() ) ];
+	}
 	
 	PairList	_pairs;
 	
@@ -325,7 +334,7 @@ private:
 			ts = _size / 4;
 		}
 		setTableSize( ts );
-		return _table[ hash % ts ];
+		return GetHashList( hash );
 	}
 
 	Pair*	_getPairFromList( HashList & list, ax_int hash, const KEY & key ) {
@@ -349,14 +358,15 @@ private:
 		_table.resize( n );
 		
 		ax_foreach( & p, _pairs ) {
-			auto & list = _table[ p._hash % n ];
+			auto & list = GetHashList( p._hash );
 			list.append( &p._hashNode );
 		}		
 	}
-	
-	ax_int		_size;
-	Table		_table;
+		
 };
+
+template< typename KEY, typename VALUE > using DictObj = Obj< Dict< KEY, VALUE > >;
+
 
 }} //namespace
 
