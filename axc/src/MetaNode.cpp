@@ -20,6 +20,8 @@ MetaNode::MetaNode( ax_NullableObj< MetaNode > parent, const LexerPos & pos, con
 	this->name	 = name;
 	this->pos	 = pos;
 	
+	this->children = ax_new_obj( ChildrenDict );
+	
 	ax_if_let( p, parent ) {
 		p->children->add( name, ax_ThisObj );
 	}

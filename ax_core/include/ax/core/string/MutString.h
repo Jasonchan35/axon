@@ -29,7 +29,7 @@ public:
 	virtual	~MutStringX() {}
 
 	ax_ALWAYS_INLINE(  void	clear()		);
-	ax_ALWAYS_INLINE(  void	release()	)	{ _release(false); }
+	ax_ALWAYS_INLINE(  void	release()	);
 	
 	
 	ax_ALWAYS_INLINE(	 	  T &	operator[]	( ax_int  i )		) { return at(i); }
@@ -147,10 +147,9 @@ protected:
 	virtual	void	onMove			( MutStringX<T> &  rhs );
 	
 	virtual	T*		onMalloc		( ax_int req_size, ax_int & capacity ) = 0;
-	virtual	void	onFree			( T* p, bool call_from_destructor ) = 0;
+	virtual	void	onFree			( T* p ) = 0;
 	
 			void	_do_reserve		( ax_int newSize );
-			void	_release		( bool call_from_destructor );
 	
 	ax_ALWAYS_INLINE( void 	_checkBound			( ax_int i ) const ) { if( ! inBound(i) ) throw Err_Array_OutOfRange(); }
 	ax_ALWAYS_INLINE( void	_debug_checkBound	( ax_int i ) const ) {
@@ -171,7 +170,7 @@ class MutStringX_ : public MutStringX<T>, private LocalBuffer< T, LOCAL_BUF_SIZE
 	typedef	MutStringX<T>	base;
 	typedef	LocalBuffer< T, LOCAL_BUF_SIZE >	BUF;	
 public:
-	virtual ~MutStringX_() { base::_release(true); }
+	virtual ~MutStringX_() { base::release(); }
 
 	MutStringX_	() {}
 	MutStringX_	( MutStringX<T>    && rhs ) { base::move(rhs); }
@@ -219,12 +218,8 @@ protected:
 		}
 	}
 	
-	virtual	void	onFree		( T* p, bool call_from_destructor ) {
-		if( p == BUF::localBufPtr() ) {
-			if( ! call_from_destructor && ax_type_gc_trace<T>() ) {
-				ArrayUtility::SetAllZero( p, LOCAL_BUF_SIZE );
-			}
-		}else{
+	virtual	void	onFree		( T* p ) {
+		if( p != BUF::localBufPtr() ) {
 			Memory::DeallocUncollect<T>( p );
 		}
 	}
@@ -245,17 +240,16 @@ typedef	TempString_< wchar_t >	TempStringW;
 //-----------
 template< typename T > inline
 void 	MutStringX<T>::clear() {
-	_size = 0;
+	resize(0);
 }
 
 //-----------
 template< typename T > inline
-void 	MutStringX<T>::_release( bool call_from_destructor ) {
+void 	MutStringX<T>::release() {
 	clear();
 	if( dataPtr() ) {
-		onFree( dataPtr(), call_from_destructor );
+		onFree( dataPtr() );
 		_data = nullptr;
-		_size = 0;
 		_capacity = 0;
 	}
 }
@@ -267,7 +261,13 @@ void 	MutStringX<T>::resize( ax_int new_size ) {
 	auto old_size = _size;
 	if( new_size == old_size ) return;
 	
-	if( new_size >=  old_size ) {
+	if( new_size < old_size ) {
+		auto dst = dataPtr() + new_size;
+		auto n   = old_size - new_size;
+		
+		ax_bzero( dst, n * sizeof(T) );
+		
+	}else{
 		reserve( new_size );
 	}
 	_size = new_size;
@@ -289,8 +289,8 @@ void	MutStringX<T>::onMove	( MutStringX<T> & rhs ) {
 	
 	auto old_size = _size;
 	resize( old_size+ rhs.size() );
-	ArrayUtility::MoveConstructor( dataPtr() + old_size, rhs.dataPtr(), rhs.size() );
-	rhs._size = 0;
+	ax_memcpy( dataPtr() + old_size, rhs.dataPtr(), rhs.size() * sizeof(T) );
+	rhs.resize(0);
 }
 
 template< typename T > inline
@@ -299,8 +299,8 @@ void	MutStringX<T>::append ( MutStringX<T> && rhs ) {
 
 	auto old_size = _size;
 	resize( old_size+ rhs.size() );
-	ArrayUtility::MoveConstructor( dataPtr() + old_size, rhs.dataPtr(), rhs.size() );
-	rhs._size = 0;
+	ax_memcpy( dataPtr() + old_size, rhs.dataPtr(), rhs.size() * sizeof(T) );
+	rhs.resize(0);
 }
 
 template< typename T > inline

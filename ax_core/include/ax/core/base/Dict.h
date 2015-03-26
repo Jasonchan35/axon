@@ -21,11 +21,11 @@ namespace System {
 template< typename KEY, typename VALUE >
 class Dict : public Object {
 public:
-	struct	ax_type_on_gc_trace : public std::true_type {};
+	struct	ax_type_on_gc_trace : public std::false_type {};
 
 	class	Pair : public Intrusive_LinkedListNode< Pair > {
 	public:
-		struct	ax_type_on_gc_trace : public std::true_type {};
+		struct	ax_type_on_gc_trace : public std::false_type {};
 	
 		Pair( ax_int hash, const KEY & key, const VALUE &  value ) : _hash(hash), _key(key), value(value) {}
 		Pair( ax_int hash, const KEY & key,       VALUE && value ) : _hash(hash), _key(key), value( ax_move(value) ) {}
@@ -38,7 +38,7 @@ public:
 		}
 		
 		struct	HashNode : public Intrusive_LinkedListNode< HashNode > {
-			struct	ax_type_on_gc_trace : public std::true_type {};
+			struct	ax_type_on_gc_trace : public std::false_type {};
 			
 			Pair&	pair			() 	{ return ax_member_owner( &Pair::_hashNode, this ); }
 			bool	onIsOwnedByList	()	{ return false; }
@@ -118,7 +118,7 @@ public:
 		if( !p ) return false;
 		
 		_remove( p );
-		ax_gc_delete( p );
+		ax_delete_uncollect( p );
 		return true;
 	}
 	
@@ -312,13 +312,12 @@ private:
 	
 	ax_int		_size;
 
+	PairList	_pairs; // order base on add
 	Table		_table; // please use GetHashList instead of _table[]
 	
 	HashList &	GetHashList( ax_int hash_code ) {
 	  	return _table[ ax_type_to_unsigned(hash_code) % ax_type_to_unsigned( _table.size() ) ];
 	}
-	
-	PairList	_pairs;
 	
 	void	_remove( Pair* p ) {
 		p->_hashNode->_list->remove( & p->_hashNode );

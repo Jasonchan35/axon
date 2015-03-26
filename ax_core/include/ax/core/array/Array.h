@@ -21,13 +21,13 @@ class Array : public Object {
 	typedef	Object		base;
 	typedef Array<T>	THIS_CLASS;
 public:
-	struct	ax_type_on_gc_trace : public std::true_type {};
+	struct	ax_type_on_gc_trace : public ax_type_gc_trace<T> {};
 
 	Array() : _data(nullptr), _size(0), _capacity(0) {}
 	virtual ~Array() {}
 
-	ax_ALWAYS_INLINE(	void	clear		()	);
-	ax_ALWAYS_INLINE(	void	release	() 	)	{ _release(false); }
+	ax_ALWAYS_INLINE(	void	clear	()	);
+	ax_ALWAYS_INLINE(	void	release	() 	);
 	
 	ax_ALWAYS_INLINE(	 	  T &	operator[]	( ax_int  i )		) { return at(i); }
 	ax_ALWAYS_INLINE(	const T &	operator[]	( ax_int  i ) const	) { return at(i); }
@@ -105,10 +105,9 @@ protected:
 	virtual	void	onMove			( Array<T> &  rhs );
 	
 	virtual	T*		onMalloc		( ax_int req_size, ax_int & capacity ) = 0;
-	virtual	void	onFree			( T* p, bool call_from_destructor ) = 0;
+	virtual	void	onFree			( T* p ) = 0;
 	
 			void	_do_reserve		( ax_int newSize );
-			void	_release		( bool call_from_destructor );
 };
 
 //! Array with LocalBuffer
@@ -118,7 +117,7 @@ class Array_ : public Array<T>, private LocalBuffer< T, LOCAL_BUF_SIZE >  {
 	typedef	LocalBuffer< T, LOCAL_BUF_SIZE >	BUF;
 public:
 
-	virtual	~Array_() { base::_release(true); }
+	virtual	~Array_() { base::release(); }
 
 	Array_			() {}
 	Array_			( Array<T>    && rhs ) { base::move(rhs); }
@@ -162,13 +161,9 @@ protected:
 		}
 	}
 	
-	virtual	void	onFree		( T* p, bool call_from_destructor ) {
+	virtual	void	onFree		( T* p ) {
 		//std::cout << this << " onFree   " << "\n";
-		if( p == BUF::localBufPtr() ) {
-			if( ! call_from_destructor && ax_type_gc_trace<T>() ) {
-				ArrayUtility::SetAllZero( p, LOCAL_BUF_SIZE );
-			}
-		}else{
+		if( p != BUF::localBufPtr() ) {
 			Memory::DeallocUncollect<T>( p );
 		}
 	}
@@ -184,17 +179,15 @@ typedef ArrayObj< ax_byte >	ByteArrayObj;
 
 template< typename T > inline
 void	Array<T>::clear() {
-	ArrayUtility::Destructor( _data, _size );
-	_size = 0;
+	resize(0);
 }
 
 template< typename T > inline
-void	Array<T>::_release( bool call_from_destructor ) {
+void	Array<T>::release() {
 	clear();
 	if( dataPtr() ) {
-		onFree( dataPtr(), call_from_destructor );
+		onFree( dataPtr() );
 		_data = nullptr;
-		_size = 0;
 		_capacity = 0;
 	}
 }
@@ -206,7 +199,12 @@ void	Array<T>::resize		( ax_int new_size ) {
 	if( new_size == old_size ) return;
 	
 	if( new_size <  old_size ) {
-		ArrayUtility::Destructor ( dataPtr() + new_size, old_size - new_size );
+		auto dst = dataPtr() + new_size;
+		auto n   = old_size  - new_size;
+		ArrayUtility::Destructor ( dst, n );
+		if( ax_type_gc_trace<T>() ) {
+			ArrayUtility::SetAllZero( dst, n );
+		}
 	}else{
 		reserve( new_size );
 		ArrayUtility::Constructor( dataPtr() + old_size, new_size - old_size );
@@ -254,7 +252,7 @@ void	Array<T>::onMove		( Array<T> &  rhs ) {
 	reserve( _size + rhs.size() );
 	ArrayUtility::MoveConstructor( dataPtr() + _size, rhs.dataPtr(), rhs.size() );
 	_size += rhs.size();
-	rhs._size = 0;
+	rhs.resize(0);
 }
 
 template< typename T > inline
@@ -264,7 +262,7 @@ void	Array<T>::append		( Array<T> && rhs ) {
 	reserve( _size + rhs.size() );
 	ArrayUtility::MoveConstructor( dataPtr() + _size, rhs.dataPtr(), rhs.size() );
 	_size += rhs.size();
-	rhs._size = 0;
+	rhs.resize(0);
 }
 
 template< typename T > inline
@@ -275,7 +273,7 @@ void	Array<T>::_do_reserve( ax_int new_size ) {
 		ArrayUtility::Destructor     (     dataPtr(), _size );
 		
 		if( _data ) {
-			onFree( dataPtr(), false );
+			onFree( dataPtr() );
 		}
 		_data = np;
 	}

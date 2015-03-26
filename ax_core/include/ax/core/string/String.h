@@ -29,7 +29,7 @@ template< typename T > class MutStringX;
 template< typename T >
 class StringX /* copyable */{
 public:
-	struct	ax_type_on_gc_trace : public std::true_type {};
+	struct	ax_type_on_gc_trace : public ax_type_gc_trace<T> {};
 
 	StringX() : _data(nullptr), _size(0) {}
 
@@ -106,7 +106,7 @@ public:
 	static	StringX	Clone_c_str ( const T* sz ) 	{ return Clone( sz, ax_strlen(sz) ); }
 	static	StringX	Clone ( const T* sz, ax_int len ) {
 		auto buf = AllocBuffer( len );
-		ArrayUtility::Copy( buf, sz, len );
+		ax_memcpy( buf, sz, len * sizeof(T) );
 		return StringX( buf, len );
 	}
 	

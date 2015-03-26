@@ -43,7 +43,9 @@ public:
 
 	ax_NullableObj< MetaNode >	parent;
 	
-	ax_DictObj< ax_string, ax_Obj< MetaNode > >		children;
+	typedef ax_Dict< ax_string, ax_Obj< MetaNode > >	ChildrenDict;
+	
+	ax_Obj<	ChildrenDict >	children;
 	
 	virtual void OnStringReq( ax_ToStringReq & req ) const;
 };

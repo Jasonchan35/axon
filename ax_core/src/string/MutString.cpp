@@ -15,10 +15,10 @@ template< typename T >
 void	MutStringX<T>::_do_reserve( ax_int new_size ) {
 	auto np = onMalloc( new_size+1, _capacity );
 	if( np != _data ) {
-		ArrayUtility::Copy( np, dataPtr(), _size );
+		ax_memcpy( np, dataPtr(), _size * sizeof(T) );
 		
 		if( dataPtr() ) {
-			onFree( dataPtr(), false );
+			onFree( dataPtr() );
 		}
 		
 		_data = np;
@@ -60,7 +60,7 @@ void	MutStringX<T>::_append	( const T*	 data, ax_int data_size, ax_int repeat ) 
 	auto dst = dataPtr() + old_size;
 	
 	for( ax_int i=0; i<repeat; ++i ) {
-		ArrayUtility::Copy( dst + req_len * i, data, data_size );
+		ax_memcpy( dst + req_len * i, data, data_size * sizeof(T) );
 	}
 }
 
@@ -102,7 +102,7 @@ void	MutStringX<T>::_appendUtf( const UTF* data, ax_int data_size, ax_int repeat
 		UtfConverter::Convert( dst, req_len, data, data_size );
 	
 		for( ax_int i=1; i<repeat; ++i ) {
-			ArrayUtility::Copy( dst + req_len * i, dst, req_len );
+			ax_memcpy( dst + req_len * i, dst, req_len * sizeof(T) );
 		}
 		
 	}catch(...){

@@ -23,7 +23,7 @@ public:
 
 protected:
 	virtual	T*		onMalloc		( ax_int req_size, ax_int & capacity ) { return nullptr; }
-	virtual	void	onFree			( T* p, bool call_from_destructor ) {}
+	virtual	void	onFree			( T* p ) {}
 
 };
 

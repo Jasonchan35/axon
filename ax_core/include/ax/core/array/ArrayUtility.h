@@ -15,9 +15,51 @@
 namespace ax {
 namespace System {
 
-struct ArrayUtility : StaticClass {
-	enum { k_use_memcpy_byte_size = 1024 };
+template< typename T > inline
+ax_ALWAYS_INLINE( void ax_copy_loop( T* dst, const T* src, ax_int len ) ) {
+	auto e = src + len;
+	for( ; src < e; ++src, ++dst ) {
+		*dst = * src;
+	}
+}
+
+inline void ax_memcpy( void* dst, const void* src, ax_int len ) {
+	if( len <= 0 ) return;
+	if( len > 1024 ) {
+		::memcpy( dst, src, len );
+	}
+	const ax_int w = sizeof( size_t );
+	auto n = len / w;
+	auto r = len % w;
+	auto j = n*w;
+	ax_copy_loop( (size_t*)dst,   (size_t*)src,   n );
+	ax_copy_loop( (char*  )dst+j, (char*  )src+j, r );
 	
+}
+
+template< typename T > inline
+ax_ALWAYS_INLINE( void ax_set_zero_loop( T* dst, ax_int len ) ) {
+	auto e = dst + len;
+	for( ; dst < e; ++dst ) {
+		*dst = 0;
+	}
+}
+
+inline void ax_bzero( void* dst, ax_int len ) {
+	if( len <= 0 ) return;
+	if( len > 1024 ) {
+		::bzero( dst, len );
+	}
+	const ax_int w = sizeof( size_t );
+	auto n = len / w;
+	auto r = len % w;
+	auto j = n*w;
+	ax_set_zero_loop( (size_t*)dst,   n );
+	ax_set_zero_loop( (char*  )dst+j, r );
+}
+
+
+struct ArrayUtility : StaticClass {
 	template< typename T >
 	ax_ALWAYS_INLINE( 	static	void	Copy( T* dst, const T* src, ax_int n ) 	) {
 		if( n <= 0 ) return;
@@ -26,13 +68,10 @@ struct ArrayUtility : StaticClass {
 			throw Err_BufferOverlapped();
 		}
 		
-		if( ax_type_is_pod<T>() && n * sizeof(T) < k_use_memcpy_byte_size ) {
-			::memcpy( dst, src, n * sizeof(T) );
+		if( ax_type_is_pod<T>() ) {
+			ax_memcpy( dst, src, n * sizeof(T) );
 		}else{
-			auto e = src+n;
-			for( ; src<e; ++src, ++dst ) {
-				*dst = *src;
-			}
+			ax_copy_loop( dst, src, n );
 		}
 	}
 
@@ -47,16 +86,7 @@ struct ArrayUtility : StaticClass {
 	template< typename T >
 	ax_ALWAYS_INLINE( 	static	void	SetAllZero( T* p, ax_int n ) 		) {
 		if( n <= 0 ) return;
-		
-		if( n * sizeof(T) < k_use_memcpy_byte_size ) {
-			auto c = (char*)( p );
-			auto e = (char*)( p + n );
-			for( ; c<e; c++ ) {
-				*c = 0;
-			}
-		}else{
-			::memset( (void*)p, 0, n * sizeof(T) );
-		}
+		ax_bzero( p, n * sizeof(T) );
 	}
 
 	template< typename T >
@@ -88,16 +118,7 @@ struct ArrayUtility : StaticClass {
 		if( n <= 0 ) return;
 	
 		if( ax_type_is_pod<T>() ) {
-			if( n * sizeof(T) >= k_use_memcpy_byte_size ) {
-				::memcpy( (void*)dst, (void*)src, n * sizeof(T) );
-				
-			}else{
-				auto s = src;
-				auto e = src + n ;
-				for( ; s<e; ++s, ++dst ) {
-					*dst = *s;
-				}
-			}
+			ax_memcpy( dst, src, n * sizeof(T) );
 		}else{
 			auto s = src;
 			auto e = src + n ;
@@ -122,16 +143,7 @@ struct ArrayUtility : StaticClass {
 		if( n <= 0 ) return;
 	
 		if( ax_type_is_pod<T>() ) {
-			if( n * sizeof(T) >= k_use_memcpy_byte_size ) {
-				::memcpy( (void*)dst, (void*)src, n * sizeof(T) );
-				
-			}else{
-				auto s = src;
-				auto e = src + n ;
-				for( ; s<e; ++s, ++dst ) {
-					*dst = ax_move(*s);
-				}
-			}
+			ax_memcpy( dst, src, n * sizeof(T) );
 		}else{
 			auto s = src;
 			auto e = src + n ;
