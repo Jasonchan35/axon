@@ -22,8 +22,8 @@
 		typedef BASE		base; \
 	public: \
 		typedef	T			THIS_CLASS; \
-		static const ax_TypeInfo	ax_typeinfo; \
-		virtual	const ax_TypeInfo	getTypeInfo() const { return ax_typeinfo; } \
+		static  const ax_TypeInfo	ax_typeinfo; \
+		virtual	const ax_TypeInfo &	getTypeInfo() const { return ax_typeinfo; } \
 	private: \
 //-------------
 
@@ -40,15 +40,15 @@ template< typename T > class Obj;
 class Object : public NonCopyable {
 public:
 	static	const ax_TypeInfo	ax_typeinfo;
-	virtual	const ax_TypeInfo	getTypeInfo() const { return ax_typeinfo; }
+	virtual	const ax_TypeInfo &	getTypeInfo() const { return ax_typeinfo; }
 
 //----------
 	virtual	~Object() {
 	}
 	
 	template< typename R >	bool				ax_is	() {
-		auto s = getTypeInfo();
-		auto d = ax_get_typeinfo<R>();
+		auto & s = getTypeInfo();
+		auto & d = ax_get_typeinfo<R>();
 		return s.isTypeOf( d );
 	}
 

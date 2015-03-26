@@ -71,28 +71,9 @@ public:
 		#endif
 	}
 
-	template< typename T > inline
-	static void 	Log( const MutStringX<T> & msg ) {
-//		std::cout <<  msg.c_str() << "\n";
-	
-		#if   ax_char_define_type == 'a'
-			std::cout << msg.c_str() << "\n";
-			
-		#elif ax_char_define_type == 'w'
-			std::wcout << msg.c_str() << "\n";
-			
-		#else
-			TempStringW	tmp;
-			tmp.assignUtf( msg );
-			std::wcout << tmp.c_str() << "\n";
-		
-		#endif
-	}
-
 	ax_TemplateFunc_Params1( template< typename T >, static void, LogFormat,		   const StringX<T> & /*fmt*/,               StringFormatArg_<T> );
 							 template< typename T >  static	void  LogFormat_Params	(  const StringX<T> &   fmt,   const Params< StringFormatArg_<T> > & args ) {
-								TempString_<T> buf;
-								Log( StringFormat_<T>::ToBuffer_Params( buf, fmt, args ) );
+								Log( StringFormat_<T>::ToString_Params( fmt, args ) );
 							 }
 
 };

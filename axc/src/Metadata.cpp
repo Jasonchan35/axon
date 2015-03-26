@@ -12,8 +12,7 @@ namespace ax {
 namespace Compile {
 
 Metadata::Metadata() {
-	root = ax_new_obj( Node_namespace, ax_NullableObj< MetaNode >(nullptr), LexerPos(), ax_txt("< root namespace >") );
-	root->name = ax_txt("<root>");
+	root = ax_new_obj( namespace_node, ax_NullableObj< MetaNode >(nullptr), LexerPos(), ax_txt("<root>") );
 }
 
 void Metadata::OnStringReq( ax_ToStringReq & req ) const {

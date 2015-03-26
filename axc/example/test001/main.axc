@@ -1,0 +1,57 @@
+
+class App {
+
+	var a = 1
+	var b = 0
+	/*
+	func add(a:int, b:int) : int{
+		if a>b {
+			print("test\n123","")
+		}
+
+
+		if a>b {
+			print("","")
+		}else{
+			print("","")		
+		}
+
+		do{
+			print("","")
+		}while a>b
+
+		while a<b {
+			print("","")
+
+		}
+
+		for a in list {
+
+		}
+		return a+b;
+	}
+
+	func print( s:str, a:str ) {
+	}
+
+
+	func main() : int {
+		var b = 0b1000
+		var a = .1 + 1e-5
+		var c = 0xFFFF_FFFFU
+		var d = 1_000u
+
+
+	
+		a = a + (3 + 1* (-5 + 1)*1 + 1) * 2
+		b = b + b * 2
+		b = (b + b) * 2
+		b = b + add(1,2) * b
+		print("Hello World ", "aa" )
+
+
+		return
+	}
+	*/
+
+}

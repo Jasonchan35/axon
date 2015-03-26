@@ -106,7 +106,7 @@ void OS_Directory_GetFileSystemEntries ( Array< String > & result, const String 
 			bool isDir = ( r->d_type & DT_DIR );
 			if( isDir ) {
 				if( need_dir || sub_directory ) {
-					auto name = ax_format( "{?}/{?}", path, String::MakeExternal_c_str( r->d_name ) );
+					auto name = ax_format( ax_txt("{?}/{?}"), path, String::MakeExternal_c_str( r->d_name ) );
 					if( need_dir ) {
 						result.append( name );
 					}
@@ -116,7 +116,7 @@ void OS_Directory_GetFileSystemEntries ( Array< String > & result, const String 
 				}
 			}else{
 				if( need_file ) {					
-					auto name = ax_format( "{?}/{?}", path, String::MakeExternal_c_str( r->d_name ) );
+					auto name = ax_format( ax_txt("{?}/{?}"), path, String::MakeExternal_c_str( r->d_name ) );
 					
 					if( file_ext.size() > 0 ) {
 						auto ext = Path::GetExtension( name );

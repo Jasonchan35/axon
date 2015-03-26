@@ -24,12 +24,12 @@ void Parser::skipTypeName	() {
 			skipTypeName();
 			if( token.is_comma() ) 				{ nextToken(); continue;	}
 			if( token.is_roundBracketClose() ) 	{ nextToken(); return;		}
-			Log::Error( token, "invalid type name" );
+			Log::Error( token, ax_txt("invalid type name") );
 		}
 	}
 
 	for(;;) {
-		if( ! token.is_identifier() ) Log::Error( token, "invalid type name" );
+		if( ! token.is_identifier() ) Log::Error( token, ax_txt("invalid type name") );
 		nextToken();
 					
 		if( token.is_less() ) {
@@ -39,7 +39,7 @@ void Parser::skipTypeName	() {
 				skipTypeName();
 				if( token.is_comma() ) 		{ nextToken(); continue;	}
 				if( token.is_greater() ) 	{ nextToken(); break;		}
-				Log::Error( token, "invalid type name" );
+				Log::Error( token, ax_txt("invalid type name") );
 			}
 		}
 		
@@ -49,7 +49,7 @@ void Parser::skipTypeName	() {
 			for(;;) {
 				if( token.is_comma() ) 				{ nextToken(); continue;	}
 				if( token.is_squareBracketClose() ) { nextToken(); break;		}
-				Log::Error( token, "] is missing" );
+				Log::Error( token, ax_txt("] is missing") );
 			}
 		}
 		
@@ -85,11 +85,11 @@ void Parser::_skipBracket ( TokenType openToken, TokenType closeToken ) {
 		if( token.type == closeToken ) level--;
 
 		if( token.is_EOF() ) {
-			Log::Error( token, "End of File: bracket mis-match\n  startPos={?}", startPos );
+			Log::Error( token, ax_txt("End of File: bracket mis-match\n  startPos={?}"), startPos );
 		}
 		
 		if( level > maxLevel ) {
-			Log::Error( token, "reach max round bracket level {?}\n  startPos={?}", maxLevel, startPos );
+			Log::Error( token, ax_txt("reach max round bracket level {?}\n  startPos={?}"), maxLevel, startPos );
 		}
 		nextToken();
 	}
@@ -110,61 +110,61 @@ void Parser::skipSquareBracket() { _skipBracket( TokenType::t_squareBracketOpen,
 void Parser::skipAngleBracket () { _skipBracket( TokenType::t_less,  			  TokenType::t_greater ); }
 
 
-DeclarationModifier Parser::getDeclarationModifier() {
+DeclarationModifier Parser::parseDeclarationModifier() {
 	DeclarationModifier	m;
 
 	for(;;) {
 		if( token.type == TokenType::t_mutating ) {
-			if( m.b_mutating || m.b_nonmutating ) Log::Error( token, "duplicate declaration specifier" );
+			if( m.b_mutating || m.b_nonmutating ) Log::Error( token, ax_txt("duplicate declaration specifier") );
 			m.b_mutating = true;
 			nextToken();
 			continue;
 		}
 
 		if( token.type == TokenType::t_nonmutating ) {
-			if( m.b_mutating || m.b_nonmutating ) Log::Error( token, "duplicate declaration specifier" );
+			if( m.b_mutating || m.b_nonmutating ) Log::Error( token, ax_txt("duplicate declaration specifier") );
 			m.b_nonmutating = true;
 			nextToken();
 			continue;
 		}
 		
 		if( token.type == TokenType::t_static ) {
-			if( m.b_static ) Log::Error( token, "duplicate declaration specifier" );
+			if( m.b_static ) Log::Error( token, ax_txt("duplicate declaration specifier") );
 			m.b_static = true;
 			nextToken();
 			continue;
 		}
 
 		if( token.type == TokenType::t_extern ) {
-			if( m.b_extern ) Log::Error( token, "duplicate declaration specifier" );
+			if( m.b_extern ) Log::Error( token, ax_txt("duplicate declaration specifier") );
 			m.b_extern = true;
 			nextToken();
 			continue;
 		}
 
 		if( token.type == TokenType::t_virtual ) {
-			if( m.b_virtual ) Log::Error( token, "duplicate declaration specifier" );
+			if( m.b_virtual ) Log::Error( token, ax_txt("duplicate declaration specifier") );
 			m.b_virtual = true;
 			nextToken();
 			continue;
 		}
 
 		if( token.type == TokenType::t_override ) {
-			if( m.b_override ) Log::Error( token, "duplicate declaration specifier" );
+			if( m.b_override ) Log::Error( token, ax_txt("duplicate declaration specifier") );
 			m.b_override = true;
 			nextToken();
 			continue;
 		}
 
 		if( token.type == TokenType::t_unowned ) {
-			if( m.b_unowned || m.b_weak ) Log::Error( token, "duplicate declaration specifier" );
+			if( m.b_unowned || m.b_weak ) Log::Error( token, ax_txt("duplicate declaration specifier") );
 			m.b_unowned = true;
 			nextToken();
 			continue;
 		}
 		
 		if( token.type == TokenType::t_weak ) {
-			if( m.b_unowned || m.b_weak ) Log::Error( token, "duplicate declaration specifier" );
+			if( m.b_unowned || m.b_weak ) Log::Error( token, ax_txt("duplicate declaration specifier") );
 			m.b_weak = true;
 			nextToken();
 			continue;

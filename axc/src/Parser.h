@@ -36,7 +36,7 @@ public:
 	void	skipTypeName		();
 	void	_skipTypeName		();
 	
-	DeclarationModifier	getDeclarationModifier();
+	DeclarationModifier	parseDeclarationModifier();
 	
 	
 	Token &		token;

@@ -51,9 +51,9 @@ struct StringFormat_ : public StaticClass {
 
 //----------------
 
-#define ax_format( fmt, ... )						ax::System::StringFormat_< ax_char >::ToString 		 ( 		ax_txt(fmt), __VA_ARGS__ )
-#define ax_format_to_buffer( buf, fmt, ... )		ax::System::StringFormat_< ax_char >::ToBuffer 		 ( buf,	ax_txt(fmt), __VA_ARGS__ )
-#define ax_format_append_to_buffer( buf, fmt, ... )	ax::System::StringFormat_< ax_char >::AppendToBuffer ( buf, ax_txt(fmt), __VA_ARGS__ )
+#define ax_format( fmt, ... )						ax::System::StringFormat_< ax_char >::ToString 		 ( 		fmt, __VA_ARGS__ )
+#define ax_format_to_buffer( buf, fmt, ... )		ax::System::StringFormat_< ax_char >::ToBuffer 		 ( buf,	fmt, __VA_ARGS__ )
+#define ax_format_append_to_buffer( buf, fmt, ... )	ax::System::StringFormat_< ax_char >::AppendToBuffer ( buf, fmt, __VA_ARGS__ )
 
 typedef	StringFormat_< ax_char >	StringFormat;
 typedef StringFormatArg_< ax_char >	StringFormatArg;

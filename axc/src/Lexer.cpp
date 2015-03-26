@@ -37,7 +37,7 @@ void Lexer::Cursor::setPos( LexerPos & pos ) {
 	
 	ax_if_let( sourceFile, pos.file ) {
 		auto & source = sourceFile->source;
-		if( pos.filePos >= source.size() ) return Log::Error( nullptr, &pos, "Error setCursor file position out of range" );
+		if( pos.filePos >= source.size() ) return Log::Error( nullptr, &pos, ax_txt("Error setCursor file position out of range") );
 		p = source.c_str() + pos.filePos;
 	}
 
@@ -251,7 +251,7 @@ void	Lexer::_getToken( Token & token ) {
 							level++;
 							tmp.append( ax_txt("/*") );
 							
-							if( level > 256 ) Log::Error( nullptr, &c.pos, "excess comment block level limit" );
+							if( level > 256 ) Log::Error( nullptr, &c.pos, ax_txt("excess comment block level limit") );
 							continue;
 						}
 					}
@@ -300,7 +300,7 @@ void	Lexer::_getToken( Token & token ) {
 				if( c == '\\' ) {
 					c++;
 					if( !c ) {
-						Log::Error( nullptr, &c.pos, "Unexpected end of string" );
+						Log::Error( nullptr, &c.pos, ax_txt("Unexpected end of string") );
 					}
 					
 						 if( c == '\0') { tmp.append('\0'); }
@@ -327,13 +327,13 @@ void	Lexer::_getToken( Token & token ) {
 //							}else if( ch >= 'a' && ch <= 'f' ) {
 //								wc <<= 4;	wc |= ch -'a';
 							}else{
-								Log::Error( nullptr, &c.pos, "unicode hex expected [0-9,A-F]" );
+								Log::Error( nullptr, &c.pos, ax_txt("unicode hex expected [0-9,A-F]") );
 							}
 						}
 						tmp.append( (wchar_t)wc );
 					
 					}else {
-						Log::Error( nullptr, &c.pos, "unknown string literal escape sequence [{?}]", c.getChar() );
+						Log::Error( nullptr, &c.pos, ax_txt("unknown string literal escape sequence [{?}]"), c.getChar() );
 					}
 					continue;
 				}
@@ -355,7 +355,7 @@ void	Lexer::_getToken( Token & token ) {
 					tmp.append(c);	
 					c++;
 					if( !c ) {
-						Log::Error( nullptr, &c.pos, "Unexpected end of character quote");
+						Log::Error( nullptr, &c.pos, ax_txt("Unexpected end of character quote") );
 					}
 					tmp.append(c);
 					continue;
@@ -393,7 +393,7 @@ void	Lexer::_getToken( Token & token ) {
 		return;
 	}
 	
-	Log::Error( nullptr, &c.pos, "unknown character [{?}]", c.getChar() );
+	Log::Error( nullptr, &c.pos, ax_txt("unknown character [{?}]"), c.getChar() );
 }
 
 

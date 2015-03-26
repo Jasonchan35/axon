@@ -53,8 +53,8 @@ ScopeValue<T> ax_scope_value( T & v ) {
 	return ScopeValue<T>(v);
 }
 
-template< typename T > inline
-ScopeValue<T> &&	ax_scope_value( T & v, const T& new_value ) {
+template< typename T, typename R > inline
+ScopeValue<T> ax_scope_value( T & v, const R & new_value ) {
 	return ScopeValue<T>(v,new_value);
 }
 

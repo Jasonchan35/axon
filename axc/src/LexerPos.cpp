@@ -64,7 +64,7 @@ ax_string LexerPos::dumpSourceLine() const {
 		filename = file_->filename;
 	}
 	
-	ax_format_to_buffer( buf, "\n Source: {?}\n --------{?}\n   File: {?}:{?},{?}\n", sourceLine, arrow, filename, line, col );
+	ax_format_to_buffer( buf, ax_txt("\n Source: {?}\n --------{?}\n   File: {?}:{?},{?}\n"), sourceLine, arrow, filename, line, col );
 	return buf.to_string();
 }
 

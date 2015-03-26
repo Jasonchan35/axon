@@ -12,8 +12,17 @@
 namespace ax {
 namespace Compile {
 
-ax_ImplObject(MetaNode);
-ax_ImplObject(Node_namespace);
+ax_ImplObject( MetaNode );
+
+ax_ImplObject( namespace_node );
+ax_ImplObject( PropNode );
+
+ax_ImplObject( TypedNode );
+ax_ImplObject( StructureNode );
+ax_ImplObject( class_node );
+ax_ImplObject( struct_node );
+ax_ImplObject( interface_node );
+
 
 MetaNode::MetaNode( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name ) {
 	this->parent = parent;
@@ -28,9 +37,7 @@ MetaNode::MetaNode( ax_NullableObj< MetaNode > parent, const LexerPos & pos, con
 }
 
 void MetaNode::OnStringReq( ax_ToStringReq & req ) const {
-	auto type = ax_typeof( *this );
-
-	req.indent() << ax_txt("name=") << name << ax_txt(" ") << type;
+	req.indent() << ax_txt("name=") << name << ax_txt("\t\t") << this->getTypeInfo().name();
 	
 //	if( parent ) {
 //		req << ax_txt(" paraent=") << parent->name;
@@ -46,22 +53,48 @@ void MetaNode::OnStringReq( ax_ToStringReq & req ) const {
 	req.indentLevel--;
 }
 
-Node_namespace::Node_namespace( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name )
+namespace_node::namespace_node( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name )
 : base( parent, pos, name ) {
 }
 
-ax_Obj< Node_namespace >	Node_namespace::getOrAddNamespace	( const ax_string & name, LexerPos & pos ) {
+ax_Obj< namespace_node >	namespace_node::getOrAddNamespace	( const ax_string & name, LexerPos & pos ) {
 
 	ax_if_not_let( p, children->tryGetValue( name ) ) {
-		return ax_new_obj( Node_namespace, ax_ThisObj, pos, name );
+		return ax_new_obj( namespace_node, ax_ThisObj, pos, name );
 	}
 
-	if( ! p->ax_is< Node_namespace >() ) {
-		Log::Error( nullptr, &pos, "identifier already exists");
+	if( ! p->ax_is< namespace_node >() ) {
+		Log::Error( nullptr, &pos, ax_txt("identifier already exists") );
 	}
 
-	return p->ax_cast< Node_namespace >();
+	return p->ax_cast< namespace_node >();
 }
+
+TypedNode::TypedNode( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name )
+: base( parent, pos, name ) {
+}
+
+PropNode::PropNode( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name )
+: base( parent, pos, name ) {
+	is_let = true;
+}
+
+StructureNode::StructureNode( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name )
+: base( parent, pos, name ) {
+}
+
+interface_node::interface_node( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name )
+: base( parent, pos, name ) {
+}
+
+struct_node::struct_node( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name )
+: base( parent, pos, name ) {
+}
+
+class_node::class_node( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name )
+: base( parent, pos, name ) {
+}
+
 
 
 }} //namespace

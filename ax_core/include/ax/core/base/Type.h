@@ -37,7 +37,7 @@ enum class TypeCode {
 	k_Interface,
 };
 
-class TypeInfo {
+class TypeInfo : public NonCopyable {
 public:
 	TypeInfo( const String & name, TypeCode typeCode, const TypeInfo* baseType );
 
@@ -70,9 +70,7 @@ public:
 	Type( const TypeInfo & info ) : _info( info ) {}
 	const TypeInfo & _info;
 	
-	void OnStringReq( ax_ToStringReq & req ) const {
-//		req << _info.name();
-	}
+	void OnStringReq( ax_ToStringReq & req ) const;
 };
 
 }} //namespace

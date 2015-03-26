@@ -16,24 +16,16 @@ namespace Compile {
 
 class DeclarePass : public CompilePass {
 public:
-	void	process( ax_Obj< SourceFile > srcFile );
+	void	parseFile( ax_Obj< SourceFile > srcFile );
 
 private:
 	void	_process();
 	
-//	void	parseUsing				();
-//	void	parseTypealias			();
 	void	parse_namespace			();
 	
-//	void	parseStruct				( DeclarationModifier & modifier );
-//	void	parseClass				( DeclarationModifier & modifier );
-//	void	parseEnum				( DeclarationModifier & modifier );
-//	void	parseInterface			( DeclarationModifier & modifier );
-//
-//	void	parseFunc				( DeclarationModifier & modifier );
-//	void	parseProperty			( DeclarationModifier & modifier );
-//	
-//	void	parseMembers			( DeclarationModifier & modifier );
+	void	parse_StructureNode		( DeclarationModifier & modifier );
+	void	parse_prop				( DeclarationModifier & modifier );
+
 	
 };
 

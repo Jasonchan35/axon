@@ -106,8 +106,14 @@ template< typename T > void ax_to_string_req( ax::System::ToStringReq_<T> & req,
 namespace ax {
 namespace System {
 
+inline
+void Type::OnStringReq( ax_ToStringReq & req ) const {
+	req << _info.name();
+}
+
+
 template< typename T >
-template< typename VALUE >
+template< typename VALUE > inline
 ToStringReq_<T> & ToStringReq_<T>::operator << ( const VALUE & value ) {
 	ax_to_string_req( *this, value );
 	return *this;

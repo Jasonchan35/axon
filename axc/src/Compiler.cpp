@@ -19,7 +19,7 @@ Compiler::Compiler() {
 }
 
 void Compiler::loadAllSourceFiles() {
-	auto list = System::IO::Directory::GetFiles( project_root, true, false, ax_txt(".ax") );
+	auto list = System::IO::Directory::GetFiles( project_root, true, false, ax_txt(".axc") );
 
 	ax_foreach( & filename, *list ) {
 		auto ext		= System::IO::Path::GetExtension( filename );
@@ -40,7 +40,7 @@ void Compiler::declarePass() {
 	ax_foreach( & f, sourceFiles ) {
 //		ax_dump( f->filename );
 		DeclarePass	pass;
-		pass.process( f );
+		pass.parseFile( f );
 	}
 }
 

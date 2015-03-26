@@ -19,6 +19,8 @@ class	MetaNode;
 
 class LexerPos {
 public:
+	struct	ax_type_on_gc_trace : public std::false_type {};
+
 	LexerPos() {
 		valid = false;
 		filePos = 0;

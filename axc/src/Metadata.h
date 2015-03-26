@@ -18,7 +18,7 @@ class Metadata {
 public:
 	Metadata();
 
-	ax_Obj< Node_namespace > root;
+	ax_Obj< namespace_node > root;
 
 	void OnStringReq( ax_ToStringReq & req ) const;
 };
