@@ -1,8 +1,21 @@
 
 class App {
 
-	var a = 1
-	var b = 0
+	var a int[] = 1
+	var b dict<int,string> = 0
+
+
+	struct Pt {
+		let x=0, y=0
+	}
+
+	fn add( a int, b int ) int {
+
+	}
+
+	fn add( b int ) { 
+	}
+
 	/*
 	func add(a:int, b:int) : int{
 		if a>b {

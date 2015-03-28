@@ -29,9 +29,10 @@ void DeclarePass::_process() {
 
 		auto modifier = parser.parseDeclarationModifier();
 		
-		if( token.is_class() 	) { parse_StructureNode	(modifier); continue; }
-//		if( token.is_struct() 	) { parse_struct	(modifier); continue; }
-//		if( token.is_interface()) { parse_interface	(modifier); continue; }
+		if( token.is_class() 		) { parse_StructNode	(modifier); continue; }
+		if( token.is_struct() 		) { parse_StructNode	(modifier); continue; }
+		if( token.is_interface() 	) { parse_StructNode	(modifier); continue; }
+		
 //		if( token.is_func() 	) { parse_func		(modifier); continue; }
 
 		if( ! modifier.isEmpty() ) {
@@ -98,33 +99,31 @@ void DeclarePass::parse_namespace() {
 
 
 
-void DeclarePass::parse_StructureNode( DeclarationModifier & class_modifier ) {
+void DeclarePass::parse_StructNode( DeclarationModifier & modifier ) {
 	
-	auto declare_type = token.type;
+	if( ! token.is_class() && ! token.is_struct() && ! token.is_interface() ) {
+		Log::Error( token, ax_txt("class / struct / interface expected") );
+	}
+	
+	auto nodeType = token.type;
 	nextToken();
 	
 	ax_if_not_let( inNode, pos.inNode ) {
 		throw System::Err_Undefined();
 	}
 	
-	if( ! inNode->ax_is< namespace_node	>() && ! inNode->ax_is< StructureNode >() ) {
+	if( ! inNode->ax_is< namespace_node	>() && ! inNode->ax_is< StructNode >() ) {
 		Log::Error( token, ax_txt("cannot delcare class here") );
 	}
 
 	if( ! token.is_identifier() ) Log::Error( token, ax_txt("type name expected") );
 	
-	ax_Obj< StructureNode >	new_node;
+	auto new_node = ax_new_obj( StructNode,		inNode, token.pos, token.str );
+	new_node->nodeType = nodeType;
 	
-	switch( declare_type ) {
-	case TokenType::t_class:	{ new_node	= ax_new_obj( class_node,		inNode, token.pos, token.str ); }break;
-	case TokenType::t_struct:	{ new_node	= ax_new_obj( struct_node,		inNode, token.pos, token.str ); }break;
-	case TokenType::t_interface:{ new_node	= ax_new_obj( interface_node,	inNode, token.pos, token.str ); }break;
-	default: { Log::Error( token, ax_txt("class / struct / interface expected") ); } break;
-	}
-
 	nextToken();
 	
-	new_node->modifier = class_modifier;
+	new_node->modifier = modifier;
 	
 	if( token.is_colon() ) {
 		nextToken();
@@ -160,13 +159,14 @@ void DeclarePass::parse_StructureNode( DeclarationModifier & class_modifier ) {
 		
 		auto modifier = parser.parseDeclarationModifier();
 		
-		if( token.is_var()		) {	parse_prop		(modifier); continue; }
-//		if( token.is_let()		) {	do_prop			(modifier); continue; }
-//		if( token.is_fn()		) {	do_func			(modifier); continue; }
-//
-//		if( token.is_interface()) { parseInterface	(modifier); continue; }
-//		if( token.is_class()	) { parseClass		(modifier); continue; }
-//		if( token.is_struct()	) { parseStruct		(modifier); continue; }
+		if( token.is_var()			) {	parse_PropNode		(modifier); continue; }
+		if( token.is_let()			) { parse_PropNode		(modifier); continue; }
+		if( token.is_fn()			) {	parse_FuncNode		(modifier); continue; }
+
+		if( token.is_class() 		) { parse_StructNode	(modifier); continue; }
+		if( token.is_struct() 		) { parse_StructNode	(modifier); continue; }
+		if( token.is_interface() 	) { parse_StructNode	(modifier); continue; }
+
 //		if( token.is_enum()		) { parseEnum		(modifier); continue; }
 		
 		
@@ -174,24 +174,67 @@ void DeclarePass::parse_StructureNode( DeclarationModifier & class_modifier ) {
 	}
 }
 
+void DeclarePass::parse_FuncNode( DeclarationModifier & modifier ) {
+	if( ! token.is_fn() ) Log::Error( token, ax_txt("fn expected") );
+	nextToken();
 
-void DeclarePass::parse_prop( DeclarationModifier & prop_modifier ) {
-	auto scope_inNode = ax_scope_value( pos.inNode );
+	ax_if_not_let( inNode, pos.inNode ) {
+		throw System::Err_Undefined();
+	}
+		
+	if( ! inNode-> is_class() && ! inNode->is_struct() && ! inNode->is_interface() ) {
+		Log::Error( token, ax_txt("cannot delcare function here") );
+	}
+
+	if( ! token.is_identifier() ) {
+		Log::Error( token, ax_txt("function name expected") );
+	}
+	
+	auto fn = inNode->getOrAddFunc( token.str );
+	auto fo = ax_new_obj( FuncOverload, fn, token.pos );
+	nextToken();
+
+	if( ! token.is_roundBracketOpen() ) {
+		Log::Error( token, ax_txt("( is expected") );
+	}
+	nextToken();
+	
+	fo->modifier = modifier;
+	fo->paramPos = token.pos;
+	
+	parser.skipRoundBracket();
+	
+	if( token.is_identifier() ) {
+		fo->returnTypePos = token.pos;
+		parser.skipTypeName();
+	}
+	
+	if( ! token.is_curlyBracketOpen() ) {
+		if( ! modifier.b_extern ) {
+			Log::Error( token, ax_txt("{{ expected") );
+		}
+	}else{
+		fo->bodyPos = token.pos;
+		nextToken();
+		parser.skipCurlyBracket();
+	}
+}
+
+void DeclarePass::parse_PropNode( DeclarationModifier & modifier ) {
+	if( ! token.is_var() && ! token.is_let() ) {
+		Log::Error( token, ax_txt("let / var expected") );
+	}
+	auto nodeType = token.type;
 
 	ax_if_not_let( inNode, pos.inNode ) {
 		throw System::Err_Undefined();
 	}
 	
-	if( ! inNode->ax_is< class_node >() && ! inNode->ax_is< struct_node >() ) {
+	if( ! inNode->is_class() && ! inNode->is_struct() ) {
 		Log::Error( token, ax_txt("cannot delcare property here") );
 	}
-
 	
-	if( ! token.is_var() && ! token.is_let() ) Log::Error( token, ax_txt("let / var expected") );
-	
-	bool is_let = token.is_let();
 	nextToken();
-
 
 	for(;;) {
 		if( ! token.is_identifier() ) Log::Error( token, ax_txt("var name expected") );
@@ -199,11 +242,10 @@ void DeclarePass::parse_prop( DeclarationModifier & prop_modifier ) {
 		auto new_node = ax_new_obj( PropNode, inNode, token.pos, token.str );
 		nextToken();
 				
-		new_node->is_let = is_let;
-		new_node->modifier = prop_modifier;
-				
-		if( token.is_colon() ) {
-			nextToken();
+		new_node->nodeType = nodeType;
+		new_node->modifier = modifier;
+						
+		if( token.is_identifier() ) {
 			new_node->dataTypePos = token.pos;
 			parser.skipTypeName();
 		}
@@ -215,7 +257,7 @@ void DeclarePass::parse_prop( DeclarationModifier & prop_modifier ) {
 		}
 				
 		if( ! new_node->dataTypePos.valid && ! new_node->initExprPos.valid ) {
-			Log::Error( token, ax_txt("unknown type for property") );
+			Log::Error( token, ax_txt("unknown type for property '{?}'"), new_node->name );
 		}
 	
 		if( token.is_comma() ) {

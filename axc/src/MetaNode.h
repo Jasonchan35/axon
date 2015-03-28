@@ -15,6 +15,8 @@
 namespace ax {
 namespace Compile {
 
+class FuncNode;
+
 class LexerPos;
 class MetaNode : public System::Object {
 	ax_DefObject( MetaNode, System::Object )
@@ -45,6 +47,17 @@ public:
 
 	ax_NullableObj< MetaNode >	parent;
 	
+	TokenType			nodeType;
+	bool		is_let		() { return nodeType == TokenType::t_let; }
+	bool		is_var		() { return nodeType == TokenType::t_var; }
+	bool		is_class	() { return nodeType == TokenType::t_class; }
+	bool		is_struct	() { return nodeType == TokenType::t_struct; }
+	bool		is_interface() { return nodeType == TokenType::t_interface; }
+	
+	ax_NullableObj< FuncNode >	getFunc		( const ax_string & name );
+	ax_Obj< FuncNode >			getOrAddFunc( const ax_string & name );
+		
+				
 	typedef ax_Dict< ax_string, ax_Obj< MetaNode > >	ChildrenDict;
 	
 	ax_Obj<	ChildrenDict >	children;
@@ -70,49 +83,40 @@ public:
 	DeclarationModifier	modifier;
 };
 
+class StructNode : public TypedNode {
+	ax_DefObject( StructNode, TypedNode )
+public:
+	StructNode( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name );
+
+	ax_Array_< LexerPos >	 baseOrInterfacePos;
+};
+
 class PropNode : public TypedNode {
 	ax_DefObject( PropNode, TypedNode );
 public:
 	PropNode( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name );
 
-	bool		is_let;
-
 	LexerPos	dataTypePos;
 	LexerPos	initExprPos;
 };
 
-
-//-----------
-class StructureNode : public TypedNode {
-	ax_DefObject( StructureNode, TypedNode )
+class FuncOverload : public TypedNode {
+	ax_DefObject( FuncOverload, TypedNode )
 public:
-	StructureNode( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name );
+	FuncOverload( ax_Obj< FuncNode > parent, const LexerPos & pos );
+
+	LexerPos		returnTypePos;
+	LexerPos		paramPos;
+	LexerPos		bodyPos;
+};
+
+class FuncNode : public TypedNode {
+	ax_DefObject( FuncNode, TypedNode );
+public:
+	FuncNode( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name );
 	
-	ax_Array_< LexerPos >	 baseOrInterfacePos;
-	
+	ax_Array_< ax_Obj< FuncOverload > >		overloads;
 };
-
-class interface_node : public StructureNode {
-	ax_DefObject( interface_node, StructureNode )
-public:
-	interface_node( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name );
-
-};
-
-class struct_node : public StructureNode {
-	ax_DefObject( struct_node, StructureNode )
-public:
-	struct_node( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name );
-
-};
-
-class class_node : public StructureNode {
-	ax_DefObject( class_node, StructureNode )
-public:
-	class_node( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name );
-
-};
-
 
 }} //namespace
 

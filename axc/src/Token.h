@@ -118,7 +118,7 @@ namespace Compile {
 	\
 	Token_KEYWORD(var)			\
 	Token_KEYWORD(let)			\
-	Token_KEYWORD(func)			\
+	Token_KEYWORD(fn)			\
 	\
 	Token_KEYWORD(this)			\
 	Token_KEYWORD(self)			\
@@ -190,10 +190,12 @@ public:
 	
 	void	OnStringReq( ax_ToStringReq & req ) const {
 		req << ax_txt("Token[ ") << typeName() << ax_txt(", \"") << str << ax_txt("\" ] ");
-	}
-	
-	static ax_string TokenTypeToString( TokenType t );
+	}	
 };
+
+
+ax_string TokenType_to_string( TokenType v );
+void ax_to_string_req( ax::System::ToStringReq & req, const TokenType & v );
 
 
 }} //namespace

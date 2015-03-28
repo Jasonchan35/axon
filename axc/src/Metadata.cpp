@@ -13,6 +13,7 @@ namespace Compile {
 
 Metadata::Metadata() {
 	root = ax_new_obj( namespace_node, ax_NullableObj< MetaNode >(nullptr), LexerPos(), ax_txt("<root>") );
+	root->nodeType = TokenType::t_namespace;
 }
 
 void Metadata::OnStringReq( ax_ToStringReq & req ) const {

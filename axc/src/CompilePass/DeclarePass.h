@@ -23,9 +23,9 @@ private:
 	
 	void	parse_namespace			();
 	
-	void	parse_StructureNode		( DeclarationModifier & modifier );
-	void	parse_prop				( DeclarationModifier & modifier );
-
+	void	parse_StructNode	( DeclarationModifier & modifier );
+	void	parse_PropNode		( DeclarationModifier & modifier );
+	void	parse_FuncNode		( DeclarationModifier & modifier );
 	
 };
 

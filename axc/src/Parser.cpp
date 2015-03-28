@@ -20,12 +20,7 @@ void Parser::reset( ax_Obj< SourceFile > sourceFile ) {
 void Parser::skipTypeName	() {
 	if( token.is_roundBracketOpen() ) {	//tuple
 		nextToken();
-		for(;;){
-			skipTypeName();
-			if( token.is_comma() ) 				{ nextToken(); continue;	}
-			if( token.is_roundBracketClose() ) 	{ nextToken(); return;		}
-			Log::Error( token, ax_txt("invalid type name") );
-		}
+		skipRoundBracket();
 	}
 
 	for(;;) {
@@ -34,23 +29,12 @@ void Parser::skipTypeName	() {
 					
 		if( token.is_less() ) {
 			nextToken();
-
-			for(;;) {
-				skipTypeName();
-				if( token.is_comma() ) 		{ nextToken(); continue;	}
-				if( token.is_greater() ) 	{ nextToken(); break;		}
-				Log::Error( token, ax_txt("invalid type name") );
-			}
+			skipAngleBracket();
 		}
 		
 		if( token.is_squareBracketOpen() ) {
 			nextToken();
-			
-			for(;;) {
-				if( token.is_comma() ) 				{ nextToken(); continue;	}
-				if( token.is_squareBracketClose() ) { nextToken(); break;		}
-				Log::Error( token, ax_txt("] is missing") );
-			}
+			skipSquareBracket();
 		}
 		
 		if( token.is_dot() ) { nextToken(); continue; }
@@ -98,7 +82,22 @@ void Parser::_skipBracket ( TokenType openToken, TokenType closeToken ) {
 
 void Parser::skipExpression () {
 	for(;;) {
+		if( token.is_curlyBracketOpen() ) {
+			nextToken();
+			skipCurlyBracket();
+			
+		}else if( token.is_roundBracketOpen() ) {
+			nextToken();
+			skipRoundBracket();
+			
+		}else if( token.is_squareBracketOpen() ) {
+			nextToken();
+			skipSquareBracket();
+		}
+
 		if( token.is_newLine_or_semiColon() ) break;
+		if( token.is_comma() ) break;
+		
 		nextToken();
 	}
 }
@@ -107,7 +106,7 @@ void Parser::skipExpression () {
 void Parser::skipCurlyBracket () { _skipBracket( TokenType::t_curlyBracketOpen,  TokenType::t_curlyBracketClose ); }
 void Parser::skipRoundBracket () { _skipBracket( TokenType::t_roundBracketOpen,  TokenType::t_roundBracketClose ); }
 void Parser::skipSquareBracket() { _skipBracket( TokenType::t_squareBracketOpen, TokenType::t_squareBracketClose ); }
-void Parser::skipAngleBracket () { _skipBracket( TokenType::t_less,  			  TokenType::t_greater ); }
+void Parser::skipAngleBracket () { _skipBracket( TokenType::t_less,  			 TokenType::t_greater ); }
 
 
 DeclarationModifier Parser::parseDeclarationModifier() {
