@@ -94,8 +94,8 @@ public:
 		}
 		
 		auto u = ax_uptr_new( Pair, h, key, value );
-		list.append( & u->_hashNode );
-		_pairs.append( u.ptr() );
+		list.add( & u->_hashNode );
+		_pairs.add( u.ptr() );
 		_size++;
 		u.giveup();
 	}
@@ -107,8 +107,8 @@ public:
 		if( _getPairFromList( list, h, key ) ) { throw Err_Dict_DuplicateKey(); }
 		
 		auto u = ax_uptr_new( Pair, h, key, value );
-		list.append( & u->_hashNode );
-		_pairs.append( u.ptr() );
+		list.add( & u->_hashNode );
+		_pairs.add( u.ptr() );
 		_size++;
 		u.giveup();
 	}
@@ -358,7 +358,7 @@ private:
 		
 		ax_foreach( & p, _pairs ) {
 			auto & list = GetHashList( p._hash );
-			list.append( &p._hashNode );
+			list.add( &p._hashNode );
 		}		
 	}
 		

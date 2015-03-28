@@ -30,7 +30,7 @@ void Compiler::loadAllSourceFiles() {
 		
 		auto src = ax_new_obj( SourceFile );
 		
-		sourceFiles.append( src );
+		sourceFiles.add( src );
 		src->loadFile( filename );
 		
 	}

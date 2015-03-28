@@ -108,7 +108,7 @@ void OS_Directory_GetFileSystemEntries ( Array< String > & result, const String 
 				if( need_dir || sub_directory ) {
 					auto name = ax_format( ax_txt("{?}/{?}"), path, String::MakeExternal_c_str( r->d_name ) );
 					if( need_dir ) {
-						result.append( name );
+						result.add( name );
 					}
 					if( sub_directory ) {
 						OS_Directory_GetFileSystemEntries( result, name, sub_directory, hidden_file, file_ext, need_file, need_dir );
@@ -123,7 +123,7 @@ void OS_Directory_GetFileSystemEntries ( Array< String > & result, const String 
 						if( ! file_ext.equals( ext, true ) ) continue;
 					}
 					
-					result.append( name );
+					result.add( name );
 				}
 			}
 		}

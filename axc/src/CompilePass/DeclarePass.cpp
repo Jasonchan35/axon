@@ -130,7 +130,7 @@ void DeclarePass::parse_StructNode( DeclarationModifier & modifier ) {
 		
 		for(;;) {
 			if( token.is_identifier() ) {
-				new_node->baseOrInterfacePos.append( token.pos );
+				new_node->baseOrInterfacePos.add( token.pos );
 				parser.skipTypeName();
 			}
 			

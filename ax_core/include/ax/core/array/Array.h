@@ -60,16 +60,16 @@ public:
 	ax_ALWAYS_INLINE( 		void	reserve		( ax_int new_size ) );
 
 
-	ax_ALWAYS_INLINE(	 	void	append		( const T &  v ) 	);
-	ax_ALWAYS_INLINE( 		void	append		(       T && v ) 	);
+	ax_ALWAYS_INLINE(	 	void	add			( const T &  v ) 	);
+	ax_ALWAYS_INLINE( 		void	add			(       T && v ) 	);
 	
-	ax_ALWAYS_INLINE(	 	void	append		( const T* data, ax_int data_size 	) );
-	ax_ALWAYS_INLINE( 		void	append		( const Array<T> &  rhs ) );
-	ax_ALWAYS_INLINE(		void	append		( 		Array<T> && rhs )	);
+	ax_ALWAYS_INLINE(	 	void	add			( const T* data, ax_int data_size 	) );
+	ax_ALWAYS_INLINE( 		void	add			( const Array<T> &  rhs ) );
+	ax_ALWAYS_INLINE(		void	add			( 		Array<T> && rhs )	);
 	
-	ax_ALWAYS_INLINE(		void	assign		( const T* data, ax_int data_size 	) ) { clear(); append( data, data_size ); }
-	ax_ALWAYS_INLINE(		void	assign		( const Array<T> &  rhs			) ) { clear(); append( rhs ); }
-	ax_ALWAYS_INLINE(		void	operator=	( const Array<T> &  rhs 			) )	{ clear(); append( rhs ); }
+	ax_ALWAYS_INLINE(		void	assign		( const T* data, ax_int data_size 	) ) { clear(); add( data, data_size ); }
+	ax_ALWAYS_INLINE(		void	assign		( const Array<T> &  rhs				) ) { clear(); add( rhs ); }
+	ax_ALWAYS_INLINE(		void	operator=	( const Array<T> &  rhs 			) )	{ clear(); add( rhs ); }
 	ax_ALWAYS_INLINE(		void	operator=	(		Array<T> && rhs 			) ) { move(rhs); }
 
 							void	move		( Array<T> &  rhs ) { onMove( rhs ); }
@@ -220,26 +220,26 @@ void	Array<T>::reserve		( ax_int new_size ) {
 
 
 template< typename T > inline
-void	Array<T>::append		( const T& v ) {
+void	Array<T>::add		( const T& v ) {
 	reserve( _size+1 );
 	ax_call_constructor( T, _data + _size, v );
 	++_size;
 }
 
 template< typename T > inline
-void	Array<T>::append		( T && v ) {
+void	Array<T>::add		( T && v ) {
 	reserve( _size+1 );
 	ax_call_constructor( T, _data + _size, v );
 	++_size;
 }
 
 template< typename T > inline
-void	Array<T>::append		( const Array<T> & rhs ) {
-	append( rhs.dataPtr(), rhs.size() );
+void	Array<T>::add		( const Array<T> & rhs ) {
+	add( rhs.dataPtr(), rhs.size() );
 }
 
 template< typename T > inline
-void	Array<T>::append		( const T* data, ax_int data_size ) {
+void	Array<T>::add		( const T* data, ax_int data_size ) {
 	reserve( _size + data_size );
 	ArrayUtility::CopyConstructor( dataPtr() + _size, data, data_size );
 	_size += data_size;
@@ -256,7 +256,7 @@ void	Array<T>::onMove		( Array<T> &  rhs ) {
 }
 
 template< typename T > inline
-void	Array<T>::append		( Array<T> && rhs ) {
+void	Array<T>::add		( Array<T> && rhs ) {
 	if( _size == 0 ) return move( rhs );
 
 	reserve( _size + rhs.size() );

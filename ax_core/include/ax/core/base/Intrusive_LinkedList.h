@@ -48,11 +48,11 @@ public:
 
 	Intrusive_LinkedList() { _ctor(); }
 
-	Intrusive_LinkedList( Intrusive_LinkedList && rhs ) { _ctor(); append_move( rhs ); }
+	Intrusive_LinkedList( Intrusive_LinkedList && rhs ) { _ctor(); add_move( rhs ); }
 
 	~Intrusive_LinkedList() { release(); }
 	
-	void operator=( Intrusive_LinkedList && rhs ) 		{ clear(); append_move( rhs ); }
+	void operator=( Intrusive_LinkedList && rhs ) 		{ clear(); add_move( rhs ); }
 	
 		  T*	head	() 			{ return _head; }
 	const T*	head	() const 	{ return _head; }
@@ -66,9 +66,9 @@ public:
 	ax_ALWAYS_INLINE(	void	insert		( T* p )				);
 	ax_ALWAYS_INLINE(	void	insert		( T* p, T* before )		);
 	
-	ax_ALWAYS_INLINE(	void	append		( T* p )				);
-	ax_ALWAYS_INLINE(	void	append		( T* p, T* after )		);
-	ax_ALWAYS_INLINE(	void	append_move( Intrusive_LinkedList & rhs ) );
+	ax_ALWAYS_INLINE(	void	add		( T* p )				);
+	ax_ALWAYS_INLINE(	void	add		( T* p, T* after )		);
+	ax_ALWAYS_INLINE(	void	add_move( Intrusive_LinkedList & rhs ) );
 
 	ax_ALWAYS_INLINE(	T*		removeHead	()						);
 
@@ -128,11 +128,11 @@ T*	Intrusive_LinkedList<T>::removeHead	() {
 }
 
 template< typename T > inline
-void	Intrusive_LinkedList<T>::append_move	( Intrusive_LinkedList & rhs ) {
+void	Intrusive_LinkedList<T>::add_move	( Intrusive_LinkedList & rhs ) {
 	for(;;) {
 		auto p = rhs.removeHead();
 		if( !p ) break;
-		append(p);
+		add(p);
 	}
 }
 
@@ -173,7 +173,7 @@ void	Intrusive_LinkedList<T>::insert	( T* p ) {
 }
 
 template< typename T > inline
-void	Intrusive_LinkedList<T>::append	( T* p ) {
+void	Intrusive_LinkedList<T>::add	( T* p ) {
 	if( ! p ) throw Err_Undefined();
 	if( p->_list || p->_list_prev || p->_list_next ) throw Err_Undefined();
 	
@@ -215,8 +215,8 @@ void	Intrusive_LinkedList<T>::insert	( T* p, T* before ) {
 
 	
 template< typename T > inline
-void	Intrusive_LinkedList<T>::append	( T* p, T* after ) {
-	if( ! after ) return append( p );
+void	Intrusive_LinkedList<T>::add	( T* p, T* after ) {
+	if( ! after ) return add( p );
 	
 	if( ! p ) throw Err_Undefined();
 	if( p->_list || p->_list_prev || p->_list_next ) throw Err_Undefined();

@@ -109,7 +109,7 @@ FuncNode::FuncNode( ax_NullableObj< MetaNode > parent, const LexerPos & pos, con
 
 FuncOverload::FuncOverload( ax_Obj< FuncNode > fn, const LexerPos & pos )
 : base( nullptr, pos, fn->name ) {
-	fn->overloads.append( ax_ThisObj );
+	fn->overloads.add( ax_ThisObj );
 }
 
 
