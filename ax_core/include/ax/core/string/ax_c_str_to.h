@@ -11,9 +11,6 @@
 
 #include "../platform/platform.h"
 
-namespace ax {
-namespace System {
-
 #define ax_TYPE_LIST_ITEM( NAME, T ) \
 	bool ax_c_str_to( const T* sz, bool		&v ); \
 	bool ax_c_str_to( const T* sz, uint8_t    &v ); \
@@ -29,9 +26,5 @@ namespace System {
 //==============================
 	ax_TYPE_LIST_all_char
 #undef ax_TYPE_LIST_ITEM
-
-} //namespace System
-} //namespace ax
-
 
 #endif

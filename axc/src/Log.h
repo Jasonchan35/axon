@@ -18,6 +18,9 @@ class Log : public System::StaticClass {
 public:
 	template< typename... Args >
 	static void Error( Token & token, Args &&... args ) { Error( &token, &token.pos, args... ); }
+
+	template< typename... Args >
+	static void Error( const LexerPos & pos, Args &&... args ) { Error( nullptr, &pos, args... ); }
 	
 	template< typename... Args >
 	static void Error( Token* token, const LexerPos* pos, const ax_string & fmt ) {

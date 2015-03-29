@@ -79,6 +79,16 @@ void ax_to_string_req( ax::System::ToStringReq_<T> & req, const VALUE & v ) {
 	v.OnStringReq(req);
 }
 
+template< typename T > inline
+void	ax::System::Array<T>::OnStringReq( ax_ToStringReq & req ) const {
+	req << ax_txt("[");
+	ax_foreach( &e, *this ) {
+		req << e;
+	}
+	req << ax_txt("]");
+}
+
+
 #define ax_TYPE_LIST_ITEM( NAME, VALUE ) \
 	template< typename T > inline \
 	void ax_to_string_req( ax::System::ToStringReq_<T> & req, const VALUE & v ) { \

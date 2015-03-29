@@ -72,7 +72,7 @@ void DeclarePass::parse_namespace() {
 		throw System::Err_Undefined();
 	}
 	
-	ax_if_not_let( ns, ns0->getUpperByType< namespace_node >() ) {
+	ax_if_not_let( ns, ns0->getUpperByType< NamespaceNode >() ) {
 		throw System::Err_Undefined();
 	}
 	
@@ -127,7 +127,7 @@ void DeclarePass::parse_StructNode( DeclarationModifier & modifier ) {
 		throw System::Err_Undefined();
 	}
 	
-	if( ! inNode->ax_is< namespace_node	>() && ! inNode->ax_is< StructNode >() ) {
+	if( ! inNode->ax_is< NamespaceNode	>() && ! inNode->ax_is< StructNode >() ) {
 		Log::Error( token, ax_txt("cannot delcare class here") );
 	}
 
@@ -192,7 +192,7 @@ void DeclarePass::parse_StructBody( ax_Obj< StructNode > structNode ) {
 		if( token.is_struct() 		) { parse_StructNode	(modifier); continue; }
 		if( token.is_interface() 	) { parse_StructNode	(modifier); continue; }
 
-//		if( token.is_enum()		) { parseEnum		(modifier); continue; }
+//		if( token.is_enum()			) { parseEnum		(modifier); continue; }
 
 		Log::Error( token, ax_txt("unexpected token") );
 	}
@@ -291,13 +291,15 @@ void DeclarePass::parse_PropNode( DeclarationModifier & modifier ) {
 		
 		if( token.is_assign() ) {
 			nextToken();
-			new_node->initExprPos = token.pos;
-			parser.skipExpression();
+			new_node->initExpr = parseExpression();
+			
+//			new_node->initExprPos = token.pos;
+//			parser.skipExpression();
 		}
 				
-		if( ! new_node->dataTypePos.valid && ! new_node->initExprPos.valid ) {
-			Log::Error( token, ax_txt("unknown type for property '{?}'"), new_node->name );
-		}
+//		if( ! new_node->dataTypePos.valid && ! new_node->initExprPos.valid ) {
+//			Log::Error( token, ax_txt("unknown type for property '{?}'"), new_node->name );
+//		}
 	
 		if( token.is_comma() ) {
 			nextToken();

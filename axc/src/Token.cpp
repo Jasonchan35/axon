@@ -78,10 +78,10 @@ Token::Token() {
 }
 
 void ax_to_string_req( ax::System::ToStringReq & req, const TokenType & v ) {
-	req << TokenType_to_string( v );
+	req << ax_to_string( v );
 }
 
-ax_string TokenType_to_string( TokenType type ) {
+ax_string ax_to_string( TokenType type ) {
 //	#define Token_TYPE(T,S)  case TokenType::t_##T: return ax_txt(S);
 	#define Token_TYPE(T,S)  case TokenType::t_##T: return ax_txt(#T);
 	#define Token_KEYWORD(T) case TokenType::t_##T: return ax_txt(#T);
@@ -100,7 +100,7 @@ ax_string TokenType_to_string( TokenType type ) {
 }
 
 ax_string	Token::typeName() const {
-	return TokenType_to_string( type );
+	return ax_to_string( type );
 }
 
 bool Token::checkKeyword() {

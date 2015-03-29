@@ -38,6 +38,14 @@ public:
 
 			bool 	operator==	( std::nullptr_t t ) const { return _p == nullptr; }
 			bool 	operator!=	( std::nullptr_t t ) const { return _p != nullptr; }
+			
+			bool	operator==	( const Nullable & rhs ) const {
+				if( _p == rhs._p ) return true;
+				if( _p && rhs._p ) return *_p == *rhs._p;
+				return false;
+			}
+			
+			bool	operator!=	( const Nullable & rhs ) const { return ! operator==(rhs); }
 
 	void operator=( const Nullable & rhs ) {
 		setNull();
@@ -64,6 +72,16 @@ public:
 			::new( _p ) T(v);
 		}
 	}
+	
+	template< typename R >
+	void	OnStringReq( ToStringReq_<R> & req ) const {
+		if( _p == nullptr ) {
+			req << ax_txt("null");
+		}else{
+			req << *_p;
+		}
+	}
+	
 	
 private:
 	void _checkNull() const { if( ! _p ) throw Err_Undefined(); }

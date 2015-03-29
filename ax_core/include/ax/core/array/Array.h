@@ -41,6 +41,9 @@ public:
 	ax_ALWAYS_INLINE( 		  T &	last		()					) { return at( _size-1 ); }
 	ax_ALWAYS_INLINE( 	const T &	last		() 		 	 const	) { return at( _size-1 ); }
 
+	ax_ALWAYS_INLINE( 		  T &	unsafe_last	()					) { return unsafe_at( _size-1 ); }
+	ax_ALWAYS_INLINE( 	const T &	unsafe_last	() 		 	 const	) { return unsafe_at( _size-1 ); }
+
 	ax_ALWAYS_INLINE( 		  T &	last		( ax_int  i )		) { at( _size-i-1 ); }
 	ax_ALWAYS_INLINE( 	const T &	last		( ax_int  i ) const	) { at( _size-i-1 ); }
 	
@@ -59,6 +62,7 @@ public:
 
 	ax_ALWAYS_INLINE( 		void	reserve		( ax_int new_size ) );
 
+	ax_ALWAYS_INLINE(		T&		addNew		() )					{ incSize(1); return unsafe_last(); }
 
 	ax_ALWAYS_INLINE(	 	void	add			( const T &  v ) 	);
 	ax_ALWAYS_INLINE( 		void	add			(       T && v ) 	);
@@ -81,6 +85,9 @@ public:
 	
 	ArrayInverseEnumerator< THIS_CLASS,       T >	getInverseEnumerator() 		 { return ArrayInverseEnumerator< THIS_CLASS,      T >( *this, dataPtr(), dataPtr()+_size ); }
 	ArrayInverseEnumerator< THIS_CLASS, const T >	getInverseEnumerator() const { return ArrayInverseEnumerator< THIS_CLASS,const T >( *this, dataPtr(), dataPtr()+_size ); }
+
+
+	void	OnStringReq( ax_ToStringReq & req ) const;
 
 
 #if ax_DEBUG_Enumerating

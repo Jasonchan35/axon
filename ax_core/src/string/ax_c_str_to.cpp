@@ -8,9 +8,6 @@
 
 #include <ax/core/string/ax_c_str_to.h>
 
-namespace ax {
-namespace System {
-
 //==================  ax_c_str_to char ============================
 bool ax_c_str_to( const char* sz, bool &v ) {
 	if( ax_strcasecmp( sz, "true" ) == 0 ) {
@@ -192,9 +189,4 @@ bool ax_c_str_to( const wchar_t* sz, double &v ) {
 	ax_TYPE_LIST_all_float
 	ax_TYPE_LIST_all_bool
 #undef ax_TYPE_LIST_ITEM
-
-
-
-} //namespace System
-} //namespace ax
 

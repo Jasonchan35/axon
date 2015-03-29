@@ -21,6 +21,8 @@
 		5E9044C21AC02ED1002F7C82 /* Parser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5E9044B01AC02ED1002F7C82 /* Parser.cpp */; };
 		5E9044C31AC02ED1002F7C82 /* SourceFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5E9044B41AC02ED1002F7C82 /* SourceFile.cpp */; };
 		5E9044C41AC02ED1002F7C82 /* Token.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5E9044B61AC02ED1002F7C82 /* Token.cpp */; };
+		96A10BA11AC833FF005E3CFF /* ExprAST.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 96A10B9F1AC833FF005E3CFF /* ExprAST.cpp */; };
+		96A10BA51AC83B00005E3CFF /* RType.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 96A10BA31AC83B00005E3CFF /* RType.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -76,6 +78,10 @@
 		5E9044B51AC02ED1002F7C82 /* SourceFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SourceFile.h; sourceTree = "<group>"; };
 		5E9044B61AC02ED1002F7C82 /* Token.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Token.cpp; sourceTree = "<group>"; };
 		5E9044B71AC02ED1002F7C82 /* Token.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Token.h; sourceTree = "<group>"; };
+		96A10B9F1AC833FF005E3CFF /* ExprAST.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ExprAST.cpp; sourceTree = "<group>"; };
+		96A10BA01AC833FF005E3CFF /* ExprAST.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ExprAST.h; sourceTree = "<group>"; };
+		96A10BA31AC83B00005E3CFF /* RType.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RType.cpp; sourceTree = "<group>"; };
+		96A10BA41AC83B00005E3CFF /* RType.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RType.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -125,6 +131,8 @@
 				5E9044A21AC02ED1002F7C82 /* DeclarationModifier.cpp */,
 				5E9044A31AC02ED1002F7C82 /* DeclarationModifier.h */,
 				5E9044A41AC02ED1002F7C82 /* define.h */,
+				96A10B9F1AC833FF005E3CFF /* ExprAST.cpp */,
+				96A10BA01AC833FF005E3CFF /* ExprAST.h */,
 				5E9044A51AC02ED1002F7C82 /* Lexer.cpp */,
 				5E9044A61AC02ED1002F7C82 /* Lexer.h */,
 				5E9044A71AC02ED1002F7C82 /* LexerPos.cpp */,
@@ -139,6 +147,8 @@
 				5E9044B01AC02ED1002F7C82 /* Parser.cpp */,
 				5E9044B11AC02ED1002F7C82 /* Parser.h */,
 				5E9044B21AC02ED1002F7C82 /* pch */,
+				96A10BA31AC83B00005E3CFF /* RType.cpp */,
+				96A10BA41AC83B00005E3CFF /* RType.h */,
 				5E9044B41AC02ED1002F7C82 /* SourceFile.cpp */,
 				5E9044B51AC02ED1002F7C82 /* SourceFile.h */,
 				5E9044B61AC02ED1002F7C82 /* Token.cpp */,
@@ -252,6 +262,8 @@
 				5E9044BF1AC02ED1002F7C82 /* main.cpp in Sources */,
 				5E9044C01AC02ED1002F7C82 /* Metadata.cpp in Sources */,
 				5E9044BC1AC02ED1002F7C82 /* Lexer.cpp in Sources */,
+				96A10BA11AC833FF005E3CFF /* ExprAST.cpp in Sources */,
+				96A10BA51AC83B00005E3CFF /* RType.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

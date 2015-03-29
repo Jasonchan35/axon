@@ -80,6 +80,14 @@ public:
 	void operator=	( const Obj<R> & rhs ) 	{ _p = ax_const_cast( rhs.ptr() ); }
 	
 	
+	bool	operator==( const Obj & rhs ) const {
+		if( _p == rhs._p ) return true;
+		return false;
+	}
+	
+	bool	operator!=( const Obj & rhs ) const { return ! operator==( rhs ); }
+	
+	
 					T*	ptr()		{ return _p; }
 			const	T*	ptr() const	{ return _p; }
 
@@ -97,7 +105,7 @@ public:
 		if( _p == nullptr ) {
 			req << ax_txt("null");
 		}else{
-			_p->OnStringReq(req);
+			req << *_p;
 		}
 	}
 	

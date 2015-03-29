@@ -10,6 +10,7 @@
 #define ax_core_ax_c_str_h
 
 #include "../platform/platform.h"
+#include "../base/Exception.h"
 
 
 template< typename T > const T* 	ax_empty_c_str();
@@ -39,6 +40,15 @@ bool ax_ishex( T ch ) {
 	if( ch >= 'A' && ch <='F' ) return true;
 	if( ch >= 'a' && ch <='f' ) return true;
 	return false;
+}
+
+
+template<class T> inline
+int ax_hex_to_int( T ch ) {
+	if( ch >= '0' && ch <='9' ) return ch -'0';
+	if( ch >= 'a' && ch <='f' ) return ch -'a' + 10;
+	if( ch >= 'A' && ch <='F' ) return ch -'A' + 10;
+	throw ax::System::Err_Undefined();
 }
 
 template<class T> inline
