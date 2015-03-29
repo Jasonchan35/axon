@@ -1,0 +1,24 @@
+ax_PLATFORM = MacOSX
+
+ax_CFLAGS_Debug   = -g -D_DEBUG -DDEBUG //-D_GLIBCXX_DEBUG=1 -D_GLIBCXX_DEBUG_PEDANTIC=1
+ax_CFLAGS_Release = -DNDEBUG
+ax_CFLAGS         = -Wall $(OTHER_CFLAGS_$CONFIGURATION)
+
+//OTHER_LDFLAGS = $(OTHER_LDFLAGS) -ObjC
+OTHER_CPLUSPLUSFLAGS = -x objective-c++ -Wno-invalid-offsetof -fvisibility=default -fvisibility-inlines-hidden $(OTHER_CFLAGS)
+
+//ObjC Automatic reference count
+CLANG_WARN_OBJCPP_ARC_ABI = YES
+
+//Symbols Hidden by Default
+//GCC_SYMBOLS_PRIVATE_EXTERN = YES
+GCC_ENABLE_CPP_RTTI = NO
+
+ax_core_CFLAGS  = -I$(ax_core_path)/include -Wall $(ax_CFLAGS_$CONFIGURATION)
+ax_core_LDFLAGS = -L$(ax_core_path)/lib/$(ax_PLATFORM)/$(CONFIGURATION) -L$(ax_core_path)/lib/$(ax_PLATFORM) -ObjC -lax_core -lgc -framework Foundation -framework AppKit
+
+//OTHER_LDFLAGS = $(OTHER_LDFLAGS) -ObjC -framework Foundation -framework AppKit -framework OpenGL -framework OpenAL -framework QuartzCore -framework AudioToolBox
+
+//ARCHS = $(ARCHS_STANDARD_32_BIT)
+//ARCHS = $(ARCHS_STANDARD_64_BIT)
+//ARCHS = $(ARCHS_STANDARD_32_64_BIT)
