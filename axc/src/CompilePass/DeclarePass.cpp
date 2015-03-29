@@ -12,7 +12,8 @@ namespace ax {
 namespace Compile {
 
 void DeclarePass::parseFile( ax_Obj< SourceFile > sourceFile ) {
-
+	propPass = false;
+	
 	ax_log( "compiling... [{?}]", sourceFile->filename );
 	
 	parser.reset( sourceFile );
@@ -20,6 +21,15 @@ void DeclarePass::parseFile( ax_Obj< SourceFile > sourceFile ) {
 	
 	parser.nextToken();
 	_process();
+}
+
+void DeclarePass::parsePropPass	() {
+	propPass = true;
+
+	ax_foreach( &s, g_compiler->metadata.structList ) {
+		parser.setPos( s->bodyPos );
+		parse_StructBody( s );
+	}
 }
 
 void DeclarePass::_process() {
@@ -97,12 +107,17 @@ void DeclarePass::parse_namespace() {
 	}
 }
 
-
-
 void DeclarePass::parse_StructNode( DeclarationModifier & modifier ) {
 	
 	if( ! token.is_class() && ! token.is_struct() && ! token.is_interface() ) {
 		Log::Error( token, ax_txt("class / struct / interface expected") );
+	}
+	
+	if( propPass ) {
+		parser.skipUntil( TokenType::t_curlyBracketOpen );
+		nextToken();
+		parser.skipCurlyBracket();
+		return;
 	}
 	
 	auto nodeType = token.type;
@@ -118,8 +133,10 @@ void DeclarePass::parse_StructNode( DeclarationModifier & modifier ) {
 
 	if( ! token.is_identifier() ) Log::Error( token, ax_txt("type name expected") );
 	
-	auto new_node = ax_new_obj( StructNode,		inNode, token.pos, token.str );
+	auto new_node = ax_new_obj( StructNode,	inNode, token.pos, token.str );
 	new_node->nodeType = nodeType;
+	
+	g_compiler->metadata.structList.add( new_node );
 	
 	nextToken();
 	
@@ -148,7 +165,15 @@ void DeclarePass::parse_StructNode( DeclarationModifier & modifier ) {
 	}
 	nextToken();
 	
-	auto scope_inNode = ax_scope_value( pos.inNode, new_node );
+	new_node->bodyPos = token.pos;
+	
+	parse_StructBody( new_node );
+	
+}
+
+void DeclarePass::parse_StructBody( ax_Obj< StructNode > structNode ) {
+
+	auto scope_inNode = ax_scope_value( pos.inNode, structNode );
 	
 	for(;;) {
 		parser.skipNewLines();
@@ -162,20 +187,27 @@ void DeclarePass::parse_StructNode( DeclarationModifier & modifier ) {
 		if( token.is_var()			) {	parse_PropNode		(modifier); continue; }
 		if( token.is_let()			) { parse_PropNode		(modifier); continue; }
 		if( token.is_fn()			) {	parse_FuncNode		(modifier); continue; }
-
+					
 		if( token.is_class() 		) { parse_StructNode	(modifier); continue; }
 		if( token.is_struct() 		) { parse_StructNode	(modifier); continue; }
 		if( token.is_interface() 	) { parse_StructNode	(modifier); continue; }
 
 //		if( token.is_enum()		) { parseEnum		(modifier); continue; }
-		
-		
+
 		Log::Error( token, ax_txt("unexpected token") );
 	}
 }
 
 void DeclarePass::parse_FuncNode( DeclarationModifier & modifier ) {
 	if( ! token.is_fn() ) Log::Error( token, ax_txt("fn expected") );
+
+	if( ! propPass ) {
+		parser.skipUntil( TokenType::t_curlyBracketOpen );
+		nextToken();
+		parser.skipCurlyBracket();
+		return;
+	}
+
 	nextToken();
 
 	ax_if_not_let( inNode, pos.inNode ) {
@@ -224,6 +256,13 @@ void DeclarePass::parse_PropNode( DeclarationModifier & modifier ) {
 	if( ! token.is_var() && ! token.is_let() ) {
 		Log::Error( token, ax_txt("let / var expected") );
 	}
+	
+	if( ! propPass ) {
+		parser.skipUntilEndOfLine();
+		nextToken();
+		return;
+	}
+	
 	auto nodeType = token.type;
 
 	ax_if_not_let( inNode, pos.inNode ) {

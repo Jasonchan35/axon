@@ -18,15 +18,20 @@ class DeclarePass : public CompilePass {
 public:
 	void	parseFile( ax_Obj< SourceFile > srcFile );
 
+	void	parsePropPass	();
+
 private:
+	bool	propPass;
+
 	void	_process();
 	
-	void	parse_namespace			();
+	void	parse_namespace		();
 	
 	void	parse_StructNode	( DeclarationModifier & modifier );
-	void	parse_PropNode		( DeclarationModifier & modifier );
-	void	parse_FuncNode		( DeclarationModifier & modifier );
+	void	parse_StructBody	( ax_Obj< StructNode > structNode );
 	
+	void	parse_PropNode		( DeclarationModifier & modifier );
+	void	parse_FuncNode		( DeclarationModifier & modifier );	
 };
 
 

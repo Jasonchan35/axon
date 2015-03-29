@@ -21,6 +21,8 @@ public:
 	ax_Obj< namespace_node > root;
 
 	void OnStringReq( ax_ToStringReq & req ) const;
+	
+	ax_Array_< ax_Obj<StructNode> >	structList;
 };
 
 

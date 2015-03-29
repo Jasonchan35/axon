@@ -38,10 +38,14 @@ void Compiler::loadAllSourceFiles() {
 
 void Compiler::declarePass() {
 	ax_foreach( & f, sourceFiles ) {
-//		ax_dump( f->filename );
 		DeclarePass	pass;
 		pass.parseFile( f );
 	}
+
+	ax_dump( metadata );
+	
+	DeclarePass propPass;
+	propPass.parsePropPass();
 }
 
 void Compiler::compile( const ax_string & project_root ) {

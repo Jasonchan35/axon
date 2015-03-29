@@ -7,6 +7,10 @@ class App {
 
 	struct Pt {
 		let x=0, y=0
+
+		fn sub() {
+			
+		}
 	}
 
 	fn add( a int, b int ) int {

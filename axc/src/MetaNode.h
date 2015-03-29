@@ -88,7 +88,8 @@ class StructNode : public TypedNode {
 public:
 	StructNode( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name );
 
-	ax_Array_< LexerPos >	 baseOrInterfacePos;
+	ax_Array_< LexerPos >	baseOrInterfacePos;
+	LexerPos				bodyPos;
 };
 
 class PropNode : public TypedNode {

@@ -23,6 +23,7 @@ public:
 	Lexer	( Token & token, LexerPos & pos ) : token( token ), c(pos) {}
 
 	void	reset 	( ax_Obj< SourceFile > sourceFile );
+	void	setPos	( const LexerPos & pos );
 
 	bool	getToken	( Token & token );
 	void	_getToken	( Token & token );
@@ -41,7 +42,7 @@ public:
 		
 		void reset( ax_Obj< SourceFile > sourceFile );
 
-		void setPos( LexerPos & pos );
+		void setPos( const LexerPos & pos );
 		
 		void operator++		(int) 	{ next(); }
 		void operator++		() 		{ next(); }

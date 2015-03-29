@@ -30,7 +30,7 @@ void Lexer::Cursor::reset( ax_Obj< SourceFile > sourceFile ) {
 	}
 }
 
-void Lexer::Cursor::setPos( LexerPos & pos ) {
+void Lexer::Cursor::setPos( const LexerPos & pos ) {
 	this->pos = pos;
 	
 	p = nullptr;
@@ -93,7 +93,10 @@ void	Lexer::reset ( ax_Obj< SourceFile > sourceFile ) {
 	c.reset( sourceFile );
 }
 
-
+void	Lexer::setPos	( const LexerPos & pos ) {
+	c.setPos( pos );
+	nextToken();
+}
 
 bool	Lexer::getToken		( Token & token ) {
 	_getToken(token);

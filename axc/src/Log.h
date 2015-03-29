@@ -20,7 +20,7 @@ public:
 	static void Error( Token & token, Args &&... args ) { Error( &token, &token.pos, args... ); }
 	
 	template< typename... Args >
-	static void Error( Token* token, LexerPos* pos, const ax_string & fmt ) {
+	static void Error( Token* token, const LexerPos* pos, const ax_string & fmt ) {
 		ax_log_( ax_txt("!! ERROR:") );
 		ax_log_( fmt );
 		if( token ) ax_log("{?}", *token );
@@ -29,7 +29,7 @@ public:
 	}
 
 	template< typename... Args >
-	static void Error( Token* token, LexerPos* pos, Args &&... args ) {
+	static void Error( Token* token, const LexerPos* pos, Args &&... args ) {
 		ax_log_( ax_txt("!! ERROR:") );
 		ax_log_( args... );
 		if( token ) ax_log("{?}", *token );

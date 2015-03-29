@@ -16,6 +16,9 @@ void Parser::reset( ax_Obj< SourceFile > sourceFile ) {
 	lexer.reset( sourceFile );
 }
 
+void Parser::setPos	( const LexerPos & pos ) {
+	lexer.setPos( pos );
+}
 
 void Parser::skipTypeName	() {
 	if( token.is_roundBracketOpen() ) {	//tuple
@@ -55,6 +58,20 @@ void Parser::nextToken() {
 
 void Parser::skipNewLines() {
 	while( token.is_newLine() ) {
+		nextToken();
+	}
+}
+
+void Parser::skipUntilEndOfLine	() {
+	for(;;) {
+		if( token.is_newLine_or_semiColon() ) break;
+		nextToken();
+	}
+}
+
+void Parser::skipUntil( TokenType t ) {
+	for(;;) {
+		if( token.type == t ) break;
 		nextToken();
 	}
 }

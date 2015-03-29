@@ -20,10 +20,14 @@ public:
 	Parser( Token & token, LexerPos & pos ) : token(token), pos(pos), lexer( token, pos ) {}
 
 	void	reset 	( ax_Obj< SourceFile > sourceFile );
+	void	setPos	( const LexerPos & pos );
 
 	void	nextToken			();
 	
 	void	skipNewLines		();
+	
+	void	skipUntilEndOfLine	();
+	void	skipUntil( TokenType t );
 
 	void	skipExpression		();
 	void	skipRoundBracket	();
