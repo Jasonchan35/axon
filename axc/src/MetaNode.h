@@ -119,8 +119,8 @@ class StructNode : public TypedNode {
 public:
 	StructNode( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name );
 
-	ax_Array_< LexerPos >	baseOrInterfacePos;
-	LexerPos				bodyPos;
+	LexerPos		bodyPos;
+	bool			isNestedType() { return false; }
 };
 
 class PropNode : public TypedNode {
@@ -128,9 +128,11 @@ class PropNode : public TypedNode {
 public:
 	PropNode( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name );
 
-	LexerPos	dataTypePos;
+	LexerPos	typePos;
 	
 	ax_NullableObj< ExprAST >	initExpr;
+	
+	ax_Obj< TypedNode >		type;
 };
 
 struct FuncParam {

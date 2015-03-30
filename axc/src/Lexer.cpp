@@ -24,7 +24,11 @@ void Lexer::Cursor::reset( ax_Obj< SourceFile > sourceFile ) {
 	pos.line = 1;
 	pos.col  = 1;
 
-	p = sourceFile->source.c_str();
+	auto & source = sourceFile->source;
+
+	p 	= source.c_str();
+	end = source.c_str() + source.size();
+	
 	if( p ) {
 		ch = *p;
 	}
@@ -34,11 +38,13 @@ void Lexer::Cursor::setPos( const LexerPos & pos ) {
 	this->pos = pos;
 	
 	p = nullptr;
+	end = nullptr;
 	
 	ax_if_let( sourceFile, pos.file ) {
 		auto & source = sourceFile->source;
 		if( pos.filePos >= source.size() ) return Log::Error( nullptr, &pos, ax_txt("Error setCursor file position out of range") );
-		p = source.c_str() + pos.filePos;
+		p 	= source.c_str() + pos.filePos;
+		end = source.c_str() + sourceFile->source.size();
 	}
 
 	if( p ) {
@@ -48,7 +54,10 @@ void Lexer::Cursor::setPos( const LexerPos & pos ) {
 
 
 void Lexer::Cursor::next() {
-	if( !p ) return;
+	if( !p || p >= end ) {
+		ch = 0;
+		return;
+	}
 
 	pos.filePos++;
 	
@@ -216,16 +225,16 @@ void	Lexer::_getToken( Token & token ) {
 		
 		
 		case '/': {
-			ax_TempString	tmp;
+//			ax_TempString	tmp;
 			c++;
 			if( c == '/' ) { //skip comment line
 				c++;
-				tmp.append( ax_txt("//") );
+//				tmp.append( ax_txt("//") );
 			
 				token.type = TokenType::t_comment;
 				for( ;c; c++) {
 					if( c == '\n' ) break;
-					tmp.append(c);
+//					tmp.append(c);
 				}
 				c++;
 				return;
@@ -233,7 +242,7 @@ void	Lexer::_getToken( Token & token ) {
 			
 			if( c == '*' ) { //skip comment block
 				c++;
-				tmp.append( ax_txt("/*") );
+//				tmp.append( ax_txt("/*") );
 				
 				int level = 1;
 				for( ;c; c++) {
@@ -241,7 +250,7 @@ void	Lexer::_getToken( Token & token ) {
 						c++;
 						if( c == '/' ) {
 							level--;
-							tmp.append( ax_txt("*/") );
+//							tmp.append( ax_txt("*/") );
 							
 							if( level == 0 ) break;
 							continue;
@@ -252,18 +261,18 @@ void	Lexer::_getToken( Token & token ) {
 						c++;
 						if( c == '*' ) {
 							level++;
-							tmp.append( ax_txt("/*") );
+//							tmp.append( ax_txt("/*") );
 							
 							if( level > 256 ) Log::Error( nullptr, &c.pos, ax_txt("excess comment block level limit") );
 							continue;
 						}
 					}
 					
-					tmp.append(c);
+//					tmp.append(c);
 				}
 				c++;
 				
-				return _setToken( token, TokenType::t_comment, tmp.to_string() );
+				return _setToken( token, TokenType::t_comment, ax_txt("<comment>") );
 			}
 			
 			if( c == '=' ) { c++; return _setToken( token, TokenType::t_divAssign, ax_txt("/=") ); }
@@ -396,7 +405,7 @@ void	Lexer::_getToken( Token & token ) {
 		return;
 	}
 	
-	Log::Error( nullptr, &c.pos, ax_txt("unknown character [{?}]"), c.getChar() );
+	Log::Error( c.pos, ax_txt("unknown character [{?}]"), c.getChar() );
 }
 
 

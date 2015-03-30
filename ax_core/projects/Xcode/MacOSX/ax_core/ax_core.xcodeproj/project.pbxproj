@@ -7,13 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		5E7C55851AB8445B0079F668 /* MutString.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C55841AB8445B0079F668 /* MutString.cpp */; };
 		5E9044511AB96276002F7C82 /* ax_c_str_to.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5E9044501AB96276002F7C82 /* ax_c_str_to.cpp */; };
 		5E9044561AB96913002F7C82 /* ToStringReq.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5E9044551AB96913002F7C82 /* ToStringReq.cpp */; };
 		5E90445F1AB9AC70002F7C82 /* Memory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5E90445E1AB9AC70002F7C82 /* Memory.cpp */; };
 		5E90446A1AB9B29B002F7C82 /* Type.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5E9044691AB9B29B002F7C82 /* Type.cpp */; };
 		5E9044CD1AC03462002F7C82 /* Timestamp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5E9044CB1AC03462002F7C82 /* Timestamp.cpp */; };
 		5E9044CE1AC03462002F7C82 /* Timestamp.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5E9044CC1AC03462002F7C82 /* Timestamp.mm */; };
+		5E9044D51AC97D7B002F7C82 /* MutString.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C55841AB8445B0079F668 /* MutString.cpp */; };
 		9666CDAA1AB885EA00F584F0 /* StringFormat.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9666CDA81AB885EA00F584F0 /* StringFormat.cpp */; };
 		967415641AB5470C00CD0460 /* ax_bitwise.h in Headers */ = {isa = PBXBuildFile; fileRef = 967415591AB5470B00CD0460 /* ax_bitwise.h */; };
 		967415651AB5470C00CD0460 /* ax_COMPILER_GCC.h in Headers */ = {isa = PBXBuildFile; fileRef = 9674155A1AB5470B00CD0460 /* ax_COMPILER_GCC.h */; };
@@ -408,7 +408,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				5E9044CE1AC03462002F7C82 /* Timestamp.mm in Sources */,
-				5E7C55851AB8445B0079F668 /* MutString.cpp in Sources */,
 				5E9044511AB96276002F7C82 /* ax_c_str_to.cpp in Sources */,
 				5E9044561AB96913002F7C82 /* ToStringReq.cpp in Sources */,
 				5E90446A1AB9B29B002F7C82 /* Type.cpp in Sources */,
@@ -419,6 +418,7 @@
 				968BA7001AC1FC2E002E619A /* Directory.cpp in Sources */,
 				968BA7011AC1FC2E002E619A /* File.cpp in Sources */,
 				968BA7021AC1FC2E002E619A /* FileStream.cpp in Sources */,
+				5E9044D51AC97D7B002F7C82 /* MutString.cpp in Sources */,
 				968BA7031AC1FC2E002E619A /* Path.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

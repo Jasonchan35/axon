@@ -50,8 +50,8 @@ public:
 		
 		void trimSeperators	();
 		
-		operator	char	() const	{ return ch; }
-		char		getChar	() const 	{ return ch; }
+		operator	ax_char	() const	{ return ch; }
+		ax_char		getChar	() const 	{ return ch; }
 		
 		bool	isSeperator();
 		bool	isAlpha();
@@ -62,6 +62,7 @@ public:
 		
 	private:
 		const ax_char*	p;
+		const ax_char*	end;
 		ax_char			ch;
 	};
 	

@@ -14,14 +14,60 @@
 namespace ax {
 namespace Compile {
 
+class IdentifierAST;
+class NumberAST;
+class StringLiteralAST;
+
+class PrefixAST;
+class PostfixAST;
+class BinaryAST;
+
+class FuncArgAST;
+
+class IExprDispatcher {
+public:
+	virtual	void	onAST( IdentifierAST 	& p ) = 0;
+
+	virtual	void	onAST( NumberAST 		& p ) = 0;
+	virtual	void	onAST( StringLiteralAST & p ) = 0;
+//	virtual	void	onAST( ArrayConstAST 	& p ) = 0;
+//	virtual	void	onAST( DictConstAST 	& p ) = 0;
+
+	virtual	void	onAST( PrefixAST 		& p ) = 0;
+	virtual	void	onAST( PostfixAST 		& p ) = 0;
+	virtual	void	onAST( BinaryAST 		& p ) = 0;
+
+//	virtual	void	onAST( TupleAST 		& p ) = 0;
+	virtual	void	onAST( FuncArgAST 		& p ) = 0;
+//	virtual	void	onAST( SubscriptArgAST 	& p ) = 0;
+
+//	virtual	void	onAST( StatementsAST	& p ) = 0;
+//	virtual	void	onAST( IfAST 			& p ) = 0;
+//	virtual	void	onAST( WhileAST 		& p ) = 0;
+//	virtual	void	onAST( DoWhileAST 		& p ) = 0;
+//	virtual	void	onAST( ForAST 			& p ) = 0;
+	
+//	virtual	void	onAST( ReturnAST 		& p ) = 0;
+//	virtual	void	onAST( BreakAST 		& p ) = 0;
+//	virtual	void	onAST( ContinueAST 		& p ) = 0;
+//
+//	virtual	void	onAST( LocalVarAST 		& p ) = 0;
+};
+
+
+
+
 class ExprAST : public System::Object {
 	ax_DefObject( ExprAST, System::Object );
 public:
 	struct	ax_type_on_gc_trace : public std::true_type {};
 
 	ExprAST	( const LexerPos & pos_ ) : pos(pos_) {}
+	
+			void	dispatch		( IExprDispatcher & p ) { onDispatch(p); }
+	virtual	void	onDispatch		( IExprDispatcher & p ) = 0;
+	
 	LexerPos	pos;
-
 	RType		returnType;
 };
 
@@ -29,6 +75,9 @@ public:
 class NumberAST : public ExprAST {
 	ax_DefObject( NumberAST, ExprAST )
 public:
+
+	virtual	void	onDispatch		( IExprDispatcher & p ) { p.onAST(*this); }
+
 /*
 	0x11		hex
 	0o11		oct
@@ -89,13 +138,16 @@ public:
 	: base(pos_)
 	, value(value_) {
 	}
+
+
+	virtual	void	onDispatch		( IExprDispatcher & p ) { p.onAST(*this); }
 };
 
 
 class IdentifierAST : public ExprAST {
 	ax_DefObject( IdentifierAST, ExprAST )
 public:
-	ax_Obj< MetaNode >		node;
+	ax_NullableObj< MetaNode >		node;
 
 	bool			dot;
 	RType		dotType;
@@ -104,6 +156,8 @@ public:
 	: base(pos_)
 	, node(node_) {
 	}
+
+	virtual	void	onDispatch		( IExprDispatcher & p ) { p.onAST(*this); }
 };
 
 
@@ -115,6 +169,7 @@ public:
 	
 	PrefixAST( const LexerPos &pos_, TokenType op_ ) : base(pos_), op(op_) {}
 	
+	virtual	void	onDispatch		( IExprDispatcher & p ) { p.onAST(*this); }
 };
 
 class PostfixAST : public ExprAST {
@@ -125,6 +180,7 @@ public:
 	
 	PostfixAST( const LexerPos &pos_, TokenType op_, ax_Obj< ExprAST > expr_ ) : base(pos_), op(op_), expr(expr_) {}
 	
+	virtual	void	onDispatch		( IExprDispatcher & p ) { p.onAST(*this); }
 };
 
 
@@ -143,6 +199,9 @@ public:
 	, parenthesis( parenthesis_ )
 	{
 	}
+
+
+	virtual	void	onDispatch		( IExprDispatcher & p ) { p.onAST(*this); }
 	
 	bool	parenthesis : 1;
 };
@@ -155,8 +214,9 @@ public:
 	
 	FuncArgAST( const LexerPos &_pos ) : base(_pos) {}
 
-};
+	virtual	void	onDispatch		( IExprDispatcher & p ) { p.onAST(*this); }
 
+};
 
 
 }} //namespace

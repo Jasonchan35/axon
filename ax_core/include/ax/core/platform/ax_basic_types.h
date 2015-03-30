@@ -11,6 +11,7 @@
 
 #define ax_string			ax::System::String
 #define ax_TempString		ax::System::TempString
+#define ax_TempStringA		ax::System::TempStringA
 
 #define ax_MutString		ax::System::MutString
 #define ax_MutString_		ax::System::MutString_
@@ -53,7 +54,7 @@
 
 typedef uint32_t	ax_unichar;
 
-#define ax_char_define_type 'a'  // a,u,w
+#define ax_char_define_type 'w'  // a,u,w
 
 #define ax_sz8(sz)		(u8##sz)
 #define ax_sz16(sz)		( u##sz)

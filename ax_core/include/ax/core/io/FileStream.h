@@ -54,8 +54,9 @@ public:
 	void		readBytes		(       void* buf, ax_int byte_size );
 	void		writeBytes		( const void* buf, ax_int byte_size );
 		
-	void		writeText		( const String  & s );
-	void		writeUtf8		( const StringA & s );
+	void		writeText		( const String  	& s );
+	void		writeUtf8		( const StringA 	& s );
+	void		writeUtf8		( const MutStringA 	& s );
 		
 	//! read all bytes to end of file
 	ax_Obj< ByteArray >	reallAllBytes();

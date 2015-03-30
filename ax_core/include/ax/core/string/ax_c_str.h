@@ -12,12 +12,19 @@
 #include "../platform/platform.h"
 #include "../base/Exception.h"
 
-
 template< typename T > const T* 	ax_empty_c_str();
 template<> inline const char* 		ax_empty_c_str() { return  ""; }
 template<> inline const char16_t*	ax_empty_c_str() { return u""; }
 template<> inline const char32_t*	ax_empty_c_str() { return U""; }
 template<> inline const wchar_t*	ax_empty_c_str() { return L""; }
+
+template< typename T > const T* 	ax_c_str_path_seperators();
+template<> inline const char* 		ax_c_str_path_seperators() { return   "\\/"; }
+template<> inline const char16_t* 	ax_c_str_path_seperators() { return  u"\\/"; }
+template<> inline const char32_t* 	ax_c_str_path_seperators() { return  U"\\/"; }
+template<> inline const wchar_t* 	ax_c_str_path_seperators() { return  L"\\/"; }
+
+
 
 template< typename T > const T* 	ax_HEX_chars();
 template< typename T > const T* 	ax_hex_chars();
@@ -419,7 +426,7 @@ ax_int _ax_strlen( const T* s ) {
 
 template< class T > inline
 const T* ax_c_str_file_basename( const T* sz ) {
-	auto p = ax_strrchr_list(sz,"\\/");
+	auto p = ax_strrchr_list(sz, ax_c_str_path_seperators<T>() );
 	return p ? p+1 : sz;
 }
 

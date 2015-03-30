@@ -8,6 +8,7 @@
 
 #include "Compiler.h"
 #include "CompilePass/DeclarePass.h"
+#include "CompilePass/GenCppPass.h"
 
 namespace ax {
 namespace Compile {
@@ -42,10 +43,15 @@ void Compiler::declarePass() {
 		pass.parseFile( f );
 	}
 
-	ax_dump( metadata );
+//	ax_dump( metadata );
 	
 	DeclarePass propPass;
 	propPass.parsePropPass();
+}
+
+void Compiler::genCppPass() {
+	GenCppPass	pass;
+	pass.genCode( project_root + ax_txt("/_auto_gen_") );
 }
 
 void Compiler::compile( const ax_string & project_root ) {
@@ -57,8 +63,9 @@ void Compiler::compile( const ax_string & project_root ) {
 	loadAllSourceFiles();
 	declarePass();
 	
-
 	ax_dump( metadata );
+	
+	genCppPass();
 
 	ax_log("=== compile done ! ===" );
 	ax_log("Time: {?}s", watch.get() );

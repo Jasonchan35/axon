@@ -36,8 +36,8 @@ String		FileStream::readAllText() {
 	return readAllUtf8();
 #else
 
-	MutString	buf;
-	readAllText( buf );	
+	TempString	buf;
+	readAllTextToBuffer( buf );
 	return buf.to_string();
 
 #endif
@@ -57,7 +57,7 @@ StringA		FileStream::readAllUtf8() {
 				
 		readBytes( buf, remain );
 		
-		return StringA::MakeExternal( buf, remain );
+		return StringA::_MakeExternal( buf, remain );
 
 	}catch(...) {
 		throw;
@@ -102,11 +102,15 @@ void FileStream::writeText ( const String & buf ) {
 #else
 	TempStringA tmp;
 	tmp.assignUtf( buf );
-	writeUtf8( tmp );
+	writeBytes( tmp.c_str(), tmp.size() );
 #endif
 }
 
 void FileStream::writeUtf8 ( const StringA & buf ) {
+	writeBytes( buf.c_str(), buf.size() );
+}
+
+void FileStream::writeUtf8 ( const MutStringA & buf ) {
 	writeBytes( buf.c_str(), buf.size() );
 }
 

@@ -129,7 +129,7 @@ ax_NullableObj< ExprAST > CompilePass::parseExpr_BinaryOp( ax_int exprPrec, ax_O
 		
 		ax_NullableObj<ExprAST>	rhs;
 		
-		TokenType closeBracket;
+		auto closeBracket = TokenType::t_unknown;
 		
 		if( op == TokenType::t_roundBracketOpen ) {
 			closeBracket = TokenType::t_roundBracketClose;

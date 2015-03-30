@@ -23,6 +23,8 @@ public:
 	void	loadAllSourceFiles();
 	
 	void	declarePass();
+	
+	void	genCppPass();
 
 	ax_string							project_root;
 	ax_Array_< ax_Obj<SourceFile> >		sourceFiles;

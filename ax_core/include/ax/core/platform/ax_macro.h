@@ -12,7 +12,7 @@
 #define ax_COMMA	,
 
 #define ax__FILE__				ax_txt(__FILE__)
-#define ax__FILE_BASENAME__		ax::System::StringX<ax_char>::MakeExternal_c_str( ax_c_str_file_basename( ax_sz(__FILE__) ) )
+#define ax__FILE_BASENAME__		ax::System::StringX<ax_char>::_MakeExternal_c_str( ax_c_str_file_basename( ax_sz(__FILE__) ) )
 
 #define ax__LINE__			__LINE__
 

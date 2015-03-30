@@ -20,10 +20,10 @@ namespace System {
 
 template< typename T > class MutStringX;
 
-#define ax_txt8( sz )	( ax::System::StringX<char>    ::MakeExternal( u8##sz, sizeof( u8##sz ) / sizeof(char)     -1 ) )
-#define ax_txt16( sz )	( ax::System::StringX<char16_t>::MakeExternal(  u##sz, sizeof(  u##sz ) / sizeof(char16_t) -1 ) )
-#define ax_txt32( sz )	( ax::System::StringX<char32_t>::MakeExternal(  U##sz, sizeof(  U##sz ) / sizeof(char32_t) -1 ) )
-#define ax_txtW( sz )	( ax::System::StringX<wchar_t> ::MakeExternal(  L##sz, sizeof(  L##sz ) / sizeof(wchar_t)  -1 ) )
+#define ax_txt8( sz )	( ax::System::StringX<char>    ::_MakeExternal( u8##sz, sizeof( u8##sz ) / sizeof(char)     -1 ) )
+#define ax_txt16( sz )	( ax::System::StringX<char16_t>::_MakeExternal(  u##sz, sizeof(  u##sz ) / sizeof(char16_t) -1 ) )
+#define ax_txt32( sz )	( ax::System::StringX<char32_t>::_MakeExternal(  U##sz, sizeof(  U##sz ) / sizeof(char32_t) -1 ) )
+#define ax_txtW( sz )	( ax::System::StringX<wchar_t> ::_MakeExternal(  L##sz, sizeof(  L##sz ) / sizeof(wchar_t)  -1 ) )
 
 //! Immutable string	Literal / GC Memory
 template< typename T >
@@ -60,12 +60,13 @@ public:
 	StringX	operator+( const StringX<T> & rhs ) const {
 		if( rhs.size() == 0 ) return *this;
 		
-		auto len = _size + rhs.size();
-		auto p = Memory::Alloc<T>( len + 1 );
-		ArrayUtility::Copy( p, _data, _size );
-		ArrayUtility::Copy( p+_size, rhs.c_str(), rhs.size() );
-		p[len] = 0;
-		return StringX::MakeExternal( p, len );
+		auto req_len = _size + rhs.size();
+		auto buf = AllocBuffer( req_len );
+		
+		ArrayUtility::Copy( buf, _data, _size );
+		ArrayUtility::Copy( buf+_size, rhs.c_str(), rhs.size() );
+		
+		return StringX( buf, req_len );
 	}
 
 	ax_int		size	() const				{ return _size; }
@@ -110,8 +111,8 @@ public:
 		return StringX( buf, len );
 	}
 	
-	static	StringX	MakeExternal_c_str( const T* sz ) { return MakeExternal(sz, ax_strlen(sz)); }
-	static	StringX	MakeExternal( const T* sz, ax_int len ) {
+	static	StringX	_MakeExternal_c_str( const T* sz ) { return _MakeExternal(sz, ax_strlen(sz)); }
+	static	StringX	_MakeExternal( const T* sz, ax_int len ) {
 		return StringX(sz,len);
 	}
 	

@@ -54,8 +54,9 @@ struct File : public StaticClass {
 	static	StringA		ReadUtf8			( const ax_string & filename );
 	static	void		ReadUtf8ToBuffer	( MutStringA & buf, const ax_string & filename );
 
-	static	void		WriteText			( const ax_string & filename, const ax_string & text );
-	static	void		WriteUtf8			( const ax_string & filename, const ax_string & text );
+	static	void		WriteText			( const ax_string & filename, const ax_string	 & text );
+	static	void		WriteUtf8			( const ax_string & filename, const StringA  	 & text );
+	static	void		WriteUtf8			( const ax_string & filename, const MutStringA   & text );
 };
 
 

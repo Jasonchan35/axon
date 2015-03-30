@@ -223,7 +223,7 @@ NumberAST::NumberAST( const LexerPos &_pos, const ax_string & _srcStr )
 			//float
 			
 		}else{
-			Log::Error( pos, ax_txt("unknown suffix {?}"), ax_string::MakeExternal_c_str( suffix ) );
+			Log::Error( pos, ax_txt("unknown suffix {?}"), ax_string::Clone_c_str( suffix ) );
 		}
 				
 	}

@@ -78,22 +78,25 @@ public:
 		return ax_str_equals( _data, rhs._data );
 	}
 //---------------
-	ax_ALWAYS_INLINE(	void		operator=	( const StringX<T>     &  rhs 		) )	{ clear(); append( rhs ); }
-	ax_ALWAYS_INLINE(	void		operator=	( const MutStringX &  rhs 		) )	{ clear(); append( rhs ); }
-	ax_ALWAYS_INLINE(	void		operator=	(		MutStringX && rhs 		) ) { move(rhs); }
+	ax_ALWAYS_INLINE(	void		operator=	( const StringX<T> &  rhs 		) )				{ clear(); append( rhs ); }
+	ax_ALWAYS_INLINE(	void		operator=	( const MutStringX &  rhs 		) )				{ clear(); append( rhs ); }
+	ax_ALWAYS_INLINE(	void		operator=	(		MutStringX && rhs 		) ) 			{ move(rhs); }
 
 	ax_ALWAYS_INLINE( 	void		assign			( const T& ch ) )							{ clear(); append( ch );  }
 	ax_ALWAYS_INLINE( 	void		assignRepeat	( const T& ch, ax_int repeat ) )			{ clear(); appendRepeat( ch, repeat );  }
 	
 	ax_ALWAYS_INLINE( 	void		assign			( const StringX<T>    &  rhs ) )			{ clear(); append( rhs ); }
-	ax_ALWAYS_INLINE( 	void		assign			( const MutStringX<T> &  rhs ) )		{ clear(); append( rhs ); }
-	ax_ALWAYS_INLINE( 	void		assign			(       MutStringX<T> && rhs ) )		{ move(rhs); }
+	ax_ALWAYS_INLINE( 	void		assign			( const MutStringX<T> &  rhs ) )			{ clear(); append( rhs ); }
+	ax_ALWAYS_INLINE( 	void		assign			(       MutStringX<T> && rhs ) )			{ move(rhs); }
 	
 	ax_ALWAYS_INLINE( 	void		assign			( const T* data, ax_int data_size ) )		{ clear(); append( data, data_size ); }
 	
+	template< typename R > inline
+	MutStringX &	operator << ( const R & rhs ) { append( rhs ); return *this; }
+	
 	ax_ALWAYS_INLINE( 	void		append			( const T& ch ) );
 	ax_ALWAYS_INLINE( 	void		append			( const StringX<T>    &  rhs ) )			{ _append( rhs.c_str(), rhs.size(), 1 ); }
-	ax_ALWAYS_INLINE( 	void		append			( const MutStringX<T> &  rhs ) )		{ _append( rhs.c_str(), rhs.size(), 1 ); }
+	ax_ALWAYS_INLINE( 	void		append			( const MutStringX<T> &  rhs ) )			{ _append( rhs.c_str(), rhs.size(), 1 ); }
 	ax_ALWAYS_INLINE( 	void		append			(       MutStringX<T> && rhs ) );
 	
 	ax_ALWAYS_INLINE( 	void		append			( const T* data, ax_int data_size ) )		{ _append( data, data_size, 1 ); }
@@ -129,6 +132,8 @@ public:
 	ax_int	GetHash() const { return ax_c_str_hash(_data); }
 	
 	StringX<T>	to_StringX() 	{ return StringX<T>::Clone( c_str(), size() ); }
+
+	StringA		to_StringA() 	{ return StringA::CloneUtf( c_str(), size() ); }
 	
 	String		to_string()		{ return String::CloneUtf( c_str(), size() ); }
 	
@@ -176,9 +181,11 @@ public:
 	MutStringX_	( MutStringX<T>    && rhs ) { base::move(rhs); }
 	void operator=	( MutStringX<T>    && rhs ) { base::move(rhs); }
 	
-	
 	template< typename UTF >
 	MutStringX_		( const StringX<UTF> & s ) { base::appendUtf(s); }
+
+	template< typename UTF >
+	MutStringX_		( const MutStringX<UTF> & s ) { base::appendUtf(s); }
 	
 	virtual	bool	isDataOnHeap	() const { return base::dataPtr() != nullptr && base::dataPtr() != getLocalBufferPtr(); }
 	

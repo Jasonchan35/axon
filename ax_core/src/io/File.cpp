@@ -93,7 +93,13 @@ void	File::WriteText		( const ax_string & filename, const ax_string & text ) {
 	s.writeText( text );
 }
 
-void	File::WriteUtf8		( const ax_string & filename, const ax_string & text ) {
+void	File::WriteUtf8		( const ax_string & filename, const StringA & text ) {
+	FileStream	s;
+	s.openWrite( filename, true );
+	s.writeUtf8( text );
+}
+
+void	File::WriteUtf8		( const ax_string & filename, const MutStringA & text ) {
 	FileStream	s;
 	s.openWrite( filename, true );
 	s.writeUtf8( text );

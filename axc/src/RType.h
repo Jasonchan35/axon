@@ -22,7 +22,8 @@ public:
 
 	RType( ax_NullableObj< TypedNode > type_ = nullptr, bool isMutable_ = false )
 	: type( type_ )
-	, isMutable( isMutable_ ) {
+	, isMutable( isMutable_ )
+	, isTypeName( false ) {
 	}
 
 	ax_NullableObj< FuncNode >	getFunc					( const ax_string & name );
@@ -34,6 +35,7 @@ public:
 
 	ax_NullableObj< TypedNode >	type;
 	bool	isMutable;
+	bool	isTypeName;
 };
 
 }} //namespace

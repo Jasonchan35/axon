@@ -16,7 +16,7 @@ namespace ax {
 namespace System {
 
 template< typename T, typename VALUE > inline
-ax_ALWAYS_INLINE( static void StringFormatArg_Func( ToStringReq_<T> &req, const void* v ) ) {
+static void StringFormatArg_Func( ToStringReq_<T> &req, const void* v ) {
 	ax_to_string_req( req, *reinterpret_cast< const VALUE* >( v ) );
 }
 

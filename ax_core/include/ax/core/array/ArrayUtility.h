@@ -16,7 +16,7 @@ namespace ax {
 namespace System {
 
 template< typename T > inline
-ax_ALWAYS_INLINE( void ax_copy_loop( T* dst, const T* src, ax_int len ) ) {
+void ax_copy_loop( T* dst, const T* src, ax_int len ) {
 	auto e = src + len;
 	for( ; src < e; ++src, ++dst ) {
 		*dst = * src;
@@ -38,7 +38,7 @@ inline void ax_memcpy( void* dst, const void* src, ax_int len ) {
 }
 
 template< typename T > inline
-ax_ALWAYS_INLINE( void ax_set_zero_loop( T* dst, ax_int len ) ) {
+void ax_set_zero_loop( T* dst, ax_int len ) {
 	auto e = dst + len;
 	for( ; dst < e; ++dst ) {
 		*dst = 0;

@@ -147,7 +147,6 @@ void DeclarePass::parse_StructNode( DeclarationModifier & modifier ) {
 		
 		for(;;) {
 			if( token.is_identifier() ) {
-				new_node->baseOrInterfacePos.add( token.pos );
 				parser.skipTypeName();
 			}
 			
@@ -201,7 +200,7 @@ void DeclarePass::parse_StructBody( ax_Obj< StructNode > structNode ) {
 void DeclarePass::parse_FuncNode( DeclarationModifier & modifier ) {
 	if( ! token.is_fn() ) Log::Error( token, ax_txt("fn expected") );
 
-	if( ! propPass ) {
+	if( propPass ) {
 		parser.skipUntil( TokenType::t_curlyBracketOpen );
 		nextToken();
 		parser.skipCurlyBracket();
@@ -285,13 +284,13 @@ void DeclarePass::parse_PropNode( DeclarationModifier & modifier ) {
 		new_node->modifier = modifier;
 						
 		if( token.is_identifier() ) {
-			new_node->dataTypePos = token.pos;
+			new_node->typePos = token.pos;
 			parser.skipTypeName();
 		}
 		
 		if( token.is_assign() ) {
 			nextToken();
-			new_node->initExpr = parseExpression();
+			new_node->initExpr = parseExpr_Primary();
 			
 //			new_node->initExprPos = token.pos;
 //			parser.skipExpression();

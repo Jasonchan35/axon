@@ -192,7 +192,7 @@ bool	FuncOverload::isMatch ( const ax_Array< FuncParam > & callParams ) {
 		i++;
 	}
 	
-	auto fullname = func->getFullname( ax_txt(".") );
+//	auto fullname = func->getFullname( ax_txt(".") );
 	
 	if( i != params.size() ) {
 		return false;

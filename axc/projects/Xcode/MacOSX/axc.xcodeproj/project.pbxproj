@@ -21,6 +21,7 @@
 		5E9044C21AC02ED1002F7C82 /* Parser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5E9044B01AC02ED1002F7C82 /* Parser.cpp */; };
 		5E9044C31AC02ED1002F7C82 /* SourceFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5E9044B41AC02ED1002F7C82 /* SourceFile.cpp */; };
 		5E9044C41AC02ED1002F7C82 /* Token.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5E9044B61AC02ED1002F7C82 /* Token.cpp */; };
+		968D55C91AC99F49006C7CAF /* GenCppPass.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 968D55C71AC99F49006C7CAF /* GenCppPass.cpp */; };
 		96A10BA11AC833FF005E3CFF /* ExprAST.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 96A10B9F1AC833FF005E3CFF /* ExprAST.cpp */; };
 		96A10BA51AC83B00005E3CFF /* RType.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 96A10BA31AC83B00005E3CFF /* RType.cpp */; };
 /* End PBXBuildFile section */
@@ -78,6 +79,8 @@
 		5E9044B51AC02ED1002F7C82 /* SourceFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SourceFile.h; sourceTree = "<group>"; };
 		5E9044B61AC02ED1002F7C82 /* Token.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Token.cpp; sourceTree = "<group>"; };
 		5E9044B71AC02ED1002F7C82 /* Token.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Token.h; sourceTree = "<group>"; };
+		968D55C71AC99F49006C7CAF /* GenCppPass.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GenCppPass.cpp; sourceTree = "<group>"; };
+		968D55C81AC99F49006C7CAF /* GenCppPass.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GenCppPass.h; sourceTree = "<group>"; };
 		96A10B9F1AC833FF005E3CFF /* ExprAST.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ExprAST.cpp; sourceTree = "<group>"; };
 		96A10BA01AC833FF005E3CFF /* ExprAST.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ExprAST.h; sourceTree = "<group>"; };
 		96A10BA31AC83B00005E3CFF /* RType.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RType.cpp; sourceTree = "<group>"; };
@@ -165,6 +168,8 @@
 				5E90449D1AC02ED1002F7C82 /* CompilePass.h */,
 				5E90449E1AC02ED1002F7C82 /* DeclarePass.cpp */,
 				5E90449F1AC02ED1002F7C82 /* DeclarePass.h */,
+				968D55C71AC99F49006C7CAF /* GenCppPass.cpp */,
+				968D55C81AC99F49006C7CAF /* GenCppPass.h */,
 			);
 			path = CompilePass;
 			sourceTree = "<group>";
@@ -264,6 +269,7 @@
 				5E9044BC1AC02ED1002F7C82 /* Lexer.cpp in Sources */,
 				96A10BA11AC833FF005E3CFF /* ExprAST.cpp in Sources */,
 				96A10BA51AC83B00005E3CFF /* RType.cpp in Sources */,
+				968D55C91AC99F49006C7CAF /* GenCppPass.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
