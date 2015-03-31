@@ -32,7 +32,7 @@ void DeclarePass::parsePropPass	() {
 }
 
 void DeclarePass::resolveStructBaseTypes() {
-	ax_Array_< ax_Obj< StructNode > >	list[2];
+	ax_Array_< ax_Obj< StructureType > >	list[2];
 	list[0].reserve( 64 * 1024 );
 	list[1].reserve( 64 * 1024 );
 
@@ -152,23 +152,31 @@ void DeclarePass::parse_StructNode( DeclarationModifier & modifier ) {
 		parser.skipCurlyBracket();
 		return;
 	}
-	
-	auto nodeType = token.type;
-	nextToken();
-	
+
 	ax_if_not_let( inNode, pos.inNode ) {
 		throw System::Err_Undefined();
 	}
 	
-	if( ! inNode->ax_is< NamespaceNode	>() && ! inNode->ax_is< StructNode >() ) {
+	if( ! inNode->ax_is< NamespaceNode	>() && ! inNode->ax_is< StructureType >() ) {
 		Log::Error( token, ax_txt("cannot delcare class here") );
 	}
-
+	
+	auto nodeType = token.type;
+				
+	nextToken();
 	if( ! token.is_identifier() ) Log::Error( token, ax_txt("type name expected") );
+				
+	ax_Obj< StructureType >	new_node;
+	switch( nodeType ) {
+		case TokenType::t_interface: 	new_node = ax_new_obj( InterfaceNode,	inNode, token.pos, token.str );	break;
+		case TokenType::t_struct: 		new_node = ax_new_obj( StructNode,		inNode, token.pos, token.str );	break;
+		case TokenType::t_class: 		new_node = ax_new_obj( ClassNode,		inNode, token.pos, token.str );	break;
+
+		default:
+			Log::Error( token, ax_txt("class / struct / interface expected") );
+	}
 	
-	auto new_node = ax_new_obj( StructNode,	inNode, token.pos, token.str );
-	new_node->nodeType = nodeType;
-	
+			
 	g_compiler->metadata.structList.add( new_node );
 	
 	nextToken();
@@ -180,7 +188,7 @@ void DeclarePass::parse_StructNode( DeclarationModifier & modifier ) {
 		
 		for(;;) {
 			if( token.is_identifier() ) {
-				new_node->baseTypesPos.add( token.pos );
+				new_node->baseOrInterfacePos.add( token.pos );
 				parser.skipTypeName();
 			}
 			
@@ -204,7 +212,7 @@ void DeclarePass::parse_StructNode( DeclarationModifier & modifier ) {
 	
 }
 
-void DeclarePass::parse_StructBody( ax_Obj< StructNode > structNode ) {
+void DeclarePass::parse_StructBody( ax_Obj< StructureType > structNode ) {
 	parser.setPos( structNode->bodyPos );
 
 	auto scope_inNode = ax_scope_value( pos.inNode, structNode );
@@ -232,14 +240,41 @@ void DeclarePass::parse_StructBody( ax_Obj< StructNode > structNode ) {
 	}
 }
 
-bool DeclarePass::resolve_StructBaseType( ax_Obj< StructNode > node ) {
+bool DeclarePass::resolve_StructBaseType( ax_Obj< StructureType > node ) {
 
-	for( auto i = node->baseTypes.size(); i<node->baseTypesPos.size(); i++ ) {
-		parser.setPos( node->baseTypesPos[i] );
-		
-		parser.skipTypeName();
+	auto n = node->baseOrInterfacePos.size();
+	ax_int c = 0;
+	
+	if( ! node->baseType.is_null() ) {
+		c++;
 	}
 	
+	for( auto i=c; i<n; i++ ) {
+		auto pos = node->baseOrInterfacePos[i];
+		parser.setPos( pos );
+		
+		ax_if_not_let( t, parseTypename() ) {
+			return false;
+		}
+		
+		ax_if_not_let( s, t->ax_as< StructureType >() ) {
+			Log::Error( pos, ax_txt("interface / class / struct expected") );
+		}
+
+		ax_if_let( f, t->ax_as< InterfaceNode >() ) {
+			node->interfaces.add( f );
+			continue;
+		}
+		
+		if( i != 0 ) {
+			Log::Error( pos, ax_txt("cannot have multiple base class") );
+		}
+		node->baseType = s;
+	}
+	
+	if( node->baseType.is_null() && node->ax_is< ClassNode >() ) {
+		node->baseType = g_compiler->metadata.type_object;
+	}
 	return true;
 }
 
@@ -259,7 +294,7 @@ void DeclarePass::parse_FuncNode( DeclarationModifier & modifier ) {
 		throw System::Err_Undefined();
 	}
 		
-	if( ! inNode-> is_class() && ! inNode->is_struct() && ! inNode->is_interface() ) {
+	if( ! inNode->ax_is< ClassNode >() && ! inNode->ax_is< StructNode >() && ! inNode->ax_is< InterfaceNode >() ) {
 		Log::Error( token, ax_txt("cannot delcare function here") );
 	}
 
@@ -314,7 +349,7 @@ void DeclarePass::parse_PropNode( DeclarationModifier & modifier ) {
 		throw System::Err_Undefined();
 	}
 	
-	if( ! inNode->is_class() && ! inNode->is_struct() ) {
+	if( ! inNode->ax_is< ClassNode >() && ! inNode->ax_is< StructNode >() ) {
 		Log::Error( token, ax_txt("cannot delcare property here") );
 	}
 	

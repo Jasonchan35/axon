@@ -15,6 +15,33 @@ namespace Compile {
 void CompilePass::nextToken() { parser.nextToken(); }
 
 
+ax_NullableObj< MetaNode >	CompilePass::parseNode	() {
+	ax_if_not_let( o, token.pos.inNode ) {
+		Log::Error( nullptr, nullptr, ax_txt("error") );
+	}
+
+	for(;;) {
+		if( token.is_identifier() ) {
+			ax_if_not_let( p, o->getNode( token.str ) ) {
+				return nullptr;
+			}
+			
+			o = p;
+			nextToken();
+			
+			if( token.is_dot() ) {
+				nextToken();
+				continue;
+			}
+			
+			return o;
+		}
+		
+		break;
+	}
+	return nullptr;
+}
+
 ax_NullableObj< TypedNode > CompilePass::parseTypename	() {
 	if( token.is_roundBracketOpen() ) {	//tuple
 		nextToken();
@@ -41,12 +68,12 @@ ax_NullableObj< TypedNode > CompilePass::parseTypename	() {
 		return g_compiler->metadata.tupleTable.getOrAddTuple( token.pos, elements );
 	}
 
-	auto o = parseNode();
-	if( !o ) return nullptr;
+	ax_if_not_let( o, parseNode() ) {
+		return nullptr;
+	}
 	
-	auto t = o->cast<Type>();
-	if( !t ) {
-		Log.error( &token.pos, "type expected" );
+	ax_if_not_let( t, o->ax_as< TypedNode >() ) {
+		Log::Error( token, ax_txt("type expected") );
 	}
 	return t;
 }

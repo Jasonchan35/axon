@@ -45,6 +45,7 @@ public:
 
 
 	ax_NullableObj< TypedNode > 	parseTypename	();
+	ax_NullableObj< MetaNode >		parseNode		();
 
 	void	nextToken();
 

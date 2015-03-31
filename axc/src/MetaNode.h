@@ -52,10 +52,7 @@ public:
 	TokenType			nodeType;
 	bool		is_let		() { return nodeType == TokenType::t_let; }
 	bool		is_var		() { return nodeType == TokenType::t_var; }
-	bool		is_class	() { return nodeType == TokenType::t_class; }
-	bool		is_struct	() { return nodeType == TokenType::t_struct; }
-	bool		is_interface() { return nodeType == TokenType::t_interface; }
-
+	
 		ax_string	getFullname		( const ax_string & seperator ) const;
 			void	appendFullname	( ax_MutString & fullname, const ax_string & seperator ) const;
 
@@ -76,7 +73,6 @@ public:
 	ax_NullableObj< FuncNode >	getPrefixOperatorFunc		( TokenType op );
 	ax_Obj< FuncNode >			getOrAddPrefixOperatorFunc	( TokenType op );
 	
-				
 	typedef ax_Dict< ax_string, ax_Obj< MetaNode > >	ChildrenDict;
 	
 	ax_Obj<	ChildrenDict >	children;
@@ -118,7 +114,7 @@ class TupleType : public TypedNode {
 	ax_DefObject( TupleType, TypedNode )
 public:
 
-	TupleType( LexerPos pos, const ax_string & name, const ax_Array< TypedNode > & _elementTypes );
+	TupleType( const LexerPos & pos, const ax_string & name, const ax_Array< ax_Obj< TypedNode > > & elementTypes_ );
 	
 	ax_Array_< ax_Obj<TypedNode>, 8 >		elementTypes;
 	
@@ -128,27 +124,50 @@ class TupleTypeTable : System::NonCopyable {
 public:
 
 	ax_NullableObj< TupleType >	getTuple		( const ax_Array< ax_Obj<TypedNode> > & elementTypes );
-			ax_Obj< TupleType >	getOrAddTuple	( LexerPos pos, const ax_Array< ax_Obj<TypedNode> > & elementTypes );
+			ax_Obj< TupleType >	getOrAddTuple	( const LexerPos & pos, const ax_Array< ax_Obj<TypedNode> > & elementTypes );
 
-	void		getTupleName( ax_string & name, const ax_Array< ax_Obj<TypedNode> > & elementTypes );
+	ax_string		getTupleName( const ax_Array< ax_Obj<TypedNode> > & elementTypes );
 
 private:
 	ax_Dict< ax_string, ax_Obj<TupleType> >	tuples;
 };
 
 
-class StructNode : public TypedNode {
-	ax_DefObject( StructNode, TypedNode )
+class StructureType : public TypedNode {
+	ax_DefObject( StructureType, TypedNode )
 public:
-	StructNode( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name );
+	StructureType( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name );
 
-	ax_Array_< LexerPos >	baseTypesPos;
+	ax_Array_< LexerPos >	baseOrInterfacePos;
+
 	LexerPos				bodyPos;
 	
-	ax_Array_< ax_Obj< StructNode > >	baseTypes;
+	ax_NullableObj< StructureType >		baseType;
+	ax_Array_< ax_Obj< StructureType > >	interfaces;
 	
 	bool			isNestedType() { return false; }
 };
+
+class InterfaceNode : public StructureType {
+	ax_DefObject( InterfaceNode, StructureType );
+public:
+	InterfaceNode( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name ) : base( parent, pos, name ) {}
+};
+
+class StructNode : public StructureType {
+	ax_DefObject( StructNode, StructureType );
+public:
+	StructNode( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name ) : base( parent, pos, name ) {}
+};
+
+class ClassNode : public StructureType {
+	ax_DefObject( ClassNode, StructureType );
+public:
+	ClassNode( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name ) : base( parent, pos, name ) {}
+};
+
+
+
 
 class PropNode : public TypedNode {
 	ax_DefObject( PropNode, TypedNode );

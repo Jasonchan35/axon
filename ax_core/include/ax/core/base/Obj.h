@@ -24,6 +24,7 @@
 		typedef	T			THIS_CLASS; \
 		static  const ax_TypeInfo	ax_typeinfo; \
 		virtual	const ax_TypeInfo &	getTypeInfo() const { return ax_typeinfo; } \
+		ax_Obj< T >			as_##T() { return ax_ThisObj; } \
 	private: \
 //-------------
 

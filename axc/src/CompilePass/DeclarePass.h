@@ -30,9 +30,9 @@ private:
 	
 	void	parse_StructNode	( DeclarationModifier & modifier );
 	
-	bool	resolve_StructBaseType( ax_Obj< StructNode > structNode );
+	bool	resolve_StructBaseType( ax_Obj< StructureType > structNode );
 	
-	void	parse_StructBody	( ax_Obj< StructNode > structNode );
+	void	parse_StructBody	( ax_Obj< StructureType > structNode );
 	
 	void	parse_PropNode		( DeclarationModifier & modifier );
 	void	parse_FuncNode		( DeclarationModifier & modifier );	

@@ -15,6 +15,9 @@ Metadata::Metadata() {
 	root = ax_new_obj( NamespaceNode, ax_NullableObj< MetaNode >(nullptr), LexerPos(), ax_txt("ax_build") );
 	root->nodeType = TokenType::t_namespace;
 
+	type_object		= ax_new_obj(  ClassNode, root, LexerPos(), ax_txt("Object" ) );
+	type_object->buildin = true;
+
 	type_int8		= ax_new_obj(  PrimitiveType, root, ax_txt("int8" ) );
 	type_int16		= ax_new_obj(  PrimitiveType, root, ax_txt("int16" ) );
 	type_int32		= ax_new_obj(  PrimitiveType, root, ax_txt("int32" ) );

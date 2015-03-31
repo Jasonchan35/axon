@@ -14,7 +14,7 @@ namespace Compile {
 bool GenCppPass::hasToGenSourceFile( ax_Obj< MetaNode > node ) {
 	if( node->ax_is< NamespaceNode >() ) return true;
 
-	ax_if_let( type, node->ax_as< StructNode >() ) {
+	ax_if_let( type, node->ax_as< StructureType >() ) {
 		if( ! type->buildin && ! type->isNestedType() ) {
 			return true;
 		}
@@ -102,14 +102,14 @@ void GenCppPass::genHdr_dispatch( ax_Obj< MetaNode > node ) {
 	ax_if_let( ns, 		node->ax_as<NamespaceNode>() )	{ return genHdr_namespace( ns ); }
 	ax_if_let( fn, 		node->ax_as<FuncNode>() )		{ return genHdr_func( fn ); }
 	ax_if_let( prop,	node->ax_as<PropNode>() )		{ return genHdr_prop( prop ); }
-	ax_if_let( cp,		node->ax_as<StructNode>() )		{ return genHdr_struct( cp ); }
+	ax_if_let( cp,		node->ax_as<StructureType>() )		{ return genHdr_struct( cp ); }
 }
 
 void GenCppPass::genCpp_dispatch( ax_Obj< MetaNode > node ) {
 	ax_if_let(  ns,		node->ax_as<NamespaceNode>() )	{ return genCpp_namespace( ns ); }
 	ax_if_let(  fn,		node->ax_as<FuncNode>() )		{ return genCpp_func( fn ); }
 	ax_if_let(  prop,	node->ax_as<PropNode>() )		{ return genCpp_prop( prop ); }
-	ax_if_let(  cp,		node->ax_as<StructNode>() )		{ return genCpp_struct( cp ); }
+	ax_if_let(  cp,		node->ax_as<StructureType>() )		{ return genCpp_struct( cp ); }
 }
 
 void GenCppPass::genHdr_namespace( ax_Obj< NamespaceNode > node ) {
@@ -134,7 +134,7 @@ void GenCppPass::genHdr_prop( ax_Obj< PropNode > node ) {
 void GenCppPass::genCpp_prop( ax_Obj< PropNode > node ) {
 }
 
-void GenCppPass::genHdr_struct( ax_Obj< StructNode > node ) {
+void GenCppPass::genHdr_struct( ax_Obj< StructureType > node ) {
 	ob.newline();
 	ob.newline();
 
@@ -144,13 +144,13 @@ void GenCppPass::genHdr_struct( ax_Obj< StructNode > node ) {
 //		outputTemplateParams( node, true );
 //	}
 
-	if( node->is_struct() ) {
+	if( node->ax_is<StructNode>() ) {
 		ob << ax_txt("struct ");
 		
-	}else if( node->is_class() ) {
+	}else if( node->ax_is<ClassNode>() ) {
 		ob << ax_txt("class ");
 		
-	}else if( node->is_interface() ) {
+	}else if( node->ax_is<InterfaceNode>() ) {
 		ob << ax_txt("//interface");
 		ob.newline() << ax_txt("class ");
 		
@@ -159,28 +159,22 @@ void GenCppPass::genHdr_struct( ax_Obj< StructNode > node ) {
 	}
 	
 	ob << node->name;
-/*
-	int baseCount = 0;
-	auto baseClass = node->baseClass;
 
-	if( ! baseClass ) {
-		baseClass = g_compiler->metadata.type_object.ptr();
+	ax_int c = 0;
+
+	ax_if_let( bt, node->baseType ) {
+		ob << ax_txt(" : public ") << bt->as_MetaNode();
+		c++;
 	}
-	
-	if( baseClass ) {
-		o << ax_str(" : public ") << baseClass;
-		baseCount++;
+		
+	ax_foreach( & p, node->interfaces ) {
+		ob << ( c == 0 ? ax_txt(" : ") : ax_txt(", ") ) << ax_txt("public ") << p->as_MetaNode();
 	}
-	
-	ax_foreach( auto & p, node->interfaces ) {
-		o << ( baseCount == 0 ? ax_str(" : ") : ax_str(", ") ) << ax_str("public ") << p;
-	}
-*/	
 	
 	ob << ax_txt(" ");
 	ob.openBlock();
 	
-	if( node->is_class() || node->is_interface() ) {
+	if( node->ax_is< ClassNode >() || node->ax_is< InterfaceNode >() ) {
 //		ob.newline() << ax_txt("ax_DefObject( ") << node->name << ax_txt(", ") << baseClass << ax_txt(" );");
 		ob.newline(-1) << ax_txt("public:");
 	}
@@ -188,7 +182,7 @@ void GenCppPass::genHdr_struct( ax_Obj< StructNode > node ) {
 	ax_foreach( & c, *node->children ) {
 		ax_if_let( prop, c->ax_as<PropNode>() ) { genHdr_prop(prop); continue; }
 		ax_if_let( fn,	 c->ax_as<FuncNode>() ) { genHdr_func(fn); 	 continue; }
-		ax_if_let( nestedType, c->ax_as<StructNode>() ) { genHdr_struct(nestedType); continue; }
+		ax_if_let( nestedType, c->ax_as<StructureType>() ) { genHdr_struct(nestedType); continue; }
 	}
 	
 	ob.closeBlock();
@@ -196,7 +190,7 @@ void GenCppPass::genHdr_struct( ax_Obj< StructNode > node ) {
 	ob.newline();
 }
 
-void GenCppPass::genCpp_struct( ax_Obj< StructNode > node ) {
+void GenCppPass::genCpp_struct( ax_Obj< StructureType > node ) {
 }
 
 void GenCppPass::saveFile( ax_Obj< MetaNode > node, const ax_string & filename_suffix ) {

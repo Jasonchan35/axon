@@ -4,6 +4,14 @@ class App {
 	var a int[] = 1
 	var b dict<int,string> = 0
 
+	class A {
+		var x = 1
+	}
+
+	class B : A {
+		var y = 1
+	}
+
 
 	struct Pt {
 		let x=0, y=1

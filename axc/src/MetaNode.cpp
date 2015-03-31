@@ -16,8 +16,14 @@ ax_ImplObject( MetaNode );
 
 ax_ImplObject( NamespaceNode );
 ax_ImplObject( TypedNode );
+ax_ImplObject( TupleType );
 ax_ImplObject( PrimitiveType );
+
+ax_ImplObject( StructureType );
+ax_ImplObject( InterfaceNode );
 ax_ImplObject( StructNode );
+ax_ImplObject( ClassNode );
+
 ax_ImplObject( PropNode );
 ax_ImplObject( FuncNode );
 ax_ImplObject( FuncOverload );
@@ -70,9 +76,6 @@ ax_NullableObj< FuncNode >	MetaNode::getPrefixOperatorFunc		( TokenType op ) {
 ax_Obj< FuncNode >	MetaNode::getOrAddPrefixOperatorFunc	( TokenType op ) {
 	return getOrAddFunc( ax_txt( "prefix operator " ) + ax_to_string(op) );
 }
-
-
-
 
 ax_NullableObj<MetaNode>	MetaNode::getNode( const ax_string & name ) {
 	ax_if_let( m, getMember( name ) ) return m;
@@ -155,7 +158,42 @@ TypedNode::TypedNode( ax_NullableObj< MetaNode > parent, const LexerPos & pos, c
 	buildin = false;
 }
 
-StructNode::StructNode( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name )
+TupleType::TupleType( const LexerPos & pos, const ax_string & name, const ax_Array< ax_Obj< TypedNode > > & elementTypes_ )
+: base( nullptr, pos, name ) {
+	this->elementTypes.assign( elementTypes_ );
+}
+
+ax_Obj< TupleType >	TupleTypeTable::getOrAddTuple	( const LexerPos & pos, const ax_Array< ax_Obj<TypedNode> > & elementTypes ) {
+	auto name = getTupleName( elementTypes );
+	
+	ax_if_let( p, tuples.tryGetValue( name ) ) {
+		return p;
+	}
+
+	auto new_tuple = ax_new_obj( TupleType, pos, name, elementTypes );
+	tuples.add( name, new_tuple );
+	
+	return new_tuple;
+}
+
+ax_string TupleTypeTable::getTupleName( const ax_Array< ax_Obj<TypedNode> > & elementTypes ) {
+	ax_TempString	name;
+
+	name.append( ax_txt("(") );
+	
+	int c = 0;
+	ax_foreach( & e, elementTypes ) {
+		if( c > 0 ) name.append( ax_txt(",") );
+		e->appendFullname( name, ax_txt(".") );
+		c++;
+	}
+	name.append( ax_txt(")") );
+	
+	return name.to_string();
+}
+
+
+StructureType::StructureType( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name )
 : base( parent, pos, name ) {
 }
 

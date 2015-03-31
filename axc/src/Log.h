@@ -21,7 +21,7 @@ public:
 
 	template< typename... Args >
 	static void Error( const LexerPos & pos, Args &&... args ) { Error( nullptr, &pos, args... ); }
-	
+
 	template< typename... Args >
 	static void Error( Token* token, const LexerPos* pos, const ax_string & fmt ) {
 		ax_log_( ax_txt("!! ERROR:") );

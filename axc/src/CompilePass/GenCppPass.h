@@ -36,8 +36,8 @@ private:
 	void	genHdr_namespace	( ax_Obj< NamespaceNode > node );
 	void	genCpp_namespace	( ax_Obj< NamespaceNode > node );
 
-	void	genHdr_struct		( ax_Obj< StructNode > node );
-	void	genCpp_struct		( ax_Obj< StructNode > node );
+	void	genHdr_struct		( ax_Obj< StructureType > node );
+	void	genCpp_struct		( ax_Obj< StructureType > node );
 
 	void	genHdr_prop			( ax_Obj< PropNode >	node );
 	void	genCpp_prop			( ax_Obj< PropNode >	node );
@@ -109,7 +109,7 @@ private:
 
 		bool			inFor; //not include body
 		
-		ax_NullableObj< StructNode >		inStruct;
+		ax_NullableObj< StructureType >		inStruct;
 //		ax_ax_NullableObjObj< BlockNode >	inBlock;
 		ax_NullableObj< NamespaceNode >		inNamespace;
 	
