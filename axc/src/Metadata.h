@@ -22,6 +22,7 @@ public:
 
 	void OnStringReq( ax_ToStringReq & req ) const;
 	
+	TupleTypeTable	tupleTable;
 	ax_Array_< ax_Obj<StructNode> >	structList;
 	
 	ax_Obj< PrimitiveType >			type_int;

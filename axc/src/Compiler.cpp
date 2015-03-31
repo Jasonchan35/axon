@@ -44,9 +44,16 @@ void Compiler::declarePass() {
 	}
 
 //	ax_dump( metadata );
+	{
+		DeclarePass pass;
+		pass.resolveStructBaseTypes();
+	}
+
+	{
+		DeclarePass pass;
+		pass.parsePropPass();
+	}
 	
-	DeclarePass propPass;
-	propPass.parsePropPass();
 }
 
 void Compiler::genCppPass() {

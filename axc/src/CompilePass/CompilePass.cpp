@@ -15,6 +15,44 @@ namespace Compile {
 void CompilePass::nextToken() { parser.nextToken(); }
 
 
+ax_NullableObj< TypedNode > CompilePass::parseTypename	() {
+	if( token.is_roundBracketOpen() ) {	//tuple
+		nextToken();
+		
+		ax_Array_< ax_Obj<TypedNode>, 16 >	elements;
+		
+		for(;;) {
+			ax_if_not_let( e, parseTypename() ) {
+				break;
+			}
+			elements.add(e);
+			
+			if( token.is_comma() ) {
+				nextToken();
+				continue;
+			}
+		}
+		
+		if( ! token.is_roundBracketClose() ) {
+			Log::Error( token, ax_txt(" ')' expected ") );
+		}
+		nextToken();
+		
+		return g_compiler->metadata.tupleTable.getOrAddTuple( token.pos, elements );
+	}
+
+	auto o = parseNode();
+	if( !o ) return nullptr;
+	
+	auto t = o->cast<Type>();
+	if( !t ) {
+		Log.error( &token.pos, "type expected" );
+	}
+	return t;
+}
+
+
+
 ax_NullableObj< ExprAST >	CompilePass::parseExpression() {
 	ax_NullableObj<ExprAST>	expr;
 	

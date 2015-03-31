@@ -40,6 +40,8 @@ public:
 	void	skipTypeName		();
 	void	_skipTypeName		();
 	
+	ax_string	parseTypeName	();
+	
 	DeclarationModifier	parseDeclarationModifier();
 	
 	

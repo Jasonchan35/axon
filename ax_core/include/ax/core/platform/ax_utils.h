@@ -49,7 +49,7 @@ template<> inline ax_int 	ax_hash_of( const bool & b ) { return b ? 37 : 73; } /
 
 //---------------------
 
-template< typename T > inline void	ax_swap			( const T & a, const T & b )	{ T tmp( ax_move(a) ); a = ax_move(b); b = ax_move(tmp); }
+template< typename T > inline void	ax_swap			( T & a, T & b )	{ T tmp( ax_move(a) ); a = ax_move(b); b = ax_move(tmp); }
 template< typename T > inline T 	ax_sign			( const T & a )					{ if( a == 0 ) return 0; return ax_less_than0(a) ? -1: 1; }
 
 template< typename T > inline T		ax_div			( const T & a, const T & b )	{ return ( b==0 ) ? 0 : a/b; }

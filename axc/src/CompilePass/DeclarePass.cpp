@@ -20,19 +20,52 @@ void DeclarePass::parseFile( ax_Obj< SourceFile > sourceFile ) {
 	parser.lexer.c.pos.inNode = g_compiler->metadata.root;
 	
 	parser.nextToken();
-	_process();
+	parse_NamespaceBody();
 }
 
 void DeclarePass::parsePropPass	() {
 	propPass = true;
 
 	ax_foreach( &s, g_compiler->metadata.structList ) {
-		parser.setPos( s->bodyPos );
 		parse_StructBody( s );
 	}
 }
 
-void DeclarePass::_process() {
+void DeclarePass::resolveStructBaseTypes() {
+	ax_Array_< ax_Obj< StructNode > >	list[2];
+	list[0].reserve( 64 * 1024 );
+	list[1].reserve( 64 * 1024 );
+
+	auto procList = & list[0];
+	auto waitList = & list[1];
+
+	waitList->add( g_compiler->metadata.structList );
+	
+	for(;;) {
+		ax_swap( procList, waitList );
+		waitList->resize(0);
+		
+		if( procList->size() <= 0 ) break;
+		ax_int	ok_count = 0;
+		
+		ax_foreach( &s, *procList ) {
+			if( resolve_StructBaseType( s ) ) {
+				ok_count++;
+			}else{
+				waitList->add( s );
+			}
+		}
+		
+		if( ok_count == 0 ) {
+			ax_foreach( &s, *procList ) {
+				Log::Error( s->pos, ax_txt("unable to resolve types {?}"), s->name );
+			}
+		}
+	}
+}
+
+
+void DeclarePass::parse_NamespaceBody() {
 	for(;;) {
 		parser.skipNewLines();
 		if( token.is_EOF() ) break;
@@ -98,7 +131,7 @@ void DeclarePass::parse_namespace() {
 		
 		if( token.is_curlyBracketOpen() ) {
 			parser.nextToken();
-			_process();
+			parse_NamespaceBody();
 			
 			break;
 		}
@@ -147,6 +180,7 @@ void DeclarePass::parse_StructNode( DeclarationModifier & modifier ) {
 		
 		for(;;) {
 			if( token.is_identifier() ) {
+				new_node->baseTypesPos.add( token.pos );
 				parser.skipTypeName();
 			}
 			
@@ -171,6 +205,7 @@ void DeclarePass::parse_StructNode( DeclarationModifier & modifier ) {
 }
 
 void DeclarePass::parse_StructBody( ax_Obj< StructNode > structNode ) {
+	parser.setPos( structNode->bodyPos );
 
 	auto scope_inNode = ax_scope_value( pos.inNode, structNode );
 	
@@ -195,6 +230,17 @@ void DeclarePass::parse_StructBody( ax_Obj< StructNode > structNode ) {
 
 		Log::Error( token, ax_txt("unexpected token") );
 	}
+}
+
+bool DeclarePass::resolve_StructBaseType( ax_Obj< StructNode > node ) {
+
+	for( auto i = node->baseTypes.size(); i<node->baseTypesPos.size(); i++ ) {
+		parser.setPos( node->baseTypesPos[i] );
+		
+		parser.skipTypeName();
+	}
+	
+	return true;
 }
 
 void DeclarePass::parse_FuncNode( DeclarationModifier & modifier ) {

@@ -114,12 +114,39 @@ public:
 };
 
 
+class TupleType : public TypedNode {
+	ax_DefObject( TupleType, TypedNode )
+public:
+
+	TupleType( LexerPos pos, const ax_string & name, const ax_Array< TypedNode > & _elementTypes );
+	
+	ax_Array_< ax_Obj<TypedNode>, 8 >		elementTypes;
+	
+};
+
+class TupleTypeTable : System::NonCopyable {
+public:
+
+	ax_NullableObj< TupleType >	getTuple		( const ax_Array< ax_Obj<TypedNode> > & elementTypes );
+			ax_Obj< TupleType >	getOrAddTuple	( LexerPos pos, const ax_Array< ax_Obj<TypedNode> > & elementTypes );
+
+	void		getTupleName( ax_string & name, const ax_Array< ax_Obj<TypedNode> > & elementTypes );
+
+private:
+	ax_Dict< ax_string, ax_Obj<TupleType> >	tuples;
+};
+
+
 class StructNode : public TypedNode {
 	ax_DefObject( StructNode, TypedNode )
 public:
 	StructNode( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name );
 
-	LexerPos		bodyPos;
+	ax_Array_< LexerPos >	baseTypesPos;
+	LexerPos				bodyPos;
+	
+	ax_Array_< ax_Obj< StructNode > >	baseTypes;
+	
 	bool			isNestedType() { return false; }
 };
 
