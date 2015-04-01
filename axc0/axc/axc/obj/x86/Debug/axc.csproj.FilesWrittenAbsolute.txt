@@ -1,0 +1,4 @@
+/Users/jason/git/axon/axc0/axc/axc/bin/Debug/axc.exe.mdb
+/Users/jason/git/axon/axc0/axc/axc/bin/Debug/axc.exe
+/Users/jason/git/axon/axc0/axc/axc/obj/x86/Debug/axc.exe
+/Users/jason/git/axon/axc0/axc/axc/obj/x86/Debug/axc.exe.mdb

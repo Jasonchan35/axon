@@ -1,0 +1,20 @@
+﻿<Properties>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|x86" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="axc/Parser.cs">
+    <Files>
+      <File FileName="axc/Main.cs" Line="19" Column="1" />
+      <File FileName="axc/Compiler.cs" Line="34" Column="21" />
+      <File FileName="axc/Log.cs" Line="19" Column="42" />
+      <File FileName="axc/SourceFile.cs" Line="17" Column="2" />
+      <File FileName="axc/MetaData.cs" Line="1" Column="1" />
+      <File FileName="axc/FirstPass.cs" Line="36" Column="4" />
+      <File FileName="axc/Parser.cs" Line="248" Column="33" />
+      <File FileName="axc/LexerPos.cs" Line="15" Column="25" />
+      <File FileName="axc/Token.cs" Line="24" Column="9" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>

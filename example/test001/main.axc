@@ -8,6 +8,8 @@ class App {
 	var d = u8char('3')
 	var e = u8string('hello')
 */
+	var s = "ABCD"
+
 	class A {
 		var x = 1
 		fn test() {
