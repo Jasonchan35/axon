@@ -1,11 +1,28 @@
 
 class App {
+/*
+	var a int[] = [4,5,6]
+	var b dict<string,string> = ['a':'apple','b':'boy']
 
-	var a int[] = 1
-	var b dict<int,string> = 0
-
+	var c char = char('3')
+	var d = u8char('3')
+	var e = u8string('hello')
+*/
 	class A {
 		var x = 1
+		fn test() {
+		/*
+			let a = vec2f(1,1)
+			let b = vec2f(2,2)
+
+			var c = a.cross(b)
+
+			mat4x4
+
+			a = @b
+			a = ax_move(b)
+		*/
+		}
 	}
 
 	class B : A {
@@ -25,7 +42,7 @@ class App {
 
 	}
 
-	fn add( b int ) { 
+	fn add( b = 0 ) { 
 	}
 
 	/*

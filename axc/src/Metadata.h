@@ -24,6 +24,7 @@ public:
 	
 	TupleTypeTable	tupleTable;
 	ax_Array_< ax_Obj<StructureType> >	structList;
+	ax_Array_< ax_Obj<PropNode> >		propList;
 	
 	ax_Obj< PrimitiveType >			type_int;
 	ax_Obj< PrimitiveType >			type_int8;

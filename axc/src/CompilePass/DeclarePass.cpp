@@ -29,6 +29,41 @@ void DeclarePass::parsePropPass	() {
 	ax_foreach( &s, g_compiler->metadata.structList ) {
 		parse_StructBody( s );
 	}
+	
+	resolvePropTypePass();
+}
+
+void DeclarePass::resolvePropTypePass() {
+	ax_Array_< ax_Obj< PropNode > >	list[2];
+	list[0].reserve( 64 * 1024 );
+	list[1].reserve( 64 * 1024 );
+
+	auto procList = & list[0];
+	auto waitList = & list[1];
+
+	waitList->add( g_compiler->metadata.propList );
+	
+	for(;;) {
+		ax_swap( procList, waitList );
+		waitList->resize(0);
+		
+		if( procList->size() <= 0 ) break;
+		ax_int	ok_count = 0;
+		
+		ax_foreach( &s, *procList ) {
+			if( resolve_PropType( s ) ) {
+				ok_count++;
+			}else{
+				waitList->add( s );
+			}
+		}
+		
+		if( ok_count == 0 ) {
+			ax_foreach( &s, *procList ) {
+				Log::Error( s->pos, ax_txt("unable to resolve types {?}"), s->name );
+			}
+		}
+	}
 }
 
 void DeclarePass::resolveStructBaseTypes() {
@@ -157,10 +192,6 @@ void DeclarePass::parse_StructNode( DeclarationModifier & modifier ) {
 		throw System::Err_Undefined();
 	}
 	
-	if( ! inNode->ax_is< NamespaceNode	>() && ! inNode->ax_is< StructureType >() ) {
-		Log::Error( token, ax_txt("cannot delcare class here") );
-	}
-	
 	auto nodeType = token.type;
 				
 	nextToken();
@@ -174,6 +205,13 @@ void DeclarePass::parse_StructNode( DeclarationModifier & modifier ) {
 
 		default:
 			Log::Error( token, ax_txt("class / struct / interface expected") );
+	}
+
+	if( inNode->ax_is< NamespaceNode >() ) {
+	}else if( inNode->ax_is< StructureType >() ) {
+		new_node->isNestedType = true;
+	}else{
+		Log::Error( token, ax_txt("cannot delcare sturcture type here") );
 	}
 	
 			
@@ -238,6 +276,10 @@ void DeclarePass::parse_StructBody( ax_Obj< StructureType > structNode ) {
 
 		Log::Error( token, ax_txt("unexpected token") );
 	}
+}
+
+bool DeclarePass::resolve_PropType( ax_Obj< PropNode >	node ) {
+	return true;
 }
 
 bool DeclarePass::resolve_StructBaseType( ax_Obj< StructureType > node ) {

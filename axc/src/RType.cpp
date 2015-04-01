@@ -16,7 +16,6 @@ void	RType::OnStringReq( ax_ToStringReq & req ) const {
 	req << ax_txt("RType[") << type << ax_txt("]");
 }
 
-
 ax_NullableObj< FuncNode >	RType::getFunc				( const ax_string & name ) {
 	ax_if_not_let( t, type ) return nullptr;
 	return t->getFunc(name);

@@ -195,6 +195,7 @@ ax_string TupleTypeTable::getTupleName( const ax_Array< ax_Obj<TypedNode> > & el
 
 StructureType::StructureType( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name )
 : base( parent, pos, name ) {
+	isNestedType = false;
 }
 
 PropNode::PropNode( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name )

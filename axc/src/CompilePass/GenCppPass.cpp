@@ -15,7 +15,7 @@ bool GenCppPass::hasToGenSourceFile( ax_Obj< MetaNode > node ) {
 	if( node->ax_is< NamespaceNode >() ) return true;
 
 	ax_if_let( type, node->ax_as< StructureType >() ) {
-		if( ! type->buildin && ! type->isNestedType() ) {
+		if( ! type->buildin && ! type->isNestedType ) {
 			return true;
 		}
 	}

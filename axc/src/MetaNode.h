@@ -95,6 +95,10 @@ class TypedNode : public MetaNode {
 public:
 	TypedNode( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name );
 
+	virtual	bool canAssignFrom( ax_Obj< TypedNode > rhs ) const {
+		return true;
+	}
+
 	DeclarationModifier	modifier;
 	
 	bool	buildin;
@@ -145,7 +149,7 @@ public:
 	ax_NullableObj< StructureType >		baseType;
 	ax_Array_< ax_Obj< StructureType > >	interfaces;
 	
-	bool			isNestedType() { return false; }
+	bool			isNestedType;
 };
 
 class InterfaceNode : public StructureType {
@@ -173,12 +177,12 @@ class PropNode : public TypedNode {
 	ax_DefObject( PropNode, TypedNode );
 public:
 	PropNode( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name );
-
-	LexerPos	typePos;
 	
+	LexerPos					initExprPos;
 	ax_NullableObj< ExprAST >	initExpr;
 	
-	ax_Obj< TypedNode >		type;
+	LexerPos	typePos;
+	RType		type;
 };
 
 struct FuncParam {

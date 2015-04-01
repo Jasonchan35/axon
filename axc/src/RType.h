@@ -30,7 +30,6 @@ public:
 	ax_NullableObj< FuncNode >	getOperatorFunc			( TokenType op );
 	ax_NullableObj< FuncNode >	getPrefixOperatorFunc	( TokenType op );
 
-
 	void	OnStringReq( ax_ToStringReq & req ) const;
 
 	ax_NullableObj< TypedNode >	type;
