@@ -61,7 +61,7 @@ ax_string	Path::ChangeExtension	( const ax_string & path, const ax_string & new_
 	if( !p ) {
 		return path + new_extension;
 	}else{
-		return ax_string::Clone( sz, p-sz+1 ) + new_extension;
+		return ax_LocalString( sz, p-sz+1 ) + new_extension;
 	}
 }
 

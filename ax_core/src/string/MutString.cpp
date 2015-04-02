@@ -13,7 +13,8 @@ namespace System {
 
 template< typename T >
 void	MutStringX<T>::_do_reserve( ax_int new_size ) {
-	auto np = onMalloc( new_size+1, _capacity );
+	if( new_size < 0 ) throw Err_Undefined();
+	auto np = new_size == 0 ? nullptr : onMalloc( new_size+1, _capacity );
 	if( np != _data ) {
 		if( _data ) {
 			ax_memcpy( np, _data, _size * sizeof(T) );

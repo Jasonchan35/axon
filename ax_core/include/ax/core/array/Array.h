@@ -192,8 +192,8 @@ void	Array<T>::clear() {
 template< typename T > inline
 void	Array<T>::release() {
 	clear();
-	if( dataPtr() ) {
-		onFree( dataPtr() );
+	if( _data ) {
+		onFree( _data );
 		_data = nullptr;
 		_capacity = 0;
 	}
@@ -256,9 +256,10 @@ template< typename T > inline
 void	Array<T>::onMove		( Array<T> &  rhs ) {
 	clear();
 	
-	reserve( _size + rhs.size() );
-	ArrayUtility::MoveConstructor( dataPtr() + _size, rhs.dataPtr(), rhs.size() );
-	_size += rhs.size();
+	reserve( rhs.size() );
+	ArrayUtility::MoveConstructor( dataPtr(), rhs.dataPtr(), rhs.size() );
+	_size = rhs.size();
+	
 	rhs.resize(0);
 }
 

@@ -213,13 +213,13 @@ protected:
 	virtual	T*		onMalloc	( ax_int req_size, ax_int & out_capacity ) {
 		//std::cout << this << " onMalloc " << reqSize <<"\n";
 	
-		if( req_size <= LOCAL_BUF_SIZE ) {
+		if( req_size+1 <= LOCAL_BUF_SIZE ) { // +1 for string null terminator
 			out_capacity = LOCAL_BUF_SIZE;
 			return BUF::localBufPtr();
 		}else{
 			auto s = base::size();
 			auto n = ax_max( s + s/2, req_size ); //auto resize to 1.5x times
-			auto p = Memory::AllocUncollect<T>( n );
+			auto p = Memory::AllocUncollect<T>( n + 1 ); // +1 for string null terminator
 			out_capacity = n;
 			return p;
 		}
@@ -237,7 +237,7 @@ typedef MutStringX< char >		MutStringA;
 
 template< ax_int LOCAL_BUF_SIZE = MutString_default_LOCAL_BUF_SIZE > using MutString_ = MutStringX_< ax_char, LOCAL_BUF_SIZE >;
 
-template< typename T >	using TempString_ = MutStringX_<T,256>;
+template< typename T >	using TempString_ = MutStringX_<T,200>;
 typedef	TempString_< ax_char >	TempString;
 
 typedef	TempString_< char >		TempStringA;
@@ -254,8 +254,8 @@ void 	MutStringX<T>::clear() {
 template< typename T > inline
 void 	MutStringX<T>::release() {
 	clear();
-	if( dataPtr() ) {
-		onFree( dataPtr() );
+	if( _data ) {
+		onFree( _data );
 		_data = nullptr;
 		_capacity = 0;
 	}
@@ -269,7 +269,7 @@ void 	MutStringX<T>::resize( ax_int new_size ) {
 	if( new_size == old_size ) return;
 	
 	if( new_size < old_size ) {
-		auto dst = dataPtr() + new_size;
+		auto dst = _data    + new_size;
 		auto n   = old_size - new_size;
 		
 		ax_bzero( dst, n * sizeof(T) );
@@ -279,8 +279,8 @@ void 	MutStringX<T>::resize( ax_int new_size ) {
 	}
 	_size = new_size;
 	
-	if( dataPtr() ) {
-		dataPtr()[ new_size ] = 0;
+	if( _data ) {
+		_data[ new_size ] = 0;
 	}
 }
 
@@ -293,10 +293,9 @@ void	MutStringX<T>::reserve		( ax_int new_size ) {
 template< typename T > inline
 void	MutStringX<T>::onMove	( MutStringX<T> & rhs ) {
 	clear();
-	
-	auto old_size = _size;
-	resize( old_size+ rhs.size() );
-	ax_memcpy( dataPtr() + old_size, rhs.dataPtr(), rhs.size() * sizeof(T) );
+
+	resize( rhs.size() );
+	ax_memcpy( dataPtr(), rhs.dataPtr(), rhs.size() * sizeof(T) );
 	rhs.resize(0);
 }
 
@@ -305,7 +304,7 @@ void	MutStringX<T>::append ( MutStringX<T> && rhs ) {
 	if( _size == 0 ) return move( rhs );
 
 	auto old_size = _size;
-	resize( old_size+ rhs.size() );
+	resize( old_size + rhs.size() );
 	ax_memcpy( dataPtr() + old_size, rhs.dataPtr(), rhs.size() * sizeof(T) );
 	rhs.resize(0);
 }

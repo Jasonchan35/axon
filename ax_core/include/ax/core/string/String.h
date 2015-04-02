@@ -20,10 +20,10 @@ namespace System {
 
 template< typename T > class MutStringX;
 
-#define ax_txt8( sz )	( ax::System::StringX<char>    ::_MakeExternal( u8##sz, sizeof( u8##sz ) / sizeof(char)     -1 ) )
-#define ax_txt16( sz )	( ax::System::StringX<char16_t>::_MakeExternal(  u##sz, sizeof(  u##sz ) / sizeof(char16_t) -1 ) )
-#define ax_txt32( sz )	( ax::System::StringX<char32_t>::_MakeExternal(  U##sz, sizeof(  U##sz ) / sizeof(char32_t) -1 ) )
-#define ax_txtW( sz )	( ax::System::StringX<wchar_t> ::_MakeExternal(  L##sz, sizeof(  L##sz ) / sizeof(wchar_t)  -1 ) )
+#define ax_txt8( sz )	( ax::System::StringX<char>    ::_Literal( u8##sz, sizeof( u8##sz ) / sizeof(char)     -1 ) )
+#define ax_txt16( sz )	( ax::System::StringX<char16_t>::_Literal(  u##sz, sizeof(  u##sz ) / sizeof(char16_t) -1 ) )
+#define ax_txt32( sz )	( ax::System::StringX<char32_t>::_Literal(  U##sz, sizeof(  U##sz ) / sizeof(char32_t) -1 ) )
+#define ax_txtW( sz )	( ax::System::StringX<wchar_t> ::_Literal(  L##sz, sizeof(  L##sz ) / sizeof(wchar_t)  -1 ) )
 
 //! Immutable string	Literal / GC Memory
 template< typename T >
@@ -31,7 +31,26 @@ class StringX /* copyable */{
 public:
 	struct	ax_type_on_gc_trace : public ax_type_gc_trace<T> {};
 
+	class Buffer {
+	public:
+		Buffer( ax_int req_size ) {
+			if( req_size < 0 ) throw Err_Undefined();
+			if( req_size <= 0 ) {
+				data = nullptr;
+				size = 0;
+			}else{
+				size = req_size;
+				data = Memory::Alloc<T>( size + 1 );
+				data[size] = 0;
+			}
+		}
+		
+		T*		data;
+		ax_int	size;
+	};
+
 	StringX() : _data(nullptr), _size(0) {}
+	StringX( const Buffer & buf ) : _data(buf.data), _size(buf.size) {}
 
 	ax_ALWAYS_INLINE(	const T &	operator[]	( ax_int  i ) const	) { return at(i); }
 	ax_ALWAYS_INLINE(	const T &	at			( ax_int  i ) const	) { _checkBound(i); 	  return _data[i]; }
@@ -61,12 +80,12 @@ public:
 		if( rhs.size() == 0 ) return *this;
 		
 		auto req_len = _size + rhs.size();
-		auto buf = AllocBuffer( req_len );
+		Buffer	buf( req_len );
 		
-		ArrayUtility::Copy( buf, _data, _size );
-		ArrayUtility::Copy( buf+_size, rhs.c_str(), rhs.size() );
+		ArrayUtility::Copy( buf.data,  _data, _size );
+		ArrayUtility::Copy( buf.data + _size, rhs.c_str(), rhs.size() );
 		
-		return StringX( buf, req_len );
+		return StringX( buf );
 	}
 
 	ax_int		size	() const				{ return _size; }
@@ -83,14 +102,6 @@ public:
 	template< typename R >
 	ax_ALWAYS_INLINE(	void	OnStringReq( ToStringReq_<R> & req ) const );
 
-	static	T*	AllocBuffer( ax_int size ) {
-		if( size == 0 ) return nullptr;
-		
-		auto buf = Memory::Alloc<T>( size + 1 );
-		buf[size] = 0;
-		return buf;
-	}
-
 	template< typename R >
 	static	StringX	CloneUtf_c_str ( const R* sz ) 	{
 		return CloneUtf( sz, ax_strlen( sz ) );
@@ -99,22 +110,20 @@ public:
 	template< typename R >
 	static	StringX	CloneUtf ( const R* sz, ax_int size ) 	{
 		auto req_len = UtfConverter::GetConvertedCount<R,T>( sz, size );
-		auto buf = AllocBuffer( req_len );				
-		UtfConverter::Convert( buf, req_len, sz, size );
-		return StringX( buf, req_len );
+		Buffer buf( req_len );
+		UtfConverter::Convert( buf.data, buf.size, sz, size );
+		return StringX( buf );
 	}
 	
 	static	StringX	Clone_c_str ( const T* sz ) 	{ return Clone( sz, ax_strlen(sz) ); }
 	static	StringX	Clone ( const T* sz, ax_int len ) {
-		auto buf = AllocBuffer( len );
-		ax_memcpy( buf, sz, len * sizeof(T) );
-		return StringX( buf, len );
+		Buffer buf( len );
+		ax_memcpy( buf.data, sz, len * sizeof(T) );
+		return StringX( buf );
 	}
 	
-	static	StringX	_MakeExternal_c_str( const T* sz ) { return _MakeExternal(sz, ax_strlen(sz)); }
-	static	StringX	_MakeExternal( const T* sz, ax_int len ) {
-		return StringX(sz,len);
-	}
+	static	StringX	_Literal_c_str( const T* sz ) 		{ return _Literal(sz, ax_strlen(sz)); }
+	static	StringX	_Literal( const T* sz, ax_int len ) { return StringX(sz,len); }
 	
 	ax_int	GetHash() const { return ax_c_str_hash(_data); }
 	
@@ -137,8 +146,18 @@ protected:
 
 };
 
-typedef	StringX< ax_char >	String;
-typedef StringX< char >		StringA;
+template< typename T >
+class LocalStringX : public StringX<T> {
+	typedef	StringX<T>	base;
+public:
+	LocalStringX( const T* sz, ax_int len ) : base(sz,len) {}
+};
+
+typedef	StringX< ax_char >		String;
+typedef	LocalStringX< ax_char >	LocalString;
+
+typedef StringX< char >			StringA;
+typedef LocalStringX< char >	LocalStringA;
 
 template< typename T > inline
 std::ostream& operator<< ( std::ostream& o, const StringX<T>& v ) {

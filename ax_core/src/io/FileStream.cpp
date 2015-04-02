@@ -51,13 +51,14 @@ StringA		FileStream::readAllUtf8() {
 	
 	ax_int remain;
 	if( ! ax_safe_assign( remain, file_size - cur ) ) throw Err_Undefined();
+	if( remain < 0 ) throw Err_Undefined();
 
 	try{
-		auto buf = StringA::AllocBuffer( remain );
+		StringA::Buffer	buf( remain );
 				
-		readBytes( buf, remain );
+		readBytes( buf.data, remain );
 		
-		return StringA::_MakeExternal( buf, remain );
+		return StringA( buf );
 
 	}catch(...) {
 		throw;

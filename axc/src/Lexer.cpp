@@ -12,106 +12,12 @@
 namespace ax {
 namespace Compile {
 
-Lexer::Cursor::Cursor( LexerPos & pos ) : pos(pos) {
-	p = nullptr;
-	ch = 0;
-}
-
-void Lexer::Cursor::reset( ax_Obj< SourceFile > sourceFile ) {
-	pos.valid = true;
-	pos.file = sourceFile;
-	pos.filePos = 0;
-	pos.line = 1;
-	pos.col  = 1;
-
-	auto & source = sourceFile->source;
-
-	p 	= source.c_str();
-	end = source.c_str() + source.size();
-	
-	if( p ) {
-		ch = *p;
-	}
-}
-
-void Lexer::Cursor::setPos( const LexerPos & pos ) {
-	this->pos = pos;
-	
-	p = nullptr;
-	end = nullptr;
-	
-	ax_if_let( sourceFile, pos.file ) {
-		auto & source = sourceFile->source;
-		if( pos.filePos >= source.size() ) return Log::Error( nullptr, &pos, ax_txt("Error setCursor file position out of range") );
-		p 	= source.c_str() + pos.filePos;
-		end = source.c_str() + sourceFile->source.size();
-	}
-
-	if( p ) {
-		ch = *p;
-	}
-}
-
-
-void Lexer::Cursor::next() {
-	if( !p || p >= end ) {
-		ch = 0;
-		return;
-	}
-
-	pos.filePos++;
-	
-	if( *p == '\n' ) {
-		pos.line++;
-		pos.col=1;
-	}else{
-		pos.col++;
-	}
-	
-	p++;
-	ch = *p;
-}
-
-void Lexer::Cursor::trimSeperators() {
-	for( ;; next() ) {
-		if( ! isSeperator() ) break;
-	}
-}
-
-bool Lexer::Cursor::isSeperator() {
-	return ch == ' ' || ch == '\t' || ch == '\r'; // || ch == '\n';
-}
-
-bool Lexer::Cursor::isAlpha() {
-	return ax_isalpha(ch);
-}
-
-bool Lexer::Cursor::isDigit() {
-	return ax_isdigit(ch);
-}
-
-bool Lexer::Cursor::isHex() {
-	return ax_ishex(ch);
-}
-
-
-//===================================
-
-
-void	Lexer::reset ( ax_Obj< SourceFile > sourceFile ) {
-	c.reset( sourceFile );
-}
-
-void	Lexer::setPos	( const LexerPos & pos ) {
-	c.setPos( pos );
-	nextToken();
-}
 
 bool	Lexer::getToken		( Token & token ) {
 	_getToken(token);
 	
 	#if 0 // debug token
-		ax_log( "--- token {?}", token );
+		ax_log( ax_txt("--- token {?}"), token );
 	#endif
 
 	switch( token.type ) {
@@ -123,6 +29,16 @@ bool	Lexer::getToken		( Token & token ) {
 	
 	return true;
 }
+
+void	Lexer::reset ( ax_Obj< SourceFile > sourceFile ) {
+	c.reset( sourceFile );
+}
+
+void	Lexer::setPos	( const LexerPos & pos ) {
+	c.setPos( pos );
+	nextToken();
+}
+
 
 void	Lexer::_setToken( Token & token, TokenType type, const ax_string & str ) {
 	token.type = type;
@@ -505,7 +421,93 @@ void	Lexer::nextToken() {
 		if( token.is_comment() ) continue;
 		break;
 	}
-
 }
+
+
+//================
+
+
+Lexer::Cursor::Cursor( LexerPos & pos ) : pos(pos) {
+	p = nullptr;
+	ch = 0;
+}
+
+void Lexer::Cursor::reset( ax_Obj< SourceFile > sourceFile ) {
+	pos.valid = true;
+	pos.file = sourceFile;
+	pos.filePos = 0;
+	pos.line = 1;
+	pos.col  = 1;
+
+	auto & source = sourceFile->source;
+
+	p 	= source.c_str();
+	end = source.c_str() + source.size();
+	
+	if( p ) {
+		ch = *p;
+	}
+}
+
+void Lexer::Cursor::setPos( const LexerPos & pos ) {
+	this->pos = pos;
+	
+	p = nullptr;
+	end = nullptr;
+	
+	ax_if_let( sourceFile, pos.file ) {
+		auto & source = sourceFile->source;
+		if( pos.filePos >= source.size() ) return Log::Error( nullptr, &pos, ax_txt("Error setCursor file position out of range") );
+		p 	= source.c_str() + pos.filePos;
+		end = source.c_str() + sourceFile->source.size();
+	}
+
+	if( p ) {
+		ch = *p;
+	}
+}
+
+
+void Lexer::Cursor::next() {
+	if( !p || p >= end ) {
+		ch = 0;
+		return;
+	}
+
+	pos.filePos++;
+	
+	if( *p == '\n' ) {
+		pos.line++;
+		pos.col=1;
+	}else{
+		pos.col++;
+	}
+	
+	p++;
+	ch = *p;
+}
+
+void Lexer::Cursor::trimSeperators() {
+	for( ;; next() ) {
+		if( ! isSeperator() ) break;
+	}
+}
+
+bool Lexer::Cursor::isSeperator() {
+	return ch == ' ' || ch == '\t' || ch == '\r'; // || ch == '\n';
+}
+
+bool Lexer::Cursor::isAlpha() {
+	return ax_isalpha(ch);
+}
+
+bool Lexer::Cursor::isDigit() {
+	return ax_isdigit(ch);
+}
+
+bool Lexer::Cursor::isHex() {
+	return ax_ishex(ch);
+}
+
 
 }} //namespace

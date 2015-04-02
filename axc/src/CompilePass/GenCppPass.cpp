@@ -214,7 +214,9 @@ void GenCppPass::saveFile( ax_Obj< MetaNode > node, const ax_string & filename_s
 	auto dir = System::IO::Path::GetDirectoryName( filename );
 	System::IO::Directory::Create( dir );
 
-	ax_TempStringA	tmp( ob._buf );
+	ax_TempStringA	tmp;
+	
+	tmp.assignUtf( ob._buf );
 
 	System::IO::File::WriteUtf8( filename, tmp );
 	

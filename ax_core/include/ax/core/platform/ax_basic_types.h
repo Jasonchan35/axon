@@ -10,6 +10,8 @@
 #define ax_core_basic_types_h
 
 #define ax_string			ax::System::String
+#define ax_LocalString		ax::System::LocalString
+#define ax_LocalStringA		ax::System::LocalStringA
 #define ax_TempString		ax::System::TempString
 #define ax_TempStringA		ax::System::TempStringA
 
