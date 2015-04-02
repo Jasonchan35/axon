@@ -14,7 +14,7 @@ namespace Compile {
 void DeclarePass::parseFile( ax_Obj< SourceFile > sourceFile ) {
 	propPass = false;
 	
-	ax_log( "compiling... [{?}]", sourceFile->filename );
+	ax_log( ax_txt("compiling... [{?}]"), sourceFile->filename );
 	
 	parser.reset( sourceFile );
 	parser.lexer.c.pos.inNode = g_compiler->metadata.root;
@@ -413,7 +413,7 @@ void DeclarePass::parse_PropNode( DeclarationModifier & modifier ) {
 		
 		if( token.is_assign() ) {
 			nextToken();
-			new_node->initExpr = parseExpr_Primary();
+			new_node->initExpr = parseExpression();
 			
 //			new_node->initExprPos = token.pos;
 //			parser.skipExpression();

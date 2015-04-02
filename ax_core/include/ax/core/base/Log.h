@@ -11,6 +11,9 @@
 
 #include "../string/StringFormat.h"
 
+#define ax_log(...)	ax::System::Logger::LogFormat< ax_char >( __VA_ARGS__ )
+
+/*
 #define ax_log_(...)	ax::System::Logger::LogFormat< ax_char >( __VA_ARGS__ )
 
 #define	ax_log_macro1( fmt ) 		ax_log_( ax_txt(fmt) )
@@ -24,7 +27,7 @@
 #define	ax_log_macro9( fmt, ... )	ax_log_( ax_txt(fmt), __VA_ARGS__ )
 
 #define ax_log(...)		ax_MACRO_DISPATCHER( ax_log_macro,	__VA_ARGS__ )(__VA_ARGS__)
-
+*/
 
 #define	ax_std_dump_macro1( a0 ) 				{ std::wcout << #a0 <<"="<< (a0) << '\n'; }
 #define	ax_std_dump_macro2( a0,a1 ) 			{ std::wcout << #a0 <<"="<< (a0) << ", " << #a1 <<"="<< (a1) << '\n'; }
@@ -36,14 +39,14 @@
 #define ax_std_dump(...) 	ax_MACRO_DISPATCHER( ax_std_dump_macro,	__VA_ARGS__ )(__VA_ARGS__)
 //-------
 
-#define	ax_dump_macro1( a0 )					{ ax_log( "{?}={?}\t\t[#{?}:{?}]", 												ax_txt(#a0),(a0), 																							ax__FILE_BASENAME__, ax__LINE__ ); }
-#define	ax_dump_macro2( a0,a1 )					{ ax_log( "{?}={?}, {?}={?}\t\t[#{?}:{?}]", 									ax_txt(#a0),(a0), ax_txt(#a1),(a1), 																		ax__FILE_BASENAME__, ax__LINE__ ); }
-#define	ax_dump_macro3( a0,a1,a2 )				{ ax_log( "{?}={?}, {?}={?}, {?}={?}\t\t[#{?}:{?}]", 							ax_txt(#a0),(a0), ax_txt(#a1),(a1), ax_txt(#a2),(a2), 														ax__FILE_BASENAME__, ax__LINE__ ); }
-#define	ax_dump_macro4( a0,a1,a2,a3 )			{ ax_log( "{?}={?}, {?}={?}, {?}={?}, {?}={?}\t\t[#{?}:{?}]",					ax_txt(#a0),(a0), ax_txt(#a1),(a1), ax_txt(#a2),(a2), ax_txt(#a3),(a3), 									ax__FILE_BASENAME__, ax__LINE__ ); }
-#define	ax_dump_macro5( a0,a1,a2,a3,a4 )		{ ax_log( "{?}={?}, {?}={?}, {?}={?}, {?}={?}, {?}={?}\t\t[#{?}:{?}]", 			ax_txt(#a0),(a0), ax_txt(#a1),(a1), ax_txt(#a2),(a2), ax_txt(#a3),(a3), ax_txt(#a4),(a4), 					ax__FILE_BASENAME__, ax__LINE__ ); }
-#define	ax_dump_macro6( a0,a1,a2,a3,a4,a5 )		{ ax_log( "{?}={?}, {?}={?}, {?}={?}, {?}={?}, {?}={?}, {?}={?}\t\t[#{?}:{?}]",	ax_txt(#a0),(a0), ax_txt(#a1),(a1), ax_txt(#a2),(a2), ax_txt(#a3),(a3), ax_txt(#a4),(a4), ax_txt(#a5),(a5), ax__FILE_BASENAME__, ax__LINE__ ); }
+#define	ax_dump(  a0 )					{ ax_log( ax_txt("{?}={?}\t\t[#{?}:{?}]"), 												ax_txt(#a0),(a0), 																							ax__FILE_BASENAME__, ax__LINE__ ); }
+#define	ax_dump2( a0,a1 )				{ ax_log( ax_txt("{?}={?}, {?}={?}\t\t[#{?}:{?}]"), 									ax_txt(#a0),(a0), ax_txt(#a1),(a1), 																		ax__FILE_BASENAME__, ax__LINE__ ); }
+#define	ax_dump3( a0,a1,a2 )			{ ax_log( ax_txt("{?}={?}, {?}={?}, {?}={?}\t\t[#{?}:{?}]"), 							ax_txt(#a0),(a0), ax_txt(#a1),(a1), ax_txt(#a2),(a2), 														ax__FILE_BASENAME__, ax__LINE__ ); }
+#define	ax_dump4( a0,a1,a2,a3 )			{ ax_log( ax_txt("{?}={?}, {?}={?}, {?}={?}, {?}={?}\t\t[#{?}:{?}]"),					ax_txt(#a0),(a0), ax_txt(#a1),(a1), ax_txt(#a2),(a2), ax_txt(#a3),(a3), 									ax__FILE_BASENAME__, ax__LINE__ ); }
+#define	ax_dump5( a0,a1,a2,a3,a4 )		{ ax_log( ax_txt("{?}={?}, {?}={?}, {?}={?}, {?}={?}, {?}={?}\t\t[#{?}:{?}]"), 			ax_txt(#a0),(a0), ax_txt(#a1),(a1), ax_txt(#a2),(a2), ax_txt(#a3),(a3), ax_txt(#a4),(a4), 					ax__FILE_BASENAME__, ax__LINE__ ); }
+#define	ax_dump6( a0,a1,a2,a3,a4,a5 )	{ ax_log( ax_txt("{?}={?}, {?}={?}, {?}={?}, {?}={?}, {?}={?}, {?}={?}\t\t[#{?}:{?}]"),	ax_txt(#a0),(a0), ax_txt(#a1),(a1), ax_txt(#a2),(a2), ax_txt(#a3),(a3), ax_txt(#a4),(a4), ax_txt(#a5),(a5), ax__FILE_BASENAME__, ax__LINE__ ); }
 
-#define ax_dump(...)			ax_MACRO_DISPATCHER( ax_dump_macro,	__VA_ARGS__ )(__VA_ARGS__)
+//#define ax_dump(...)			ax_MACRO_DISPATCHER( ax_dump_macro,	__VA_ARGS__ )(__VA_ARGS__)
 
 #define ax_dump_func_name()		{ std::wcout << "fn " << ax_PRETTY_FUNC_NAME <<"\n"; }
 

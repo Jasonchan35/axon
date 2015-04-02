@@ -23,7 +23,7 @@ bool GenCppPass::hasToGenSourceFile( ax_Obj< MetaNode > node ) {
 }
 
 void GenCppPass::genCode( const ax_string & outFolder ) {
-	ax_log("genCode {?}", outFolder );
+	ax_log( ax_txt("genCode {?}"), outFolder );
 		
 	this->outFolder = outFolder;
 	
@@ -119,6 +119,10 @@ void GenCppPass::genCpp_namespace( ax_Obj< NamespaceNode > node ) {
 }
 
 void GenCppPass::genHdr_func( ax_Obj< FuncNode > node ) {
+	ob.newline();
+//	ob << ax_Obj< MetaNode >( node->type );
+	ob << ax_txt("func ");
+	ob << ax_txt("\t") << node->name << ax_txt("();");
 }
 
 void GenCppPass::genCpp_func( ax_Obj< FuncNode > node ) {
@@ -127,8 +131,14 @@ void GenCppPass::genCpp_func( ax_Obj< FuncNode > node ) {
 void GenCppPass::genHdr_prop( ax_Obj< PropNode > node ) {
 	ob.newline();
 //	ob << ax_Obj< MetaNode >( node->type );
-	ob << ax_txt("var ");
-	ob << ax_txt("\t") << node->name << ax_txt(";");
+	ob << ax_txt("var");
+	ob << ax_txt("\t") << node->name;
+	
+	ax_if_let( expr, node->initExpr ) {
+		ob << ax_txt(" = " ) << expr;
+	}
+	
+	ob << ax_txt(";");
 }
 
 void GenCppPass::genCpp_prop( ax_Obj< PropNode > node ) {
@@ -342,7 +352,7 @@ void	GenCppPass::onAST( IdentifierAST & p ) {
 }
 
 void	GenCppPass::onAST( NumberAST 			& p ) {
-	//output( p.srcStr );
+	ob << p.srcStr;
 	/*
 	switch( p.numberType ) {
 		case NumberAST::t_int32:	{ ob << ax_to_string( p.numberValue.v_int32 );	}break;

@@ -15,12 +15,10 @@ template< typename T >
 void	MutStringX<T>::_do_reserve( ax_int new_size ) {
 	auto np = onMalloc( new_size+1, _capacity );
 	if( np != _data ) {
-		ax_memcpy( np, dataPtr(), _size * sizeof(T) );
-		
-		if( dataPtr() ) {
-			onFree( dataPtr() );
-		}
-		
+		if( _data ) {
+			ax_memcpy( np, _data, _size * sizeof(T) );
+			onFree( _data );
+		}		
 		_data = np;
 	}
 }

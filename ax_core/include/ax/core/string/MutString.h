@@ -140,7 +140,7 @@ public:
 	template< typename R >
 	ax_ALWAYS_INLINE(	void	OnStringReq( ToStringReq_<R> & req ) const );
 	
-	virtual	bool	isDataOnHeap	() const { return false; }
+	virtual	bool	isDataOnHeap	() const { return true; }
 	
 	T*			_data;
 	ax_int		_size;
@@ -205,7 +205,7 @@ public:
 		}
 	}
 	
-	MutStringX<T> &		asIMutString() { return static_cast< MutStringX<T> >( *this ); }
+	MutStringX<T> &		as_MutString() { return static_cast< MutStringX<T> >( *this ); }
 
 	virtual	const	T*	getLocalBufferPtr() const { return BUF::localBufPtr(); }
 	

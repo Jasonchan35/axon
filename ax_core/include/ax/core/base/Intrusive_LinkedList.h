@@ -258,6 +258,8 @@ void	Intrusive_LinkedList<T>::remove	( T* p ) {
 	p->_list_next = nullptr;
 	p->_list_prev = nullptr;
 	p->_list 	  = nullptr;
+	
+	assert( _size > 0 );
 	_size--;
 }
 

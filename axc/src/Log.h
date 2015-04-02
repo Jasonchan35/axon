@@ -24,19 +24,19 @@ public:
 
 	template< typename... Args >
 	static void Error( Token* token, const LexerPos* pos, const ax_string & fmt ) {
-		ax_log_( ax_txt("!! ERROR:") );
-		ax_log_( fmt );
-		if( token ) ax_log("{?}", *token );
-		if( pos ) 	ax_log("{?}", *pos );
+		ax_log( ax_txt("!! ERROR:") );
+		ax_log( fmt );
+		if( token ) ax_log( ax_txt("{?}"), *token );
+		if( pos ) 	ax_log( ax_txt("{?}"), *pos );
 		throw System::Err_Undefined();
 	}
 
 	template< typename... Args >
 	static void Error( Token* token, const LexerPos* pos, Args &&... args ) {
-		ax_log_( ax_txt("!! ERROR:") );
-		ax_log_( args... );
-		if( token ) ax_log("{?}", *token );
-		if( pos ) 	ax_log("{?}", *pos );
+		ax_log( ax_txt("!! ERROR:") );
+		ax_log( args... );
+		if( token ) ax_log( ax_txt("{?}"), *token );
+		if( pos ) 	ax_log( ax_txt("{?}"), *pos );
 		throw System::Err_Undefined();
 	}
 

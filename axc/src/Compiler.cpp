@@ -27,7 +27,7 @@ void Compiler::loadAllSourceFiles() {
 		
 		auto dir		= System::IO::Path::GetDirectoryName( filename );
 		auto basename	= System::IO::Path::GetFileName( filename, false );
-		ax_dump( dir, basename, ext );
+		ax_dump3( dir, basename, ext );
 		
 		auto src = ax_new_obj( SourceFile );
 		
@@ -43,7 +43,7 @@ void Compiler::declarePass() {
 		pass.parseFile( f );
 	}
 
-//	ax_dump( metadata );
+	ax_dump( metadata );
 	{
 		DeclarePass pass;
 		pass.resolveStructBaseTypes();
@@ -65,7 +65,7 @@ void Compiler::compile( const ax_string & project_root ) {
 	System::Time::StopWatch	watch;
 
 	this->project_root = project_root;
-	ax_log( "compile {?}", project_root );
+	ax_log( ax_txt("compile {?}"), project_root );
 	
 	loadAllSourceFiles();
 	declarePass();
@@ -74,8 +74,8 @@ void Compiler::compile( const ax_string & project_root ) {
 	
 	genCppPass();
 
-	ax_log("=== compile done ! ===" );
-	ax_log("Time: {?}s", watch.get() );
+	ax_log( ax_txt("=== compile done ! ===") );
+	ax_log( ax_txt("Time: {?}s"), watch.get() );
 }
 
 

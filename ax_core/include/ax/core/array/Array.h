@@ -23,7 +23,6 @@ class Array : public Object {
 public:
 	struct	ax_type_on_gc_trace : public ax_type_gc_trace<T> {};
 
-	Array() : _data(nullptr), _size(0), _capacity(0) {}
 	virtual ~Array() {}
 
 	ax_ALWAYS_INLINE(	void	clear	()	);
@@ -78,7 +77,7 @@ public:
 
 							void	move		( Array<T> &  rhs ) { onMove( rhs ); }
 
-	virtual	bool	isDataOnHeap	() const { return false; }
+	virtual	bool	isDataOnHeap	() const { return true; }
 
 	ArrayEnumerator< THIS_CLASS,       T >			getEnumerator		() 		 { return ArrayEnumerator< THIS_CLASS,      T >		 ( *this, dataPtr(), dataPtr()+_size ); }
 	ArrayEnumerator< THIS_CLASS, const T >			getEnumerator		() const { return ArrayEnumerator< THIS_CLASS,const T >		 ( *this, dataPtr(), dataPtr()+_size ); }
@@ -99,6 +98,7 @@ public:
 	ax_int		_capacity;
 
 protected:
+	Array() : _data(nullptr), _size(0), _capacity(0) {}
 
 	ax_ALWAYS_INLINE( void 	_checkBound			( ax_int i ) const ) { if( ! inBound(i) ) throw Err_Array_OutOfRange(); }
 	ax_ALWAYS_INLINE( void	_debug_checkBound	( ax_int i ) const ) {

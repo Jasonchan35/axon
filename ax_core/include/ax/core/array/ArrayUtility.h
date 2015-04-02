@@ -15,6 +15,8 @@
 namespace ax {
 namespace System {
 
+const ax_int ax_buffer_size_to_use_memcpy = 2048;
+
 template< typename T > inline
 void ax_copy_loop( T* dst, const T* src, ax_int len ) {
 	auto e = src + len;
@@ -25,8 +27,9 @@ void ax_copy_loop( T* dst, const T* src, ax_int len ) {
 
 inline void ax_memcpy( void* dst, const void* src, ax_int len ) {
 	if( len <= 0 ) return;
-	if( len > 1024 ) {
+	if( len > ax_buffer_size_to_use_memcpy ) {
 		::memcpy( dst, src, len );
+		return;
 	}
 	const ax_int w = sizeof( size_t );
 	auto n = len / w;
@@ -47,8 +50,9 @@ void ax_set_zero_loop( T* dst, ax_int len ) {
 
 inline void ax_bzero( void* dst, ax_int len ) {
 	if( len <= 0 ) return;
-	if( len > 1024 ) {
+	if( len > ax_buffer_size_to_use_memcpy ) {
 		::bzero( dst, len );
+		return;
 	}
 	const ax_int w = sizeof( size_t );
 	auto n = len / w;
