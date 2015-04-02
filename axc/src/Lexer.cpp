@@ -138,7 +138,12 @@ void	Lexer::_getToken( Token & token ) {
 			if( c == '=' ) { c++; return _setToken( token, TokenType::t_colonAssign, 		ax_txt(":=") ); }
 			return _setToken( token, TokenType::t_colon, ax_txt(":") );
 		}break;
-		
+
+		case '#': {
+			c++;
+			if( c == '#' ) { c++; return _setToken( token, TokenType::t_hash2, 				ax_txt("##") ); }
+			return _setToken( token, TokenType::t_hash, ax_txt("#") );
+		}break;
 		
 		case '/': {
 //			ax_TempString	tmp;
@@ -215,7 +220,7 @@ void	Lexer::_getToken( Token & token ) {
 		case ',': { c++; return _setToken( token, TokenType::t_comma,      	ax_txt(",") ); }	break;
 		case '`': { c++; return _setToken( token, TokenType::t_backMark, 	ax_txt("`") ); }	break;
 		case '$': { c++; return _setToken( token, TokenType::t_dollar, 		ax_txt("$") ); }	break;
-		case '#': { c++; return _setToken( token, TokenType::t_hash, 		ax_txt("#") ); }	break;
+
 		case '@': { c++; return _setToken( token, TokenType::t_at,		 	ax_txt("@") ); }	break;
 		case '\\':{ c++; return _setToken( token, TokenType::t_backSlash,	ax_txt("\\") ); }	break;
 		
@@ -299,6 +304,16 @@ void	Lexer::_getToken( Token & token ) {
 		case '.': {
 			c++;
 			if( c.isDigit() ) return _getToken_number( token, true );
+			if( c == '.' ) {
+				c++;
+				
+				if( c == '.' ) {
+					c++;
+					return _setToken( token, TokenType::t_dot3,	ax_txt("..") );
+				}
+				
+				return _setToken( token, TokenType::t_dot2,	ax_txt("..") );
+			}
 			
 			return _setToken( token, TokenType::t_dot, ax_txt(".") );
 		}break;

@@ -78,8 +78,11 @@ namespace Compile {
 	Token_TYPE(colon2,				"::" ) \
 	Token_TYPE(semiColon,			";"  ) \
 	Token_TYPE(dot,					"."  ) \
+	Token_TYPE(dot2,				".." ) \
+	Token_TYPE(dot3,				"...") \
 	Token_TYPE(at,					"@"  ) \
 	Token_TYPE(hash,				"#"  ) \
+	Token_TYPE(hash2,				"##" ) \
 	Token_TYPE(dollar,				"$"  ) \
 	Token_TYPE(backMark,			"`"  ) \
 	Token_TYPE(backSlash,			"\\" ) \
