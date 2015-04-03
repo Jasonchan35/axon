@@ -232,6 +232,7 @@ class FuncNode : public TypedNode {
 public:
 	FuncNode( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name );
 	
+						void			addOverload	( ax_Obj< FuncOverload > fo ) { overloads.add(fo); }
 	ax_NullableObj< FuncOverload >		getOverload	( ax_Array< ax_Obj< FuncOverload > > & candidate, const ax_Array< FuncParam > & params );
 	
 	

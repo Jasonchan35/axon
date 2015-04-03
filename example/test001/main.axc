@@ -11,7 +11,7 @@ class App {
 	var s = "ABCD"
 
 	class A {
-		var x = 1
+		var x = 1 + 2
 		fn test() {
 		/*
 			let a = vec2f(1,1)

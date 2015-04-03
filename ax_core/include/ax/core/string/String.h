@@ -34,7 +34,7 @@ public:
 	class Buffer {
 	public:
 		Buffer( ax_int req_size ) {
-			if( req_size < 0 ) throw Err_Undefined();
+			if( req_size <  0 ) throw Err_Undefined();
 			if( req_size <= 0 ) {
 				data = nullptr;
 				size = 0;
@@ -77,12 +77,13 @@ public:
 	}
 
 	StringX	operator+( const StringX<T> & rhs ) const {
+		if( size()     == 0 ) return rhs;
 		if( rhs.size() == 0 ) return *this;
 		
 		auto req_len = _size + rhs.size();
 		Buffer	buf( req_len );
 		
-		ArrayUtility::Copy( buf.data,  _data, _size );
+		ArrayUtility::Copy( buf.data, _data, _size );
 		ArrayUtility::Copy( buf.data + _size, rhs.c_str(), rhs.size() );
 		
 		return StringX( buf );
@@ -118,14 +119,14 @@ public:
 	static	StringX	Clone_c_str ( const T* sz ) 	{ return Clone( sz, ax_strlen(sz) ); }
 	static	StringX	Clone ( const T* sz, ax_int len ) {
 		Buffer buf( len );
-		ax_memcpy( buf.data, sz, len * sizeof(T) );
+		ArrayUtility::Copy( buf.data, sz, len );
 		return StringX( buf );
 	}
 	
 	static	StringX	_Literal_c_str( const T* sz ) 		{ return _Literal(sz, ax_strlen(sz)); }
 	static	StringX	_Literal( const T* sz, ax_int len ) { return StringX(sz,len); }
 	
-	ax_int	GetHash() const { return ax_c_str_hash(_data); }
+	ax_int	GetHash() const { return ax_c_str_hash( c_str() ); }
 	
 protected:
 

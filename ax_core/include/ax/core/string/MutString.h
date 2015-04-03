@@ -129,7 +129,7 @@ public:
 		ax_TYPE_LIST_all_char
 	#undef ax_TYPE_LIST_ITEM
 	
-	ax_int	GetHash() const { return ax_c_str_hash(_data); }
+	ax_int	GetHash() const { return ax_c_str_hash( c_str() ); }
 	
 	StringX<T>	to_StringX() 	{ return StringX<T>::Clone( c_str(), size() ); }
 
@@ -213,7 +213,7 @@ protected:
 	virtual	T*		onMalloc	( ax_int req_size, ax_int & out_capacity ) {
 		//std::cout << this << " onMalloc " << reqSize <<"\n";
 	
-		if( req_size+1 <= LOCAL_BUF_SIZE ) { // +1 for string null terminator
+		if( req_size + 1 <= LOCAL_BUF_SIZE ) { // +1 for string null terminator
 			out_capacity = LOCAL_BUF_SIZE;
 			return BUF::localBufPtr();
 		}else{
@@ -272,7 +272,7 @@ void 	MutStringX<T>::resize( ax_int new_size ) {
 		auto dst = _data    + new_size;
 		auto n   = old_size - new_size;
 		
-		ax_bzero( dst, n * sizeof(T) );
+		ArrayUtility::SetAllZeroForGC( dst, n );
 		
 	}else{
 		reserve( new_size );
@@ -295,7 +295,7 @@ void	MutStringX<T>::onMove	( MutStringX<T> & rhs ) {
 	clear();
 
 	resize( rhs.size() );
-	ax_memcpy( dataPtr(), rhs.dataPtr(), rhs.size() * sizeof(T) );
+	ArrayUtility::Copy( dataPtr(), rhs.dataPtr(), rhs.size() );
 	rhs.resize(0);
 }
 
@@ -305,7 +305,7 @@ void	MutStringX<T>::append ( MutStringX<T> && rhs ) {
 
 	auto old_size = _size;
 	resize( old_size + rhs.size() );
-	ax_memcpy( dataPtr() + old_size, rhs.dataPtr(), rhs.size() * sizeof(T) );
+	ArrayUtility::Copy( dataPtr() + old_size, rhs.dataPtr(), rhs.size() );
 	rhs.resize(0);
 }
 

@@ -28,6 +28,8 @@ void	Memory::GC_RegisterFinalizer( void* obj, FinalizeFunc func, void* clientDat
 	GC_REGISTER_FINALIZER( obj, func, clientData, nullptr, nullptr );
 }
 
+#if 1
+
 template<>	void*	Memory::_DoAllocBytes<false,false>	( ax_int req_bytes ) { return ::malloc( req_bytes ); }
 template<>	void*	Memory::_DoAllocBytes<true, true>	( ax_int req_bytes ) { return ::GC_MALLOC( req_bytes ); }
 template<>	void*	Memory::_DoAllocBytes<false,true>	( ax_int req_bytes ) { return ::GC_MALLOC_ATOMIC( req_bytes ); }
@@ -37,6 +39,21 @@ template<>	void	Memory::_DeallocBytes<false,false>	( void* p ) { return ::free(p
 template<>	void	Memory::_DeallocBytes<true, true>	( void* p ) { return ::GC_FREE(p); }
 template<>	void	Memory::_DeallocBytes<false,true>	( void* p ) { return ::GC_FREE(p); }
 template<>	void	Memory::_DeallocBytes<true, false>	( void* p ) { return ::GC_FREE(p); }
+
+#else
+
+template<>	void*	Memory::_DoAllocBytes<false,false>	( ax_int req_bytes ) { return ::malloc( req_bytes ); }
+template<>	void*	Memory::_DoAllocBytes<true, true>	( ax_int req_bytes ) { return ::malloc( req_bytes ); }
+template<>	void*	Memory::_DoAllocBytes<false,true>	( ax_int req_bytes ) { return ::malloc( req_bytes ); }
+template<>	void*	Memory::_DoAllocBytes<true, false>	( ax_int req_bytes ) { return ::malloc( req_bytes ); }
+
+template<>	void	Memory::_DeallocBytes<false,false>	( void* p ) { return ::free(p); }
+template<>	void	Memory::_DeallocBytes<true, true>	( void* p ) { return ::free(p); }
+template<>	void	Memory::_DeallocBytes<false,true>	( void* p ) { return ::free(p); }
+template<>	void	Memory::_DeallocBytes<true, false>	( void* p ) { return ::free(p); }
+
+#endif
+
 
 
 }} //namespace

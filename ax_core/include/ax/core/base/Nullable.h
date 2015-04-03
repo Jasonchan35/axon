@@ -57,8 +57,8 @@ public:
 	void operator=( std::nullptr_t p ) { setNull(); }	
 	void setNull() {
 		if( _p ) {
-			_p->~T();
-			ArrayUtility::SetAllZero( _buf, sizeof(T) );
+			ax_call_destructor( T, _p );
+			ArrayUtility::SetAllZeroForGC( _buf, sizeof(T) );
 		}
 		_p = nullptr;
 	}
@@ -69,7 +69,7 @@ public:
 			*_p = v;
 		}else{
 			_p = reinterpret_cast<T*>( _buf );
-			::new( _p ) T(v);
+			ax_call_constructor( T, _p, v );
 		}
 	}
 	

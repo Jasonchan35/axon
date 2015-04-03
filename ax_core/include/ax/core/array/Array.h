@@ -209,9 +209,7 @@ void	Array<T>::resize		( ax_int new_size ) {
 		auto dst = dataPtr() + new_size;
 		auto n   = old_size  - new_size;
 		ArrayUtility::Destructor ( dst, n );
-		if( ax_type_gc_trace<T>() ) {
-			ArrayUtility::SetAllZero( dst, n );
-		}
+		ArrayUtility::SetAllZeroForGC( dst, n );
 	}else{
 		reserve( new_size );
 		ArrayUtility::Constructor( dataPtr() + old_size, new_size - old_size );

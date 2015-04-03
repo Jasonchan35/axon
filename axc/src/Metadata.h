@@ -20,8 +20,6 @@ public:
 
 	ax_Obj< NamespaceNode > root;
 
-	void OnStringReq( ax_ToStringReq & req ) const;
-	
 	TupleTypeTable	tupleTable;
 	ax_Array_< ax_Obj<StructureType> >	structList;
 	ax_Array_< ax_Obj<PropNode> >		propList;
@@ -42,6 +40,7 @@ public:
 	ax_Obj< PrimitiveType >			type_double;
 
 	ax_Obj< PrimitiveType >			type_string;
+	ax_Obj< PrimitiveType >			type_bool;
 
 	ax_Obj< ClassNode >				type_object;
 	
@@ -51,6 +50,15 @@ public:
 	ax_Array_< ax_Obj< PrimitiveType > >	type_all_float;
 	
 	
+	void	addOperatorFunc			( RType returnType, ax_Obj< TypedNode > type, TokenType op );
+	
+	void	addPrefixOperatorFunc	( RType returnType, ax_Obj< TypedNode > type, TokenType op );
+	void	addPostfixOperatorFunc	( RType returnType, ax_Obj< TypedNode > type, TokenType op );
+	
+	void OnStringReq( ax_ToStringReq & req ) const;
+	
+private:
+	void _OnStringReq_Node( ax_ToStringReq & req, ax_Obj< MetaNode > node ) const;
 };
 
 

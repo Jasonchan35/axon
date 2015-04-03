@@ -100,20 +100,7 @@ ax_NullableObj<MetaNode>	MetaNode::onGetMember	( const ax_string & name ) {
 
 
 void MetaNode::OnStringReq( ax_ToStringReq & req ) const {
-	req.indent() << ax_txt("name=") << name << ax_txt("\t\t") << this->getTypeInfo().name() <<  ax_txt("\t") << nodeType;
-	
-//	if( parent ) {
-//		req << ax_txt(" paraent=") << parent->name;
-//	}
-	
-	req.newLine();
-	
-	req.indentLevel++;
-	
-	ax_foreach( & c, *children ) {
-		req << c;
-	}
-	req.indentLevel--;
+	req.indent() << name;
 }
 
 ax_NullableObj< FuncNode >	MetaNode::getFunc	( const ax_string & name ) {

@@ -88,9 +88,11 @@ struct ArrayUtility : StaticClass {
 	}
 
 	template< typename T >
-	ax_ALWAYS_INLINE( 	static	void	SetAllZero( T* p, ax_int n ) 		) {
-		if( n <= 0 ) return;
-		ax_bzero( p, n * sizeof(T) );
+	ax_ALWAYS_INLINE( 	static	void	SetAllZeroForGC( T* p, ax_int n ) 		) {
+		if( ax_type_gc_trace<T>() ) {
+			if( n <= 0 ) return;
+			ax_bzero( p, n * sizeof(T) );
+		}
 	}
 
 	template< typename T >
@@ -98,7 +100,7 @@ struct ArrayUtility : StaticClass {
 		if( n <= 0 ) return;
 		
 		if( ax_type_is_pod<T>() ) {
-			return SetAllZero( p,n );
+			return ax_bzero( p,n * sizeof(T) );
 		}
 		
 		auto s = p;

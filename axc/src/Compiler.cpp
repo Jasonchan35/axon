@@ -43,7 +43,7 @@ void Compiler::declarePass() {
 		pass.parseFile( f );
 	}
 
-	ax_dump( metadata );
+//	ax_dump( metadata );
 	{
 		DeclarePass pass;
 		pass.resolveStructBaseTypes();
