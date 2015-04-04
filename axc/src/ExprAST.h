@@ -14,8 +14,10 @@
 namespace ax {
 namespace Compile {
 
-class IdentifierAST;
-class NumberAST;
+class TypeAST;
+
+class PropAST;
+class NumberLiteralAST;
 class StringLiteralAST;
 
 class PrefixAST;
@@ -24,11 +26,16 @@ class BinaryAST;
 
 class FuncArgAST;
 
+class FuncOverload;
+class Prop;
+class TypeNode;
+
 class IExprDispatcher {
 public:
-	virtual	void	onAST( IdentifierAST 	& p ) = 0;
+	virtual	void	onAST( TypeAST		 	& p ) = 0;
+	virtual	void	onAST( PropAST 			& p ) = 0;
 
-	virtual	void	onAST( NumberAST 		& p ) = 0;
+	virtual	void	onAST( NumberLiteralAST 		& p ) = 0;
 	virtual	void	onAST( StringLiteralAST & p ) = 0;
 //	virtual	void	onAST( ArrayConstAST 	& p ) = 0;
 //	virtual	void	onAST( DictConstAST 	& p ) = 0;
@@ -54,15 +61,12 @@ public:
 //	virtual	void	onAST( LocalVarAST 		& p ) = 0;
 };
 
-
-
-
 class ExprAST : public System::Object {
 	ax_DefObject( ExprAST, System::Object );
 public:
 	struct	ax_type_on_gc_trace : public std::true_type {};
 
-	ExprAST	( const LexerPos & pos_ ) : pos(pos_) {}
+	ExprAST	( const LexerPos & pos_, const RType & returnType_ );
 	
 			void	dispatch		( IExprDispatcher & p ) { onDispatch(p); }
 	virtual	void	onDispatch		( IExprDispatcher & p ) = 0;
@@ -72,8 +76,8 @@ public:
 };
 
 
-class NumberAST : public ExprAST {
-	ax_DefObject( NumberAST, ExprAST )
+class NumberLiteralAST : public ExprAST {
+	ax_DefObject( NumberLiteralAST, ExprAST )
 public:
 
 	virtual	void	onDispatch		( IExprDispatcher & p ) { p.onAST(*this); }
@@ -127,7 +131,7 @@ public:
 	NumberValue	numberValue;
 	char	numberPrefix;
 
-	NumberAST( const LexerPos &_pos, const ax_string & _srcStr );
+	NumberLiteralAST( const LexerPos &_pos, const ax_string & _srcStr );
 };
 
 class StringLiteralAST : public ExprAST {
@@ -140,30 +144,38 @@ public:
 };
 
 
-class IdentifierAST : public ExprAST {
-	ax_DefObject( IdentifierAST, ExprAST )
+class TypeAST : public ExprAST {
+	ax_DefObject( TypeAST, ExprAST )
 public:
-	ax_NullableObj< MetaNode >		node;
+	ax_NullableObj< TypeNode >		node;
 
 	bool			dot;
 	RType		dotType;
 	
-	IdentifierAST( LexerPos &pos_, ax_Obj< MetaNode > node_ )
-	: base(pos_)
-	, node(node_) {
-	}
+	TypeAST( LexerPos &pos_, ax_Obj< TypeNode > node_ );
 
 	virtual	void	onDispatch		( IExprDispatcher & p ) { p.onAST(*this); }
+};
+
+class PropAST : public ExprAST {
+	ax_DefObject( PropAST, ExprAST )
+public:
+
+	PropAST( LexerPos &pos_, ax_Obj< Prop > node_ );
+	virtual	void	onDispatch		( IExprDispatcher & p ) { p.onAST(*this); }
+	
+	ax_NullableObj< Prop >		node;
 };
 
 
 class PrefixAST : public ExprAST {
 	ax_DefObject( PrefixAST, ExprAST )
 public:
-	TokenType			op;
-	ax_Obj<ExprAST>		expr;
+
+	ax_Obj< FuncOverload >	funcOverload;
+	ax_Obj<ExprAST>			expr;
 	
-	PrefixAST( const LexerPos &pos_, TokenType op_ ) : base(pos_), op(op_) {}
+	PrefixAST( const LexerPos &pos_,  ax_Obj< FuncOverload > fo_, ax_Obj< ExprAST > expr_  );
 	
 	virtual	void	onDispatch		( IExprDispatcher & p ) { p.onAST(*this); }
 };
@@ -171,10 +183,10 @@ public:
 class PostfixAST : public ExprAST {
 	ax_DefObject( PostfixAST, ExprAST )
 public:
-	TokenType			op;
-	ax_Obj<ExprAST>		expr;
+	ax_Obj< FuncOverload >	funcOverload;
+	ax_Obj<ExprAST>			expr;
 	
-	PostfixAST( const LexerPos &pos_, TokenType op_, ax_Obj< ExprAST > expr_ ) : base(pos_), op(op_), expr(expr_) {}
+	PostfixAST( const LexerPos &pos_, ax_Obj< FuncOverload > fo_, ax_Obj< ExprAST > expr_ );
 	
 	virtual	void	onDispatch		( IExprDispatcher & p ) { p.onAST(*this); }
 };
@@ -183,20 +195,11 @@ public:
 class BinaryAST : public ExprAST {
 	ax_DefObject( BinaryAST, ExprAST )
 public:
-	TokenType			op;
+	ax_Obj< FuncOverload >	funcOverload;
+	ax_Obj< ExprAST >		lhs, rhs;
 	
-	ax_Obj< ExprAST >	lhs, rhs;
+	BinaryAST( const LexerPos & pos_, ax_Obj< FuncOverload > fo_, ax_Obj<ExprAST> lhs_, ax_Obj<ExprAST> rhs_, bool parenthesis_ );
 	
-	BinaryAST( const LexerPos & pos_, TokenType op_, ax_Obj<ExprAST> lhs_, ax_Obj<ExprAST> rhs_, bool parenthesis_ )
-	: base(pos_)
-	, op(op_)
-	, lhs( lhs_ )
-	, rhs( rhs_ )
-	, parenthesis( parenthesis_ )
-	{
-	}
-
-
 	virtual	void	onDispatch		( IExprDispatcher & p ) { p.onAST(*this); }
 	
 	bool	parenthesis : 1;
@@ -208,7 +211,7 @@ class FuncArgAST : public ExprAST {
 public:
 	ax_Array_< ax_Obj< ExprAST >, 8 >	args;
 	
-	FuncArgAST( const LexerPos &_pos ) : base(_pos) {}
+	FuncArgAST( const LexerPos &_pos );
 
 	virtual	void	onDispatch		( IExprDispatcher & p ) { p.onAST(*this); }
 

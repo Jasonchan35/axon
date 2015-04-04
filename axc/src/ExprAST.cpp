@@ -9,6 +9,7 @@
 #include "ExprAST.h"
 #include "Log.h"
 #include "Compiler.h"
+#include "MetaNode.h"
 
 namespace ax {
 namespace Compile {
@@ -17,14 +18,21 @@ ax_ImplObject( ExprAST );
 ax_ImplObject( PrefixAST );
 ax_ImplObject( PostfixAST );
 ax_ImplObject( FuncArgAST );
-ax_ImplObject( IdentifierAST );
-ax_ImplObject( NumberAST );
+ax_ImplObject( PropAST );
+ax_ImplObject( TypeAST );
+ax_ImplObject( NumberLiteralAST );
 ax_ImplObject( StringLiteralAST );
 ax_ImplObject( BinaryAST );
 
 
-NumberAST::NumberAST( const LexerPos &_pos, const ax_string & _srcStr )
-: base(_pos)
+ExprAST::ExprAST	( const LexerPos & pos_, const RType & returnType_ )
+: pos(pos_)
+, returnType( returnType_ ) {
+}
+
+
+NumberLiteralAST::NumberLiteralAST( const LexerPos &_pos, const ax_string & _srcStr )
+: base(_pos, RType::kNull )
 , srcStr(_srcStr)
 , numberType(t_none)
 , numberPrefix(0)
@@ -167,19 +175,16 @@ NumberAST::NumberAST( const LexerPos &_pos, const ax_string & _srcStr )
 			case t_uint64:{
 				ax_c_str_to( tmp.c_str(), numberValue.v_uint64 );
 				numberType = t_uint64;
-				returnType = RType( g_compiler->metadata.type_uint64, false );
 			}break;
 			
 			case t_float:{
 				ax_c_str_to( tmp.c_str(), numberValue.v_float );
 				numberType = t_float;
-				returnType = RType( g_compiler->metadata.type_float, false );
 			}break;
 			
 			case t_double:{
 				ax_c_str_to( tmp.c_str(), numberValue.v_double );
 				numberType = t_double;
-				returnType = RType( g_compiler->metadata.type_double, false );
 			}break;
 			
 			default: {
@@ -202,7 +207,6 @@ NumberAST::NumberAST( const LexerPos &_pos, const ax_string & _srcStr )
 				Log::Error( pos, ax_txt("overflow") );
 			}
 			numberType = t_int64;
-			returnType = RType( g_compiler->metadata.type_int64, false );
 			
 		}else if( ax_str_case_equals( suffix, ax_sz("UL") ) ) {
 			if( numberType != t_uint64 ) Log::Error( pos, ax_txt("invalid suffix") );
@@ -210,7 +214,6 @@ NumberAST::NumberAST( const LexerPos &_pos, const ax_string & _srcStr )
 				Log::Error( pos, ax_txt("overflow") );
 			}
 //			numberType = t_uint64;
-			returnType = RType( g_compiler->metadata.type_uint64, false );
 			
 		}else if( ax_str_case_equals( suffix, ax_sz("U") ) ) {
 			if( numberType != t_uint64 ) Log::Error( pos, ax_txt("invalid suffix") );
@@ -218,7 +221,6 @@ NumberAST::NumberAST( const LexerPos &_pos, const ax_string & _srcStr )
 				Log::Error( pos, ax_txt("overflow") );
 			}
 			numberType = t_uint;
-			returnType = RType( g_compiler->metadata.type_uint, false );
 		}else if( ax_str_case_equals( suffix, ax_sz("f") ) ) {
 			//float
 			
@@ -234,15 +236,63 @@ NumberAST::NumberAST( const LexerPos &_pos, const ax_string & _srcStr )
 				Log::Error( pos, ax_txt("overflow") );
 			}
 			numberType = t_int;
-			returnType = RType( g_compiler->metadata.type_int, false );
 		}
+	}
+	
+	switch( numberType ) {
+		case t_int:		base::returnType = RType( g_compiler->metadata.type_int		); break;
+		case t_uint:	base::returnType = RType( g_compiler->metadata.type_uint	); break;
+
+		case t_int32:	base::returnType = RType( g_compiler->metadata.type_int32	); break;
+		case t_uint32:	base::returnType = RType( g_compiler->metadata.type_uint32	); break;
+
+		case t_int64:	base::returnType = RType( g_compiler->metadata.type_int64	); break;
+		case t_uint64:	base::returnType = RType( g_compiler->metadata.type_uint64	); break;
+
+		case t_float:	base::returnType = RType( g_compiler->metadata.type_float	); break;
+		case t_double:	base::returnType = RType( g_compiler->metadata.type_double	); break;
+		default: Log::Error(_pos, ax_txt("unknown number type") );
 	}
 }
 
 StringLiteralAST::StringLiteralAST( const LexerPos &pos_, const ax_string & value_ )
-: base(pos_)
+: base(pos_, RType( g_compiler->metadata.type_string ) )
 , value(value_) {
-	returnType = RType( g_compiler->metadata.type_string, false );
+}
+
+PrefixAST::PrefixAST( const LexerPos &pos_,  ax_Obj< FuncOverload > fo_, ax_Obj< ExprAST > expr_  )
+: base(pos_, fo_->returnType )
+, funcOverload(fo_)
+, expr(expr_) {
+}
+
+PostfixAST::PostfixAST( const LexerPos &pos_, ax_Obj< FuncOverload > fo_, ax_Obj< ExprAST > expr_ )
+: base(pos_, fo_->returnType )
+, funcOverload(fo_)
+, expr(expr_) {
+}
+
+BinaryAST::BinaryAST( const LexerPos & pos_, ax_Obj< FuncOverload > fo_, ax_Obj<ExprAST> lhs_, ax_Obj<ExprAST> rhs_, bool parenthesis_ )
+: base(pos_, fo_->returnType )
+, funcOverload(fo_)
+, lhs( lhs_ )
+, rhs( rhs_ )
+, parenthesis( parenthesis_ )
+{
+}
+
+TypeAST::TypeAST( LexerPos &pos_, ax_Obj< TypeNode > node_ )
+: base( pos_, RType( node_ )  )
+, node( node_ ) {
+}
+
+PropAST::PropAST( LexerPos &pos_, ax_Obj< Prop > node_ )
+: base( pos_, node_->type )
+, node( node_ ) {
+}
+
+FuncArgAST::FuncArgAST( const LexerPos &_pos )
+: base(_pos, RType::kNull ) {
 }
 
 

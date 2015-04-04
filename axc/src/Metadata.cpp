@@ -12,9 +12,9 @@ namespace ax {
 namespace Compile {
 
 Metadata::Metadata() {
-	root = ax_new_obj( NamespaceNode, ax_NullableObj< MetaNode >(nullptr), LexerPos(), ax_txt("ax_build") );
+	root = ax_new_obj( Namespace, ax_NullableObj< MetaNode >(nullptr), LexerPos(), ax_txt("ax_build") );
 
-	type_object		= ax_new_obj(  ClassNode, root, LexerPos(), ax_txt("Object" ) );
+	type_object		= ax_new_obj(  Class, root, LexerPos(), ax_txt("Object" ) );
 	type_object->buildin = true;
 
 	type_int8		= ax_new_obj(  PrimitiveType, root, ax_txt("int8" ) );
@@ -100,7 +100,7 @@ Metadata::Metadata() {
 }
 
 
-void Metadata::addOperatorFunc( RType returnType, ax_Obj< TypedNode > type, TokenType op ) {
+void Metadata::addOperatorFunc( RType returnType, ax_Obj< TypeNode > type, TokenType op ) {
 	auto fn = type->getOrAddOperatorFunc( op );
 	
 	auto ov = ax_new_obj( FuncOverload, fn, LexerPos() );
@@ -114,7 +114,7 @@ void Metadata::addOperatorFunc( RType returnType, ax_Obj< TypedNode > type, Toke
 	fn->addOverload( ov );
 }
 
-void Metadata::addPrefixOperatorFunc( RType returnType, ax_Obj< TypedNode > type, TokenType op ) {
+void Metadata::addPrefixOperatorFunc( RType returnType, ax_Obj< TypeNode > type, TokenType op ) {
 	auto fn = type->getOrAddPrefixOperatorFunc( op );
 	
 	auto ov = ax_new_obj( FuncOverload, fn, LexerPos() );
@@ -124,7 +124,7 @@ void Metadata::addPrefixOperatorFunc( RType returnType, ax_Obj< TypedNode > type
 	fn->addOverload( ov );
 }
 
-void Metadata::addPostfixOperatorFunc( RType returnType, ax_Obj< TypedNode > type, TokenType op ) {
+void Metadata::addPostfixOperatorFunc( RType returnType, ax_Obj< TypeNode > type, TokenType op ) {
 	auto fn = type->getOrAddOperatorFunc( op );
 	
 	auto ov = ax_new_obj( FuncOverload, fn, LexerPos() );

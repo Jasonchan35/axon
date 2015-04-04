@@ -42,11 +42,11 @@ ax_NullableObj< MetaNode >	CompilePass::parseNode	() {
 	return nullptr;
 }
 
-ax_NullableObj< TypedNode > CompilePass::parseTypename	() {
+ax_NullableObj< TypeNode > CompilePass::parseTypename	() {
 	if( token.is_roundBracketOpen() ) {	//tuple
 		nextToken();
 		
-		ax_Array_< ax_Obj<TypedNode>, 16 >	elements;
+		ax_Array_< ax_Obj<TypeNode>, 16 >	elements;
 		
 		for(;;) {
 			ax_if_not_let( e, parseTypename() ) {
@@ -72,7 +72,7 @@ ax_NullableObj< TypedNode > CompilePass::parseTypename	() {
 		return nullptr;
 	}
 	
-	ax_if_not_let( t, o->ax_as< TypedNode >() ) {
+	ax_if_not_let( t, o->ax_as< TypeNode >() ) {
 		Log::Error( token, ax_txt("type expected") );
 	}
 	return t;
@@ -130,7 +130,7 @@ ax_NullableObj< ExprAST > CompilePass::parseExpr_Identifier() {
 	
 	for(;;) {
 		if( token.is_dot() ) {
-			if( p->ax_is< NamespaceNode >() || p->ax_is< TypedNode >() ) {
+			if( p->ax_is< Namespace >() || p->ax_is< TypeNode >() ) {
 				nextToken();
 				ax_if_not_let( p0, p->getNode( token.str ) ) {
 					Log::Error( token, ax_txt("unknown identifier '{0}'"), token.str );
@@ -141,7 +141,7 @@ ax_NullableObj< ExprAST > CompilePass::parseExpr_Identifier() {
 				continue;
 			}
 		}else if( token.is_less() ) {
-			if( p->ax_is< TypedNode >() ) {
+			if( p->ax_is< TypeNode >() ) {
 				nextToken();
 				
 			//template
@@ -154,13 +154,22 @@ ax_NullableObj< ExprAST > CompilePass::parseExpr_Identifier() {
 		break;
 	}
 
-	return ax_new_obj( IdentifierAST, token.pos, p );
+	ax_if_let( prop, p->ax_as< Prop >() ) {
+		return ax_new_obj( PropAST, token.pos, prop );
+	}
+	
+	ax_if_let( type, p->ax_as< TypeNode >() ) {
+		return ax_new_obj( TypeAST, token.pos, type );
+	}
+
+	Log::Error( token, ax_txt("Unknown identifier type {?}"), p->getTypeInfo().name() );
+	return nullptr;
 }
 
 ax_NullableObj< ExprAST > CompilePass::parseExpr_Number() {
 	assert( token.is_number() );
 
-	auto expr = ax_new_obj( NumberAST, token.pos, token.str );
+	auto expr = ax_new_obj( NumberLiteralAST, token.pos, token.str );
 	nextToken();
 
 	return expr;
@@ -266,16 +275,16 @@ ax_NullableObj< ExprAST > CompilePass::parseExpr_BinaryOp( ax_int exprPrec, ax_O
 		}
 
 		ax_if_let( rhs_, rhs ) {
-			lhs = ax_new_obj( BinaryAST, op_pos, op, lhs, rhs_, true );		
-			lhs->returnType = fo->returnType;
+			lhs = ax_new_obj( BinaryAST, op_pos, fo, lhs, rhs_, true );
 		}
 	}
 	
 }
 
 ax_NullableObj< ExprAST >	CompilePass::parseExpr_Primary() {
-	ax_NullableObj< PrefixAST >		prefix;
 	ax_NullableObj< ExprAST >		expr;
+	TokenType	prefixOp = TokenType::t_unknown;
+	LexerPos	prefixPos;
 	
 //----- prefix -----
 	switch( token.type ) {
@@ -284,7 +293,9 @@ ax_NullableObj< ExprAST >	CompilePass::parseExpr_Primary() {
 		case TokenType::t_sub:
 		case TokenType::t_add2:
 		case TokenType::t_sub2:
-			prefix = ax_new_obj( PrefixAST, token.pos, token.type );
+			prefixPos = token.pos;
+			prefixOp  = token.type;
+			
 			nextToken();
 			break;
 	}
@@ -323,27 +334,29 @@ ax_NullableObj< ExprAST >	CompilePass::parseExpr_Primary() {
 		*/
 	}
 	
-	ax_if_let( prefix_, prefix ) {
+	if( prefixOp != TokenType::t_unknown ) {
 		ax_if_not_let( expr_, expr ) {
-			Log::Error( token, ax_txt("error prefix {?}"), prefix_->op );
+			Log::Error( token, ax_txt("error prefix {?}"), prefixOp );
 		}else{
-			auto op = prefix_->op;
-			auto t = expr_->returnType;
+			auto & t = expr_->returnType;
 			
-			ax_if_not_let( opFunc, t.getPrefixOperatorFunc( op ) ) {
-				Log::Error( nullptr, &expr_->pos, ax_txt("no 'prefix func {?}' "), op, t );
+			ax_if_not_let( nodeType, t.type ) {
+				Log::Error( nullptr, &expr_->pos, ax_txt("no 'prefix func {?}' "), prefixOp, t );
+			}
+			
+			ax_if_not_let( opFunc, nodeType->getPrefixOperatorFunc( prefixOp ) ) {
+				Log::Error( nullptr, &expr_->pos, ax_txt("no 'prefix func {?}' "), prefixOp, t );
 			}
 
 			ax_Array_< FuncParam, 32 >				params;
 			ax_Array_< ax_Obj< FuncOverload >, 16 >	candidate;
 			ax_if_not_let( fo, opFunc->getOverload( candidate, params ) ) {
-				Log::Error( nullptr, &expr_->pos, ax_txt("no 'prefix func {?} ' overload"), op );
+				Log::Error( nullptr, &expr_->pos, ax_txt("no 'prefix func {?} ' overload"), prefixOp );
 			}
 
-			prefix_->returnType = fo->returnType;
+			auto prefix = ax_new_obj( PrefixAST, prefixPos, fo, expr_ );
 			
-			prefix_->expr = expr_;
-			expr = prefix_;
+			expr = prefix;
 		}
 
 	}
@@ -352,30 +365,31 @@ ax_NullableObj< ExprAST >	CompilePass::parseExpr_Primary() {
 	switch( token.type ) {
 		default: break;
 		case TokenType::t_add2:
-		case TokenType::t_sub2:
+		case TokenType::t_sub2: {
 			ax_if_not_let( expr_, expr ) {
 				Log::Error( token, ax_txt("invalid expr") );
-			}else{
-				auto op = token.type;
-				auto t = expr_->returnType;
-				
-				ax_if_not_let( opFunc, t.getOperatorFunc( op ) ) {
-					Log::Error( nullptr, &expr_->pos, ax_txt("no 'postfix func {?}' "), op, t );
-				}
-
-				ax_Array_< FuncParam, 32 >					params;
-				ax_Array_< ax_Obj< FuncOverload >, 16 >		candidate;
-				ax_if_not_let( fo, opFunc->getOverload( candidate, params ) ) {
-					Log::Error( nullptr, &expr_->pos, ax_txt("no 'postfix func {?} ' overload"), op );
-				}
-
-				expr_ = ax_new_obj( PostfixAST, token.pos, token.type, expr_ );
-				expr_->returnType = fo->returnType;
-				expr = expr_;
-				
-				nextToken();
 			}
-			break;
+			
+			auto op = token.type;
+			auto &t = expr_->returnType;
+			
+			ax_if_not_let( nodeType, t.type ) {
+				Log::Error( nullptr, &expr_->pos, ax_txt("no 'postfix func {?}' "), op, t );
+			}
+			
+			ax_if_not_let( opFunc, nodeType->getOperatorFunc( op ) ) {
+				Log::Error( nullptr, &expr_->pos, ax_txt("no 'postfix func {?}' "), op, t );
+			}
+
+			ax_Array_< FuncParam, 32 >					params;
+			ax_Array_< ax_Obj< FuncOverload >, 16 >		candidate;
+			ax_if_not_let( fo, opFunc->getOverload( candidate, params ) ) {
+				Log::Error( nullptr, &expr_->pos, ax_txt("no 'postfix func {?} ' overload"), op );
+			}
+
+			expr = ax_new_obj( PostfixAST, token.pos, fo, expr_ );
+			nextToken();
+		}break;
 	}
 	
 	return expr;}

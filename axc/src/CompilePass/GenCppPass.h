@@ -33,26 +33,27 @@ private:
 	void	genHdr_dispatch		( ax_Obj< MetaNode > node );
 	void	genCpp_dispatch		( ax_Obj< MetaNode > node );
 	
-	void	genHdr_namespace	( ax_Obj< NamespaceNode > node );
-	void	genCpp_namespace	( ax_Obj< NamespaceNode > node );
+	void	genHdr_namespace	( ax_Obj< Namespace > node );
+	void	genCpp_namespace	( ax_Obj< Namespace > node );
 
 	void	genHdr_struct		( ax_Obj< StructureType > node );
 	void	genCpp_struct		( ax_Obj< StructureType > node );
 
-	void	genHdr_prop			( ax_Obj< PropNode >	node );
-	void	genCpp_prop			( ax_Obj< PropNode >	node );
+	void	genHdr_prop			( ax_Obj< Prop >	node );
+	void	genCpp_prop			( ax_Obj< Prop >	node );
 
-	void	genHdr_func			( ax_Obj< FuncNode >	node );
-	void	genCpp_func			( ax_Obj< FuncNode >	node );
+	void	genHdr_func			( ax_Obj< Func >	node );
+	void	genCpp_func			( ax_Obj< Func >	node );
 
 	void	genHdr_funcOverload	( ax_Obj< FuncOverload > node );
 	void	genCpp_funcOverload	( ax_Obj< FuncOverload > node );
 	
 	
 
-	virtual	void	onAST( IdentifierAST 	& p );
+	virtual	void	onAST( TypeAST 			& p );
+	virtual	void	onAST( PropAST 			& p );
 
-	virtual	void	onAST( NumberAST 		& p );
+	virtual	void	onAST( NumberLiteralAST 		& p );
 	virtual	void	onAST( StringLiteralAST & p );
 //	virtual	void	onAST( ArrayConstAST	& p );
 //	virtual	void	onAST( DictConstAST 	& p );
@@ -98,6 +99,14 @@ private:
 		OutBuf & operator<< ( ax_Obj< MetaNode > node );
 		OutBuf & operator<< ( ax_NullableObj< MetaNode > node );
 
+		OutBuf & operator<< ( ax_Obj< Prop > 			node ) { return *this << node->as_MetaNode(); }
+		OutBuf & operator<< ( ax_Obj< TypeNode >	 	node ) { return *this << node->as_MetaNode(); }
+		OutBuf & operator<< ( ax_Obj< StructureType > 	node ) { return *this << node->as_MetaNode(); }
+		OutBuf & operator<< ( ax_Obj< Class > 			node ) { return *this << node->as_MetaNode(); }
+		OutBuf & operator<< ( ax_Obj< Struct > 			node ) { return *this << node->as_MetaNode(); }
+		OutBuf & operator<< ( ax_Obj< Interface >		node ) { return *this << node->as_MetaNode(); }
+
+
 		OutBuf & operator<< ( const TokenType 	& t  );
 		OutBuf & operator<< ( const RType 		& t  );
 		
@@ -120,7 +129,7 @@ private:
 		
 		ax_NullableObj< StructureType >		inStruct;
 //		ax_ax_NullableObjObj< BlockNode >	inBlock;
-		ax_NullableObj< NamespaceNode >		inNamespace;
+		ax_NullableObj< Namespace >		inNamespace;
 	
 		ax_int			indentLevel;
 		ax_TempString	_buf;

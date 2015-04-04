@@ -8,7 +8,7 @@ class App {
 	var d = u8char('3')
 	var e = u8string('hello')
 */
-	var a = 1;
+	var a = 1, b = a + 10
 	var s = "ABCD"
 
 	class A {

@@ -16,7 +16,7 @@
 namespace ax {
 namespace Compile {
 
-class FuncNode;
+class Func;
 class ExprAST;
 
 class LexerPos;
@@ -60,14 +60,14 @@ public:
 	virtual	ax_NullableObj< MetaNode >	onGetMember		( const ax_string & name );
 
 	
-	ax_NullableObj< FuncNode >	getFunc		( const ax_string & name );
-	ax_Obj< FuncNode >			getOrAddFunc( const ax_string & name );
+	ax_NullableObj< Func >	getFunc		( const ax_string & name );
+	ax_Obj< Func >			getOrAddFunc( const ax_string & name );
 		
-	ax_NullableObj< FuncNode >	getOperatorFunc				( TokenType op );
-	ax_Obj< FuncNode >			getOrAddOperatorFunc		( TokenType op );
+	ax_NullableObj< Func >	getOperatorFunc				( TokenType op );
+	ax_Obj< Func >			getOrAddOperatorFunc		( TokenType op );
 
-	ax_NullableObj< FuncNode >	getPrefixOperatorFunc		( TokenType op );
-	ax_Obj< FuncNode >			getOrAddPrefixOperatorFunc	( TokenType op );
+	ax_NullableObj< Func >	getPrefixOperatorFunc		( TokenType op );
+	ax_Obj< Func >			getOrAddPrefixOperatorFunc	( TokenType op );
 	
 	typedef ax_Dict< ax_string, ax_Obj< MetaNode > >	ChildrenDict;
 	
@@ -76,22 +76,22 @@ public:
 	virtual void OnStringReq( ax_ToStringReq & req ) const;
 };
 
-class NamespaceNode : public MetaNode {
-	ax_DefObject( NamespaceNode, MetaNode )
+class Namespace : public MetaNode {
+	ax_DefObject( Namespace, MetaNode )
 public:
 	struct	ax_type_on_gc_trace : public std::true_type {};
 
-	NamespaceNode( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name );
+	Namespace( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name );
 
-	ax_Obj< NamespaceNode > getOrAddNamespace	( const ax_string & name, LexerPos & pos );
+	ax_Obj< Namespace > getOrAddNamespace	( const ax_string & name, LexerPos & pos );
 };
 
-class TypedNode : public MetaNode {
-	ax_DefObject( TypedNode, MetaNode );
+class TypeNode : public MetaNode {
+	ax_DefObject( TypeNode, MetaNode );
 public:
-	TypedNode( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name );
+	TypeNode( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name );
 
-	virtual	bool canAssignFrom( ax_Obj< TypedNode > rhs ) const {
+	virtual	bool canAssignFrom( ax_Obj< TypeNode > rhs ) const {
 		return true;
 	}
 
@@ -101,8 +101,8 @@ public:
 };
 
 
-class PrimitiveType : public TypedNode {
-	ax_DefObject( PrimitiveType, TypedNode );
+class PrimitiveType : public TypeNode {
+	ax_DefObject( PrimitiveType, TypeNode );
 public:
 	PrimitiveType( ax_NullableObj< MetaNode > parent, const ax_string & name )
 	: base( parent, LexerPos(), name )
@@ -110,31 +110,31 @@ public:
 };
 
 
-class TupleType : public TypedNode {
-	ax_DefObject( TupleType, TypedNode )
+class TupleType : public TypeNode {
+	ax_DefObject( TupleType, TypeNode )
 public:
 
-	TupleType( const LexerPos & pos, const ax_string & name, const ax_Array< ax_Obj< TypedNode > > & elementTypes_ );
+	TupleType( const LexerPos & pos, const ax_string & name, const ax_Array< ax_Obj< TypeNode > > & elementTypes_ );
 	
-	ax_Array_< ax_Obj<TypedNode>, 8 >		elementTypes;
+	ax_Array_< ax_Obj<TypeNode>, 8 >		elementTypes;
 	
 };
 
 class TupleTypeTable : System::NonCopyable {
 public:
 
-	ax_NullableObj< TupleType >	getTuple		( const ax_Array< ax_Obj<TypedNode> > & elementTypes );
-			ax_Obj< TupleType >	getOrAddTuple	( const LexerPos & pos, const ax_Array< ax_Obj<TypedNode> > & elementTypes );
+	ax_NullableObj< TupleType >	getTuple		( const ax_Array< ax_Obj<TypeNode> > & elementTypes );
+			ax_Obj< TupleType >	getOrAddTuple	( const LexerPos & pos, const ax_Array< ax_Obj<TypeNode> > & elementTypes );
 
-	ax_string		getTupleName( const ax_Array< ax_Obj<TypedNode> > & elementTypes );
+	ax_string		getTupleName( const ax_Array< ax_Obj<TypeNode> > & elementTypes );
 
 private:
 	ax_Dict< ax_string, ax_Obj<TupleType> >	tuples;
 };
 
 
-class StructureType : public TypedNode {
-	ax_DefObject( StructureType, TypedNode )
+class StructureType : public TypeNode {
+	ax_DefObject( StructureType, TypeNode )
 public:
 	StructureType( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name );
 
@@ -142,37 +142,37 @@ public:
 
 	LexerPos				bodyPos;
 	
-	ax_NullableObj< StructureType >		baseType;
+	ax_NullableObj< StructureType >			baseType;
 	ax_Array_< ax_Obj< StructureType > >	interfaces;
 	
 	bool			isNestedType;
 };
 
-class InterfaceNode : public StructureType {
-	ax_DefObject( InterfaceNode, StructureType );
+class Interface : public StructureType {
+	ax_DefObject( Interface, StructureType );
 public:
-	InterfaceNode( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name ) : base( parent, pos, name ) {}
+	Interface( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name ) : base( parent, pos, name ) {}
 };
 
-class StructNode : public StructureType {
-	ax_DefObject( StructNode, StructureType );
+class Struct : public StructureType {
+	ax_DefObject( Struct, StructureType );
 public:
-	StructNode( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name ) : base( parent, pos, name ) {}
+	Struct( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name ) : base( parent, pos, name ) {}
 };
 
-class ClassNode : public StructureType {
-	ax_DefObject( ClassNode, StructureType );
+class Class : public StructureType {
+	ax_DefObject( Class, StructureType );
 public:
-	ClassNode( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name ) : base( parent, pos, name ) {}
+	Class( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name ) : base( parent, pos, name ) {}
 };
 
 
 
 
-class PropNode : public TypedNode {
-	ax_DefObject( PropNode, TypedNode );
+class Prop : public TypeNode {
+	ax_DefObject( Prop, TypeNode );
 public:
-	PropNode( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name, bool is_let );
+	Prop( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name, bool is_let );
 	
 	LexerPos					initExprPos;
 	ax_NullableObj< ExprAST >	initExpr;
@@ -204,17 +204,17 @@ struct FuncParam {
 	}
 };
 
-class FuncType : public TypedNode {
-	ax_DefObject( FuncType, TypedNode );
+class FuncType : public TypeNode {
+	ax_DefObject( FuncType, TypeNode );
 public:
-	FuncType( const ax_string & name, ax_Obj< FuncNode > func );
-	ax_Obj< FuncNode >	func;
+	FuncType( const ax_string & name, ax_Obj< Func > func );
+	ax_Obj< Func >	func;
 };
 
-class FuncOverload : public TypedNode {
-	ax_DefObject( FuncOverload, TypedNode )
+class FuncOverload : public TypeNode {
+	ax_DefObject( FuncOverload, TypeNode )
 public:
-	FuncOverload( ax_Obj< FuncNode > parent, const LexerPos & pos );
+	FuncOverload( ax_Obj< Func > parent, const LexerPos & pos );
 
 	virtual void OnStringReq( ax_ToStringReq & req ) const;
 
@@ -222,7 +222,7 @@ public:
 
 	ax_Array_< FuncParam, 8 >	params;
 	
-	ax_Obj< FuncNode >	func;
+	ax_Obj< Func >	func;
 
 	LexerPos		returnTypePos;
 	LexerPos		paramPos;
@@ -231,10 +231,10 @@ public:
 	RType			returnType;
 };
 
-class FuncNode : public TypedNode {
-	ax_DefObject( FuncNode, TypedNode );
+class Func : public TypeNode {
+	ax_DefObject( Func, TypeNode );
 public:
-	FuncNode( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name );
+	Func( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name );
 
 	virtual void OnStringReq( ax_ToStringReq & req ) const;
 	

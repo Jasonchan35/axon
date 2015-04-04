@@ -33,7 +33,7 @@ private:
 	void	parse_StructNode	( DeclarationModifier & modifier );
 	
 	bool	resolve_StructBaseType	( ax_Obj< StructureType > 	structNode );
-	bool	resolve_PropType		( ax_Obj< PropNode >		propNode );
+	bool	resolve_PropType		( ax_Obj< Prop >		Prop );
 	
 	void	parse_StructBody	( ax_Obj< StructureType > structNode );
 	

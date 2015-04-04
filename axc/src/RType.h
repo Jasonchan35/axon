@@ -14,13 +14,14 @@
 namespace ax {
 namespace Compile {
 
-class TypedNode;
-class FuncNode;
+class TypeNode;
+class Func;
 
 class RType {
 public:
+	static	RType	kNull;
 
-	RType( ax_NullableObj< TypedNode > type_ = nullptr, bool isMutable_ = false )
+	RType( ax_NullableObj< TypeNode > type_ = nullptr, bool isMutable_ = false )
 	: type( type_ )
 	, isMutable( isMutable_ )
 	, isTypeName( false ) {
@@ -31,13 +32,13 @@ public:
 	bool	canAssignFrom( const RType & rhs ) const;
 	
 
-	ax_NullableObj< FuncNode >	getFunc					( const ax_string & name );
-	ax_NullableObj< FuncNode >	getOperatorFunc			( TokenType op );
-	ax_NullableObj< FuncNode >	getPrefixOperatorFunc	( TokenType op );
+	ax_NullableObj< Func >	getFunc					( const ax_string & name );
+	ax_NullableObj< Func >	getOperatorFunc			( TokenType op );
+	ax_NullableObj< Func >	getPrefixOperatorFunc	( TokenType op );
 
 	void	OnStringReq( ax_ToStringReq & req ) const;
 
-	ax_NullableObj< TypedNode >	type;
+	ax_NullableObj< TypeNode >	type;
 	bool	isMutable;
 	bool	isTypeName;
 };

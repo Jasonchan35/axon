@@ -34,7 +34,7 @@ void DeclarePass::parsePropPass	() {
 }
 
 void DeclarePass::resolvePropTypePass() {
-	ax_Array_< ax_Obj< PropNode > >	list[2];
+	ax_Array_< ax_Obj< Prop > >	list[2];
 	list[0].reserve( 64 * 1024 );
 	list[1].reserve( 64 * 1024 );
 
@@ -60,7 +60,7 @@ void DeclarePass::resolvePropTypePass() {
 		
 		if( ok_count == 0 ) {
 			ax_foreach( &s, *procList ) {
-				Log::Error( s->pos, ax_txt("unable to resolve types {?}"), s->name );
+				Log::Error( s->pos, ax_txt("unable to resolve type for property {?}"), s->name );
 			}
 		}
 	}
@@ -97,6 +97,77 @@ void DeclarePass::resolveStructBaseTypes() {
 			}
 		}
 	}
+}
+
+
+bool DeclarePass::resolve_PropType( ax_Obj< Prop >	node ) {
+	ax_log( ax_txt("resolve_PropType {?}"), node->name );
+
+	if( node->type.is_null() ) {
+		if( node->typePos.valid ) {
+			parser.setPos( node->typePos );
+			node->type = parseTypename();
+		}
+	}
+	
+	if( node->initExprPos.valid ) {
+		parser.setPos( node->initExprPos );
+		
+		ax_if_let( expr, parseExpression() ) {
+			node->initExpr = expr;
+			
+			if( ! node->type.is_null() ) {
+				if( node->type.canAssignFrom( expr->returnType ) ) {
+					Log::Error( node->initExprPos, ax_txt("'{?}' type mis-match '{?}' expected"), expr->returnType, node->type );
+				}
+			}
+			node->type = expr->returnType;
+		}
+	}
+	
+	if( node->type.is_null() ) {
+		return false;
+	}
+		
+	return true;
+}
+
+bool DeclarePass::resolve_StructBaseType( ax_Obj< StructureType > node ) {
+
+	auto n = node->baseOrInterfacePos.size();
+	ax_int c = 0;
+	
+	if( ! node->baseType.is_null() ) {
+		c++;
+	}
+	
+	for( auto i=c; i<n; i++ ) {
+		auto pos = node->baseOrInterfacePos[i];
+		parser.setPos( pos );
+		
+		ax_if_not_let( t, parseTypename() ) {
+			return false;
+		}
+		
+		ax_if_not_let( s, t->ax_as< StructureType >() ) {
+			Log::Error( pos, ax_txt("interface / class / struct expected") );
+		}
+
+		ax_if_let( f, t->ax_as< Interface >() ) {
+			node->interfaces.add( f );
+			continue;
+		}
+		
+		if( i != 0 ) {
+			Log::Error( pos, ax_txt("cannot have multiple base class") );
+		}
+		node->baseType = s;
+	}
+	
+	if( node->baseType.is_null() && node->ax_is< Class >() ) {
+		node->baseType = g_compiler->metadata.type_object;
+	}
+	return true;
 }
 
 
@@ -140,7 +211,7 @@ void DeclarePass::parse_namespace() {
 		throw System::Err_Undefined();
 	}
 	
-	ax_if_not_let( ns, ns0->getUpperByType< NamespaceNode >() ) {
+	ax_if_not_let( ns, ns0->getUpperByType< Namespace >() ) {
 		throw System::Err_Undefined();
 	}
 	
@@ -199,15 +270,15 @@ void DeclarePass::parse_StructNode( DeclarationModifier & modifier ) {
 				
 	ax_Obj< StructureType >	new_node;
 	switch( nodeType ) {
-		case TokenType::t_interface: 	new_node = ax_new_obj( InterfaceNode,	inNode, token.pos, token.str );	break;
-		case TokenType::t_struct: 		new_node = ax_new_obj( StructNode,		inNode, token.pos, token.str );	break;
-		case TokenType::t_class: 		new_node = ax_new_obj( ClassNode,		inNode, token.pos, token.str );	break;
+		case TokenType::t_interface: 	new_node = ax_new_obj( Interface,	inNode, token.pos, token.str );	break;
+		case TokenType::t_struct: 		new_node = ax_new_obj( Struct,		inNode, token.pos, token.str );	break;
+		case TokenType::t_class: 		new_node = ax_new_obj( Class,		inNode, token.pos, token.str );	break;
 
 		default:
 			Log::Error( token, ax_txt("class / struct / interface expected") );
 	}
 
-	if( inNode->ax_is< NamespaceNode >() ) {
+	if( inNode->ax_is< Namespace >() ) {
 	}else if( inNode->ax_is< StructureType >() ) {
 		new_node->isNestedType = true;
 	}else{
@@ -278,74 +349,6 @@ void DeclarePass::parse_StructBody( ax_Obj< StructureType > structNode ) {
 	}
 }
 
-bool DeclarePass::resolve_PropType( ax_Obj< PropNode >	node ) {
-	if( node->type.is_null() ) {
-		if( node->typePos.valid ) {
-			parser.setPos( node->typePos );
-			node->type = parseTypename();
-		}
-	}
-	
-	if( node->initExprPos.valid ) {
-		parser.setPos( node->initExprPos );
-		
-		ax_if_let( expr, parseExpression() ) {
-			node->initExpr = expr;
-			
-			if( ! node->type.is_null() ) {
-				if( node->type.canAssignFrom( expr->returnType ) ) {
-					Log::Error( node->initExprPos, ax_txt("'{?}' type mis-match '{?}' expected"), expr->returnType, node->type );
-				}
-			}
-			node->type = expr->returnType;
-		}
-	}
-	
-	if( node->type.is_null() ) {
-		return false;
-	}
-		
-	return true;
-}
-
-bool DeclarePass::resolve_StructBaseType( ax_Obj< StructureType > node ) {
-
-	auto n = node->baseOrInterfacePos.size();
-	ax_int c = 0;
-	
-	if( ! node->baseType.is_null() ) {
-		c++;
-	}
-	
-	for( auto i=c; i<n; i++ ) {
-		auto pos = node->baseOrInterfacePos[i];
-		parser.setPos( pos );
-		
-		ax_if_not_let( t, parseTypename() ) {
-			return false;
-		}
-		
-		ax_if_not_let( s, t->ax_as< StructureType >() ) {
-			Log::Error( pos, ax_txt("interface / class / struct expected") );
-		}
-
-		ax_if_let( f, t->ax_as< InterfaceNode >() ) {
-			node->interfaces.add( f );
-			continue;
-		}
-		
-		if( i != 0 ) {
-			Log::Error( pos, ax_txt("cannot have multiple base class") );
-		}
-		node->baseType = s;
-	}
-	
-	if( node->baseType.is_null() && node->ax_is< ClassNode >() ) {
-		node->baseType = g_compiler->metadata.type_object;
-	}
-	return true;
-}
-
 void DeclarePass::parse_FuncNode( DeclarationModifier & modifier ) {
 	if( ! token.is_fn() ) Log::Error( token, ax_txt("fn expected") );
 
@@ -362,7 +365,7 @@ void DeclarePass::parse_FuncNode( DeclarationModifier & modifier ) {
 		throw System::Err_Undefined();
 	}
 		
-	if( ! inNode->ax_is< ClassNode >() && ! inNode->ax_is< StructNode >() && ! inNode->ax_is< InterfaceNode >() ) {
+	if( ! inNode->ax_is< Class >() && ! inNode->ax_is< Struct >() && ! inNode->ax_is< Interface >() ) {
 		Log::Error( token, ax_txt("cannot delcare function here") );
 	}
 
@@ -417,7 +420,7 @@ void DeclarePass::parse_PropNode( DeclarationModifier & modifier ) {
 		throw System::Err_Undefined();
 	}
 	
-	if( ! inNode->ax_is< ClassNode >() && ! inNode->ax_is< StructNode >() ) {
+	if( ! inNode->ax_is< Class >() && ! inNode->ax_is< Struct >() ) {
 		Log::Error( token, ax_txt("cannot delcare property here") );
 	}
 	
@@ -426,7 +429,7 @@ void DeclarePass::parse_PropNode( DeclarationModifier & modifier ) {
 	for(;;) {
 		if( ! token.is_identifier() ) Log::Error( token, ax_txt("var name expected") );
 		
-		auto new_node = ax_new_obj( PropNode, inNode, token.pos, token.str, is_let );
+		auto new_node = ax_new_obj( Prop, inNode, token.pos, token.str, is_let );
 		g_compiler->metadata.propList.add( new_node );
 		nextToken();
 				

@@ -12,7 +12,7 @@ namespace ax {
 namespace Compile {
 
 bool GenCppPass::hasToGenSourceFile( ax_Obj< MetaNode > node ) {
-	if( node->ax_is< NamespaceNode >() ) return true;
+	if( node->ax_is< Namespace >() ) return true;
 
 	ax_if_let( type, node->ax_as< StructureType >() ) {
 		if( ! type->buildin && ! type->isNestedType ) {
@@ -74,7 +74,7 @@ void GenCppPass::genCpp		( ax_Obj< MetaNode > node ) {
 
 	bool writeFile = hasToGenSourceFile( node );
 	if( writeFile ) {
-		ax_if_let( ns, node->ax_as< NamespaceNode >() ) {
+		ax_if_let( ns, node->ax_as< Namespace >() ) {
 			ax_foreach( & c, *ns->children ) {
 				if( ! hasToGenSourceFile( c ) ) continue;
 				ob << ax_txt("#include \"") << node->name << ax_txt("/") << c->name << ax_txt(".cpp\"\n");
@@ -99,36 +99,36 @@ void GenCppPass::genCpp		( ax_Obj< MetaNode > node ) {
 
 
 void GenCppPass::genHdr_dispatch( ax_Obj< MetaNode > node ) {
-	ax_if_let( ns, 		node->ax_as<NamespaceNode>() )	{ return genHdr_namespace( ns ); }
-	ax_if_let( fn, 		node->ax_as<FuncNode>() )		{ return genHdr_func( fn ); }
-	ax_if_let( prop,	node->ax_as<PropNode>() )		{ return genHdr_prop( prop ); }
+	ax_if_let( ns, 		node->ax_as<Namespace>() )	{ return genHdr_namespace( ns ); }
+	ax_if_let( fn, 		node->ax_as<Func>() )		{ return genHdr_func( fn ); }
+	ax_if_let( prop,	node->ax_as<Prop>() )		{ return genHdr_prop( prop ); }
 	ax_if_let( cp,		node->ax_as<StructureType>() )		{ return genHdr_struct( cp ); }
 }
 
 void GenCppPass::genCpp_dispatch( ax_Obj< MetaNode > node ) {
-	ax_if_let(  ns,		node->ax_as<NamespaceNode>() )	{ return genCpp_namespace( ns ); }
-	ax_if_let(  fn,		node->ax_as<FuncNode>() )		{ return genCpp_func( fn ); }
-	ax_if_let(  prop,	node->ax_as<PropNode>() )		{ return genCpp_prop( prop ); }
+	ax_if_let(  ns,		node->ax_as<Namespace>() )	{ return genCpp_namespace( ns ); }
+	ax_if_let(  fn,		node->ax_as<Func>() )		{ return genCpp_func( fn ); }
+	ax_if_let(  prop,	node->ax_as<Prop>() )		{ return genCpp_prop( prop ); }
 	ax_if_let(  cp,		node->ax_as<StructureType>() )		{ return genCpp_struct( cp ); }
 }
 
-void GenCppPass::genHdr_namespace( ax_Obj< NamespaceNode > node ) {
+void GenCppPass::genHdr_namespace( ax_Obj< Namespace > node ) {
 }
 
-void GenCppPass::genCpp_namespace( ax_Obj< NamespaceNode > node ) {
+void GenCppPass::genCpp_namespace( ax_Obj< Namespace > node ) {
 }
 
-void GenCppPass::genHdr_func( ax_Obj< FuncNode > node ) {
+void GenCppPass::genHdr_func( ax_Obj< Func > node ) {
 	ob.newline();
 //	ob << ax_Obj< MetaNode >( node->type );
 	ob << ax_txt("func ");
 	ob << ax_txt("\t") << node->name << ax_txt("();");
 }
 
-void GenCppPass::genCpp_func( ax_Obj< FuncNode > node ) {
+void GenCppPass::genCpp_func( ax_Obj< Func > node ) {
 }
 
-void GenCppPass::genHdr_prop( ax_Obj< PropNode > node ) {
+void GenCppPass::genHdr_prop( ax_Obj< Prop > node ) {
 	ob.newline();
 	ob << node->type;
 //	ob << ax_txt("var");
@@ -141,7 +141,7 @@ void GenCppPass::genHdr_prop( ax_Obj< PropNode > node ) {
 	ob << ax_txt(";");
 }
 
-void GenCppPass::genCpp_prop( ax_Obj< PropNode > node ) {
+void GenCppPass::genCpp_prop( ax_Obj< Prop > node ) {
 }
 
 void GenCppPass::genHdr_struct( ax_Obj< StructureType > node ) {
@@ -154,13 +154,13 @@ void GenCppPass::genHdr_struct( ax_Obj< StructureType > node ) {
 //		outputTemplateParams( node, true );
 //	}
 
-	if( node->ax_is<StructNode>() ) {
+	if( node->ax_is<Struct>() ) {
 		ob << ax_txt("struct ");
 		
-	}else if( node->ax_is<ClassNode>() ) {
+	}else if( node->ax_is<Class>() ) {
 		ob << ax_txt("class ");
 		
-	}else if( node->ax_is<InterfaceNode>() ) {
+	}else if( node->ax_is<Interface>() ) {
 		ob << ax_txt("//interface");
 		ob.newline() << ax_txt("class ");
 		
@@ -173,18 +173,18 @@ void GenCppPass::genHdr_struct( ax_Obj< StructureType > node ) {
 	ax_int c = 0;
 
 	ax_if_let( bt, node->baseType ) {
-		ob << ax_txt(" : public ") << bt->as_MetaNode();
+		ob << ax_txt(" : public ") << bt;
 		c++;
 	}
 		
 	ax_foreach( & p, node->interfaces ) {
-		ob << ( c == 0 ? ax_txt(" : ") : ax_txt(", ") ) << ax_txt("public ") << p->as_MetaNode();
+		ob << ( c == 0 ? ax_txt(" : ") : ax_txt(", ") ) << ax_txt("public ") << p;
 	}
 	
 	ob << ax_txt(" ");
 	ob.openBlock();
 	
-	if( node->ax_is< ClassNode >() || node->ax_is< InterfaceNode >() ) {
+	if( node->ax_is< Class >() || node->ax_is< Interface >() ) {
 //		ob.newline() << ax_txt("ax_DefObject( ") << node->name << ax_txt(", ") << baseClass << ax_txt(" );");
 		ob.newline(-1) << ax_txt("public:");
 	}
@@ -194,8 +194,8 @@ void GenCppPass::genHdr_struct( ax_Obj< StructureType > node ) {
 			throw System::Err_Undefined();
 		}
 	
-		ax_if_let( prop, c->ax_as<PropNode>() ) { genHdr_prop(prop); continue; }
-		ax_if_let( fn,	 c->ax_as<FuncNode>() ) { genHdr_func(fn); 	 continue; }
+		ax_if_let( prop, c->ax_as<Prop>() ) { genHdr_prop(prop); continue; }
+		ax_if_let( fn,	 c->ax_as<Func>() ) { genHdr_func(fn); 	 continue; }
 		ax_if_let( nestedType, c->ax_as<StructureType>() ) { genHdr_struct(nestedType); continue; }
 	}
 	
@@ -331,14 +331,14 @@ void GenCppPass::OutBuf::beginNamespace		( ax_Obj< MetaNode > node ) {
 	ax_if_let( p, node->parent ) {
 		beginNamespace( p );
 	}
-	ax_if_let( ns, node->ax_as< NamespaceNode >() ) {
+	ax_if_let( ns, node->ax_as< Namespace >() ) {
 		newline() << ax_txt("namespace ") << node->name << ax_txt(" {");
 		inNamespace = ns;
 	}
 }
 
 void GenCppPass::OutBuf::endNamespace		( ax_Obj< MetaNode > node ) {
-	ax_if_let( ns, node->ax_as< NamespaceNode >() ) {
+	ax_if_let( ns, node->ax_as< Namespace >() ) {
 		newline() << ax_txt("} //namespace ") << node->name;
 	}
 	ax_if_let( p, node->parent ) {
@@ -350,23 +350,30 @@ void GenCppPass::OutBuf::endNamespace		( ax_Obj< MetaNode > node ) {
 //--------------
 
 
-void	GenCppPass::onAST( IdentifierAST & p ) {
+void	GenCppPass::onAST( PropAST & p ) {
 	ax_if_not_let( node, p.node ) {
-		Log::Error( p.pos, ax_txt("invalid identifier") );
+		Log::Error( p.pos, ax_txt("invalid prop identifier") );
 	}
 	ob << node;
 }
 
-void	GenCppPass::onAST( NumberAST 			& p ) {
+void	GenCppPass::onAST( TypeAST & p ) {
+	ax_if_not_let( node, p.node ) {
+		Log::Error( p.pos, ax_txt("invalid type identifier") );
+	}
+	ob << node;
+}
+
+void	GenCppPass::onAST( NumberLiteralAST 			& p ) {
 	ob << p.srcStr;
 	/*
 	switch( p.numberType ) {
-		case NumberAST::t_int32:	{ ob << ax_to_string( p.numberValue.v_int32 );	}break;
-		case NumberAST::t_uint32:	{ ob << ax_to_string( p.numberValue.v_int32 );	}break;
-		case NumberAST::t_int64:	{ ob << ax_to_string( p.numberValue.v_int32 );	}break;
-		case NumberAST::t_uint64:	{ ob << ax_to_string( p.numberValue.v_int32 );	}break;
-		case NumberAST::t_float:	{ ob << ax_to_string( p.numberValue.v_float ) << ax_txt("f"); }break;
-		case NumberAST::t_double:	{ ob << ax_to_string( p.numberValue.v_double );	}break;
+		case NumberLiteralAST::t_int32:	{ ob << ax_to_string( p.numberValue.v_int32 );	}break;
+		case NumberLiteralAST::t_uint32:	{ ob << ax_to_string( p.numberValue.v_int32 );	}break;
+		case NumberLiteralAST::t_int64:	{ ob << ax_to_string( p.numberValue.v_int32 );	}break;
+		case NumberLiteralAST::t_uint64:	{ ob << ax_to_string( p.numberValue.v_int32 );	}break;
+		case NumberLiteralAST::t_float:	{ ob << ax_to_string( p.numberValue.v_float ) << ax_txt("f"); }break;
+		case NumberLiteralAST::t_double:	{ ob << ax_to_string( p.numberValue.v_double );	}break;
 
 		default:{ ob << p.srcStr; }break;
 	}
@@ -493,45 +500,17 @@ void	GenCppPass::onAST( LocalVarAST 		& p ) {
 */
 
 void	GenCppPass::onAST( PrefixAST 	& p ) {
-	ob << ax_txt("(") << p.op << p.expr << ax_txt(")");
+	ob << p.funcOverload->name;
+	ob << p.expr;
 }
 
 void	GenCppPass::onAST( PostfixAST 	& p ) {
-	ob << ax_txt("(") << p.expr << p.op << ax_txt(")");
+	ob << p.funcOverload->name;
+	ob << p.expr;
 }
 
 void	GenCppPass::onAST( BinaryAST 	& p ) {
-	bool parenthesis = true;
-
-	switch( p.op ) {
-		default: break;
-		case TokenType::t_op_subscript:
-		case TokenType::t_op_call:
-		case TokenType::t_assign:
-			parenthesis = false;
-			break;
-	}
-
-	bool ctor = false;
-	auto lt = p.lhs->returnType;
-	if( lt.isTypeName && p.op == TokenType::t_op_call ) {
-		ctor = true;
-	}
-	
-	if( parenthesis ) ob << ax_txt("(");
-		
-	ob << p.lhs;
-
-	if( ctor ) {
-//		output("::init");
-	}
-	
-	if( p.op != TokenType::t_op_call && p.op != TokenType::t_op_subscript ) {
-		ob << ax_txt( " " ) << p.op << ax_txt( " " );
-	}
-	ob << p.rhs;
-	
-	if( parenthesis ) ob << ax_txt(")");
+	ob << p.lhs << ax_txt(" ") << p.funcOverload->name << ax_txt(" ") << p.rhs;
 }
 
 void	GenCppPass::onAST( FuncArgAST 			& p ) {

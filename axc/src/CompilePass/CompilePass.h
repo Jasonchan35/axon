@@ -44,7 +44,7 @@ public:
 //	ax_NullableObj< ExprAST >		parseExpr_LocalVar			( DeclarationModifier & modifier );
 
 
-	ax_NullableObj< TypedNode > 	parseTypename	();
+	ax_NullableObj< TypeNode > 	parseTypename	();
 	ax_NullableObj< MetaNode >		parseNode		();
 
 	void	nextToken();
