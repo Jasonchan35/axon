@@ -82,9 +82,18 @@ private:
 	public:
 		OutBuf( GenCppPass & pass ) : indentLevel(0), cppPass(pass) {}
 		
-		OutBuf & operator<< ( const ax_string	 & rhs ) { _buf << rhs; return *this; }
-		OutBuf & operator<< ( const ax_MutString & rhs ) { _buf << rhs; return *this; }
-		OutBuf & operator<< ( const ax_char   	 & rhs ) { _buf << rhs; return *this; }
+		OutBuf & operator<< ( const ax_string	 & rhs ) {
+//			printf("%ls", rhs.c_str() );
+			_buf << rhs; return *this;
+		}
+		OutBuf & operator<< ( const ax_MutString & rhs ) {
+//			printf("%ls", rhs.c_str() );
+			_buf << rhs; return *this;
+		}
+		OutBuf & operator<< ( const ax_char   	 & rhs ) {
+//			printf("%c", rhs );
+			_buf << rhs; return *this;
+		}
 				
 		OutBuf & operator<< ( ax_Obj< MetaNode > node );
 		OutBuf & operator<< ( ax_NullableObj< MetaNode > node );

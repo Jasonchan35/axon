@@ -214,6 +214,8 @@ class FuncOverload : public TypedNode {
 public:
 	FuncOverload( ax_Obj< FuncNode > parent, const LexerPos & pos );
 
+	virtual void OnStringReq( ax_ToStringReq & req ) const;
+
 	bool	isMatch		( const ax_Array<FuncParam> & callParams );
 
 	ax_Array_< FuncParam, 8 >	params;
@@ -231,6 +233,8 @@ class FuncNode : public TypedNode {
 	ax_DefObject( FuncNode, TypedNode );
 public:
 	FuncNode( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name );
+
+	virtual void OnStringReq( ax_ToStringReq & req ) const;
 	
 						void			addOverload	( ax_Obj< FuncOverload > fo ) { overloads.add(fo); }
 	ax_NullableObj< FuncOverload >		getOverload	( ax_Array< ax_Obj< FuncOverload > > & candidate, const ax_Array< FuncParam > & params );

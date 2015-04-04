@@ -142,7 +142,7 @@ void	Intrusive_LinkedList<T>::clear	() {
 		auto p = _head;
 		remove( p );
 		if( p->onIsOwnedByList() ) {
-			ax_delete_uncollect( p );
+			ax_delete( p );
 		}
 	}
 }

@@ -147,7 +147,9 @@ public:
 	ax_int		_capacity;
 	
 protected:
-	MutStringX() : _data(nullptr), _size(0), _capacity(0) {}
+	MutStringX( T* data, ax_int capacity ) : _data(data), _size(0), _capacity(capacity) {
+		if( data ) { data[0] = 0; }
+	}
 	
 	virtual	void	onMove			( MutStringX<T> &  rhs );
 	
@@ -171,14 +173,22 @@ private:
 };
 
 template< typename T, ax_int LOCAL_BUF_SIZE = MutString_default_LOCAL_BUF_SIZE >
-class MutStringX_ : public MutStringX<T>, private LocalBuffer< T, LOCAL_BUF_SIZE > {
+class MutStringX_ : public MutStringX<T>, private LocalBuffer< T, LOCAL_BUF_SIZE + 1 > { // +1 for string null terminator
 	typedef	MutStringX<T>	base;
-	typedef	LocalBuffer< T, LOCAL_BUF_SIZE >	BUF;	
+	typedef	LocalBuffer< T, LOCAL_BUF_SIZE + 1 >	BUF;
 public:
 	virtual ~MutStringX_() { base::release(); }
 
-	MutStringX_	() {}
-	MutStringX_	( MutStringX<T>    && rhs ) { base::move(rhs); }
+	MutStringX_	()
+	: base( BUF::localBufPtr(), LOCAL_BUF_SIZE ) {
+	}
+	
+	MutStringX_	( MutStringX<T>    && rhs )
+	: base( BUF::localBufPtr(), LOCAL_BUF_SIZE ) {
+		base::move(rhs);
+	}
+	
+	
 	void operator=	( MutStringX<T>    && rhs ) { base::move(rhs); }
 	
 	template< typename UTF >
@@ -213,13 +223,13 @@ protected:
 	virtual	T*		onMalloc	( ax_int req_size, ax_int & out_capacity ) {
 		//std::cout << this << " onMalloc " << reqSize <<"\n";
 	
-		if( req_size + 1 <= LOCAL_BUF_SIZE ) { // +1 for string null terminator
+		if( req_size <= LOCAL_BUF_SIZE ) {
 			out_capacity = LOCAL_BUF_SIZE;
 			return BUF::localBufPtr();
 		}else{
 			auto s = base::size();
 			auto n = ax_max( s + s/2, req_size ); //auto resize to 1.5x times
-			auto p = Memory::AllocUncollect<T>( n + 1 ); // +1 for string null terminator
+			auto p = Memory::Alloc<T>( n + 1 ); // +1 for string null terminator
 			out_capacity = n;
 			return p;
 		}
@@ -227,7 +237,7 @@ protected:
 	
 	virtual	void	onFree		( T* p ) {
 		if( p != BUF::localBufPtr() ) {
-			Memory::DeallocUncollect<T>( p );
+			Memory::Dealloc<T>( p );
 		}
 	}
 };
@@ -286,7 +296,7 @@ void 	MutStringX<T>::resize( ax_int new_size ) {
 
 template< typename T > inline
 void	MutStringX<T>::reserve		( ax_int new_size ) {
-	if( new_size <= _capacity ) return;
+	if( new_size <= _capacity ) return; // +1 for string null terminator
 	_do_reserve( new_size );
 }
 

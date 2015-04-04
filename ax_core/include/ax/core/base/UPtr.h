@@ -13,7 +13,7 @@
 
 namespace ax {
 namespace System {
-
+/*
 //! unique pointer
 template< typename T >
 class UPtr : public NonCopyable {
@@ -41,7 +41,7 @@ private:
 	UPtr( T* p ) : _p(p) {}
 	T*	_p;
 };
-
+*/
 
 }} //namespace
 

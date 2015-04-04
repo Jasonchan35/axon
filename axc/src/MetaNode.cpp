@@ -98,7 +98,6 @@ ax_NullableObj<MetaNode>	MetaNode::onGetMember	( const ax_string & name ) {
 	return nullptr;
 }
 
-
 void MetaNode::OnStringReq( ax_ToStringReq & req ) const {
 	req.indent() << name;
 }
@@ -207,6 +206,12 @@ ax_NullableObj< FuncOverload > FuncNode::getOverload( ax_Array< ax_Obj< FuncOver
 	return nullptr;
 }
 
+void FuncNode::OnStringReq( ax_ToStringReq & req ) const {
+	base::OnStringReq( req );
+	req << overloads;
+}
+
+
 bool	FuncOverload::isMatch ( const ax_Array< FuncParam > & callParams ) {
 	ax_int i = 0;
 	ax_foreach( & c, callParams ) {
@@ -227,9 +232,14 @@ bool	FuncOverload::isMatch ( const ax_Array< FuncParam > & callParams ) {
 	return true;
 }
 
+void FuncOverload::OnStringReq( ax_ToStringReq & req ) const {
+	base::OnStringReq( req );
+	req << params;
+	req << ax_txt("\n");
+}
+
 FuncOverload::FuncOverload( ax_Obj< FuncNode > fn, const LexerPos & pos )
 : base( nullptr, pos, fn->name ) {
-	fn->overloads.add( ax_ThisObj );
 	func = fn;
 }
 

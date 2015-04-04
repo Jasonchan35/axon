@@ -63,7 +63,10 @@ inline void Object_OnFinalize( void* obj, void* clientData ) {
 
 inline
 void Object_RegisterFinalizer( Object* p ) {
-	Memory::GC_RegisterFinalizer( p, &Object_OnFinalize, nullptr );
+/*
+	!!! any finalized object ,CANNOT contain another finalized object to avoid finalization cycle !!!
+*/
+//	Memory::GC_RegisterFinalizer( p, &Object_OnFinalize, nullptr );
 }
 
 template< typename T >

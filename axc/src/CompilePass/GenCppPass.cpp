@@ -190,6 +190,10 @@ void GenCppPass::genHdr_struct( ax_Obj< StructureType > node ) {
 	}
 	
 	ax_foreach( & c, *node->children ) {
+		if( this != & ob.cppPass ) {
+			throw System::Err_Undefined();
+		}
+	
 		ax_if_let( prop, c->ax_as<PropNode>() ) { genHdr_prop(prop); continue; }
 		ax_if_let( fn,	 c->ax_as<FuncNode>() ) { genHdr_func(fn); 	 continue; }
 		ax_if_let( nestedType, c->ax_as<StructureType>() ) { genHdr_struct(nestedType); continue; }
@@ -300,7 +304,7 @@ GenCppPass::OutBuf& GenCppPass::OutBuf::nodeName ( ax_Obj< MetaNode > node, bool
 		}
 	}
 */
-	_buf << node->name;
+	*this << node->name;
 	return *this;
 }
 

@@ -21,7 +21,7 @@ class Array : public Object {
 	typedef	Object		base;
 	typedef Array<T>	THIS_CLASS;
 public:
-	struct	ax_type_on_gc_trace : public ax_type_gc_trace<T> {};
+	struct	ax_type_on_gc_trace : public std::true_type {};
 
 	virtual ~Array() {}
 
@@ -162,7 +162,7 @@ protected:
 		}else{
 			auto s = base::size();
 			auto n = ax_max( s + s/2, req_size ); //auto resize to 1.5x times
-			auto p =  Memory::AllocUncollect<T>( n );
+			auto p =  Memory::Alloc<T>( n );
 			out_capacity = n;
 			return p;
 		}
@@ -171,7 +171,7 @@ protected:
 	virtual	void	onFree		( T* p ) {
 		//std::cout << this << " onFree   " << "\n";
 		if( p != BUF::localBufPtr() ) {
-			Memory::DeallocUncollect<T>( p );
+			Memory::Dealloc<T>( p );
 		}
 	}
 

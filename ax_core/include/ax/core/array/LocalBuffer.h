@@ -27,8 +27,8 @@ template< typename T >
 class LocalBuffer<T,0> {
 public:
 	ax_ALWAYS_INLINE( 			ax_int	localBufSize() 			) { return 0; }
-	ax_ALWAYS_INLINE( 			T*		localBufPtr	() 			) { return reinterpret_cast<T*>(0); }
-	ax_ALWAYS_INLINE( 	const	T*		localBufPtr	() const	) { return reinterpret_cast<T*>(0); }
+	ax_ALWAYS_INLINE( 			T*		localBufPtr	() 			) { return nullptr; }
+	ax_ALWAYS_INLINE( 	const	T*		localBufPtr	() const	) { return nullptr; }
 };
 
 }} // namespace

@@ -21,11 +21,11 @@ namespace System {
 template< typename KEY, typename VALUE >
 class Dict : public Object {
 public:
-	struct	ax_type_on_gc_trace : public std::false_type {};
+	struct	ax_type_on_gc_trace : public std::true_type {};
 
 	class	Pair : public Intrusive_LinkedListNode< Pair > {
 	public:
-		struct	ax_type_on_gc_trace : public std::false_type {};
+		struct	ax_type_on_gc_trace : public std::true_type {};
 	
 		Pair( ax_int hash, const KEY & key, const VALUE &  value ) : _hash(hash), _key(key), value(value) {}
 		Pair( ax_int hash, const KEY & key,       VALUE && value ) : _hash(hash), _key(key), value( ax_move(value) ) {}
@@ -93,11 +93,10 @@ public:
 			return;
 		}
 		
-		auto u = ax_uptr_new( Pair, h, key, value );
+		auto u = ax_new( Pair, h, key, value );
 		list.add( & u->_hashNode );
 		_pairs.add( u.ptr() );
 		_size++;
-		u.giveup();
 	}
 		
 	void	add( const KEY & key, const VALUE &  value ) {
@@ -106,11 +105,10 @@ public:
 		
 		if( _getPairFromList( list, h, key ) ) { throw Err_Dict_DuplicateKey(); }
 		
-		auto u = ax_uptr_new( Pair, h, key, value );
+		auto u = ax_new( Pair, h, key, value );
 		list.add( & u->_hashNode );
-		_pairs.add( u.ptr() );
+		_pairs.add( u );
 		_size++;
-		u.giveup();
 	}
 	
 	bool	remove( const KEY key ) {
@@ -118,7 +116,7 @@ public:
 		if( !p ) return false;
 		
 		_remove( p );
-		ax_delete_uncollect( p );
+		ax_delete( p );
 		return true;
 	}
 	

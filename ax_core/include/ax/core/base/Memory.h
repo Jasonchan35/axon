@@ -29,12 +29,13 @@ public:
 		auto req_bytes = n * sizeof(T);
 		return	(T*)( ax_type_gc_trace<T>() ? _AllocBytes<true,true>( req_bytes ) : _AllocBytes<false,true>( req_bytes ) );
 	}
-
+/*
 	template< typename T >
 	ax_ALWAYS_INLINE(	static	T*	AllocUncollect	( ax_int n ) ) {
 		auto req_bytes = n * sizeof(T);
 		return	(T*)( ax_type_gc_trace<T>() ? _AllocBytes<true,false>( req_bytes ) : _AllocBytes<false,false>( req_bytes ) );
 	}
+*/
 	
 	typedef	void	(*FinalizeFunc)( void* obj, void* clientData );
 	static	void	GC_RegisterFinalizer( void* obj, FinalizeFunc func, void* clientData );
@@ -43,11 +44,12 @@ public:
 	ax_ALWAYS_INLINE(	static	void	Dealloc( T* p ) ){
 		return ax_type_gc_trace<T>() ? _DeallocBytes<true,true>(p) : _DeallocBytes<false,true>(p);
 	}
-
+/*
 	template< typename T >
 	ax_ALWAYS_INLINE(	static	void	DeallocUncollect( T* p ) ) {
 		return ax_type_gc_trace<T>() ? _DeallocBytes<true,false>(p) : _DeallocBytes<false,false>(p);
 	}
+*/
 
 	template< typename T >
 	ax_ALWAYS_INLINE(	static	void	Delete( T* p ) ) {
@@ -55,11 +57,13 @@ public:
 		Dealloc( p );
 	}
 
+/*
 	template< typename T >
 	ax_ALWAYS_INLINE(	static	void	DeleteUncollect( T* p ) ) {
 		p->~T();
 		DeallocUncollect( p );
 	}
+*/
 
 	static	void	GC_Collect();
 	static	ax_int	GC_GetHeapSize();
