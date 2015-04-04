@@ -48,11 +48,7 @@ public:
 	LexerPos			pos;
 
 	ax_NullableObj< MetaNode >	parent;
-	
-	TokenType			nodeType;
-	bool		is_let		() { return nodeType == TokenType::t_let; }
-	bool		is_var		() { return nodeType == TokenType::t_var; }
-	
+		
 		ax_string	getFullname		( const ax_string & seperator ) const;
 			void	appendFullname	( ax_MutString & fullname, const ax_string & seperator ) const;
 
@@ -101,7 +97,7 @@ public:
 
 	DeclarationModifier	modifier;
 	
-	bool	buildin;
+	bool		buildin;
 };
 
 
@@ -176,13 +172,19 @@ public:
 class PropNode : public TypedNode {
 	ax_DefObject( PropNode, TypedNode );
 public:
-	PropNode( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name );
+	PropNode( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name, bool is_let );
 	
 	LexerPos					initExprPos;
 	ax_NullableObj< ExprAST >	initExpr;
 	
+	bool		is_let;
 	LexerPos	typePos;
 	RType		type;
+	
+	void OnStringReq( ax_ToStringReq & req ) const {
+		base::OnStringReq( req );
+		req << ax_txt(" type=") << type;		
+	}
 };
 
 struct FuncParam {

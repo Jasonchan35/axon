@@ -102,7 +102,7 @@ void DeclarePass::resolveStructBaseTypes() {
 
 void DeclarePass::parse_NamespaceBody() {
 	for(;;) {
-		parser.skipNewLines();
+		parser.skipSemicolonOrNewlines();
 		if( token.is_EOF() ) break;
 
 		auto modifier = parser.parseDeclarationModifier();
@@ -256,7 +256,7 @@ void DeclarePass::parse_StructBody( ax_Obj< StructureType > structNode ) {
 	auto scope_inNode = ax_scope_value( pos.inNode, structNode );
 	
 	for(;;) {
-		parser.skipNewLines();
+		parser.skipSemicolonOrNewlines();
 		if( token.is_curlyBracketClose() ) {
 			nextToken();
 			break;
@@ -279,6 +279,32 @@ void DeclarePass::parse_StructBody( ax_Obj< StructureType > structNode ) {
 }
 
 bool DeclarePass::resolve_PropType( ax_Obj< PropNode >	node ) {
+	if( node->type.is_null() ) {
+		if( node->typePos.valid ) {
+			parser.setPos( node->typePos );
+			node->type = parseTypename();
+		}
+	}
+	
+	if( node->initExprPos.valid ) {
+		parser.setPos( node->initExprPos );
+		
+		ax_if_let( expr, parseExpression() ) {
+			node->initExpr = expr;
+			
+			if( ! node->type.is_null() ) {
+				if( node->type.canAssignFrom( expr->returnType ) ) {
+					Log::Error( node->initExprPos, ax_txt("'{?}' type mis-match '{?}' expected"), expr->returnType, node->type );
+				}
+			}
+			node->type = expr->returnType;
+		}
+	}
+	
+	if( node->type.is_null() ) {
+		return false;
+	}
+		
 	return true;
 }
 
@@ -385,7 +411,7 @@ void DeclarePass::parse_PropNode( DeclarationModifier & modifier ) {
 		return;
 	}
 	
-	auto nodeType = token.type;
+	bool is_let = token.is_let();
 
 	ax_if_not_let( inNode, pos.inNode ) {
 		throw System::Err_Undefined();
@@ -400,10 +426,10 @@ void DeclarePass::parse_PropNode( DeclarationModifier & modifier ) {
 	for(;;) {
 		if( ! token.is_identifier() ) Log::Error( token, ax_txt("var name expected") );
 		
-		auto new_node = ax_new_obj( PropNode, inNode, token.pos, token.str );
+		auto new_node = ax_new_obj( PropNode, inNode, token.pos, token.str, is_let );
+		g_compiler->metadata.propList.add( new_node );
 		nextToken();
 				
-		new_node->nodeType = nodeType;
 		new_node->modifier = modifier;
 						
 		if( token.is_identifier() ) {
@@ -413,10 +439,10 @@ void DeclarePass::parse_PropNode( DeclarationModifier & modifier ) {
 		
 		if( token.is_assign() ) {
 			nextToken();
-			new_node->initExpr = parseExpression();
-			
-//			new_node->initExprPos = token.pos;
-//			parser.skipExpression();
+//			new_node->initExpr = parseExpression();
+
+			new_node->initExprPos = token.pos;
+			parser.skipExpression();
 		}
 				
 //		if( ! new_node->dataTypePos.valid && ! new_node->initExprPos.valid ) {
@@ -433,7 +459,8 @@ void DeclarePass::parse_PropNode( DeclarationModifier & modifier ) {
 				
 	if( ! token.is_newLine_or_semiColon() ) {
 		Log::Error( token, ax_txt("unexpected token") );
-	}		
+	}
+	nextToken();
 }
 
 }} //namespace

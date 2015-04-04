@@ -24,7 +24,7 @@ public:
 
 	void	nextToken			();
 	
-	void	skipNewLines		();
+	void	skipSemicolonOrNewlines();
 	
 	void	skipUntilEndOfLine	();
 	void	skipUntil( TokenType t );

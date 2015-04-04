@@ -12,6 +12,13 @@
 namespace ax {
 namespace Compile {
 
+bool RType::canAssignFrom( const RType & rhs ) const {
+	ax_if_not_let( t, type 		) { return false; }
+	ax_if_not_let( r, rhs.type 	) { return false; }
+	
+	return t->canAssignFrom( r );
+}
+
 void	RType::OnStringReq( ax_ToStringReq & req ) const {
 	req << ax_txt("RType[") << type << ax_txt("]");
 }

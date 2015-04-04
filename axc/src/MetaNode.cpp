@@ -32,8 +32,6 @@ ax_ImplObject( FuncType );
 
 
 MetaNode::MetaNode( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name ) {
-	nodeType = TokenType::t_unknown;
-	
 	this->parent = parent;
 	this->name	 = name;
 	this->pos	 = pos;
@@ -99,7 +97,7 @@ ax_NullableObj<MetaNode>	MetaNode::onGetMember	( const ax_string & name ) {
 }
 
 void MetaNode::OnStringReq( ax_ToStringReq & req ) const {
-	req.indent() << name;
+	req.indent() << this->getTypeInfo().name() << ax_txt(" ") <<  name;
 }
 
 ax_NullableObj< FuncNode >	MetaNode::getFunc	( const ax_string & name ) {
@@ -128,7 +126,6 @@ ax_Obj< NamespaceNode >	NamespaceNode::getOrAddNamespace	( const ax_string & nam
 
 	ax_if_not_let( p, children->tryGetValue( name ) ) {
 		auto new_node = ax_new_obj( NamespaceNode, ax_ThisObj, pos, name );
-		new_node->nodeType = TokenType::t_namespace;
 		return new_node;
 	}
 
@@ -184,13 +181,13 @@ StructureType::StructureType( ax_NullableObj< MetaNode > parent, const LexerPos 
 	isNestedType = false;
 }
 
-PropNode::PropNode( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name )
-: base( parent, pos, name ) {
+PropNode::PropNode( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name, bool is_let )
+: base( parent, pos, name )
+, is_let( is_let ) {
 }
 
 FuncNode::FuncNode( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name )
 : base( parent, pos, name ) {
-	nodeType = TokenType::t_fn;
 }
 
 ax_NullableObj< FuncOverload > FuncNode::getOverload( ax_Array< ax_Obj< FuncOverload > > & candidate, const ax_Array<FuncParam> & params ) {
@@ -208,6 +205,7 @@ ax_NullableObj< FuncOverload > FuncNode::getOverload( ax_Array< ax_Obj< FuncOver
 
 void FuncNode::OnStringReq( ax_ToStringReq & req ) const {
 	base::OnStringReq( req );
+	req << ax_txt("\n");
 	req << overloads;
 }
 

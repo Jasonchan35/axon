@@ -13,7 +13,6 @@ namespace Compile {
 
 Metadata::Metadata() {
 	root = ax_new_obj( NamespaceNode, ax_NullableObj< MetaNode >(nullptr), LexerPos(), ax_txt("ax_build") );
-	root->nodeType = TokenType::t_namespace;
 
 	type_object		= ax_new_obj(  ClassNode, root, LexerPos(), ax_txt("Object" ) );
 	type_object->buildin = true;

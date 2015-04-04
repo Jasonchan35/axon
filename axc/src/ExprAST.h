@@ -134,11 +134,7 @@ class StringLiteralAST : public ExprAST {
 	ax_DefObject( StringLiteralAST, ExprAST )
 public:
 	ax_string	value;
-	StringLiteralAST( const LexerPos &pos_, const ax_string & value_ )
-	: base(pos_)
-	, value(value_) {
-	}
-
+	StringLiteralAST( const LexerPos &pos_, const ax_string & value_ );
 
 	virtual	void	onDispatch		( IExprDispatcher & p ) { p.onAST(*this); }
 };

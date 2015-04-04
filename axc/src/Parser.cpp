@@ -56,8 +56,8 @@ void Parser::nextToken() {
 	}
 }
 
-void Parser::skipNewLines() {
-	while( token.is_newLine() ) {
+void Parser::skipSemicolonOrNewlines() {
+	while( token.is_newLine() || token.is_semiColon() ) {
 		nextToken();
 	}
 }

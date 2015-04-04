@@ -239,5 +239,11 @@ NumberAST::NumberAST( const LexerPos &_pos, const ax_string & _srcStr )
 	}
 }
 
+StringLiteralAST::StringLiteralAST( const LexerPos &pos_, const ax_string & value_ )
+: base(pos_)
+, value(value_) {
+	returnType = RType( g_compiler->metadata.type_string, false );
+}
+
 
 }} //namespace

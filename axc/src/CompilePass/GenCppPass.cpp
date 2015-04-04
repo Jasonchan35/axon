@@ -130,8 +130,8 @@ void GenCppPass::genCpp_func( ax_Obj< FuncNode > node ) {
 
 void GenCppPass::genHdr_prop( ax_Obj< PropNode > node ) {
 	ob.newline();
-//	ob << ax_Obj< MetaNode >( node->type );
-	ob << ax_txt("var");
+	ob << node->type;
+//	ob << ax_txt("var");
 	ob << ax_txt("\t") << node->name;
 	
 	ax_if_let( expr, node->initExpr ) {
@@ -248,7 +248,7 @@ GenCppPass::OutBuf & GenCppPass::OutBuf::operator<< ( const RType 		& t  ) {
 	ax_if_let( type, t.type ) {
 		*this << ax_Obj< MetaNode >( type );
 	}else{
-		Log::Error( nullptr, nullptr, ax_txt("error") );
+		*this << ax_txt("NULL");
 	}
 	return *this;
 }

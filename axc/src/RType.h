@@ -25,6 +25,11 @@ public:
 	, isMutable( isMutable_ )
 	, isTypeName( false ) {
 	}
+	
+
+	bool	is_null() const { return type.is_null(); }
+	bool	canAssignFrom( const RType & rhs ) const;
+	
 
 	ax_NullableObj< FuncNode >	getFunc					( const ax_string & name );
 	ax_NullableObj< FuncNode >	getOperatorFunc			( TokenType op );

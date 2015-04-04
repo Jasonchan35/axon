@@ -56,7 +56,7 @@
 
 typedef uint32_t	ax_unichar;
 
-#define ax_char_define_type 'w'  // a,u,w
+#define ax_char_define_type 'a'  // a,u,w
 
 #define ax_sz8(sz)		(u8##sz)
 #define ax_sz16(sz)		( u##sz)
