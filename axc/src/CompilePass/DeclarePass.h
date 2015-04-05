@@ -18,27 +18,28 @@ namespace Compile {
 class DeclarePass : public Parser {
 public:
 	void	parseFile( ax_Obj< SourceFile > srcFile );
-
-	void	resolveStructBaseTypes();
-	void	parsePropPass	();
+	void	run2ndPass				();
 
 private:
-	void	resolvePropTypePass();
+	void	parsePropPass			();
+	void	resolveStructTypePass	();
+
+	void	resolvePropTypePass		();
 
 	bool	propPass;
 
-	void	parse_Namespace		();
-	void	parse_NamespaceBody();	
+	void	parseNamespace			();
+	void	parseNamespaceBody		();
 	
-	void	parse_StructType		( DeclarationModifier & modifier );
-	void	parse_StructTypeBody	( ax_Obj< StructType > structNode );
+	void	parseStructType			( DeclarationModifier & modifier );
+	void	parseStructTypeBody		( ax_Obj< StructType >	node );
 	
-	bool	resolve_StructBaseType	( ax_Obj< StructType > 	structNode );
-	bool	resolve_PropType		( ax_Obj< Prop >		Prop );
-	
-	
-	void	parse_Prop				( DeclarationModifier & modifier );
-	void	parse_Func				( DeclarationModifier & modifier );
+	bool	resolveStructType		( ax_Obj< StructType > 	node );
+	bool	resolvePropType			( ax_Obj< Prop >		Prop );
+		
+	void	parseProp				( DeclarationModifier & modifier );
+	void	parseFunc				( DeclarationModifier & modifier );
+	void	parseFuncParam			();
 };
 
 

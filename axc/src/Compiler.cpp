@@ -43,17 +43,10 @@ void Compiler::declarePass() {
 		pass.parseFile( f );
 	}
 
-	ax_dump( metadata );
 	{
 		DeclarePass pass;
-		pass.resolveStructBaseTypes();
+		pass.run2ndPass();
 	}
-
-	{
-		DeclarePass pass;
-		pass.parsePropPass();
-	}
-	
 }
 
 void Compiler::genCppPass() {
