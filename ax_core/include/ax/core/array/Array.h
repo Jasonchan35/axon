@@ -66,13 +66,13 @@ public:
 	ax_ALWAYS_INLINE(	 	void	add			( const T &  v ) 	);
 	ax_ALWAYS_INLINE( 		void	add			(       T && v ) 	);
 	
-	ax_ALWAYS_INLINE(	 	void	add			( const T* data, ax_int data_size 	) );
-	ax_ALWAYS_INLINE( 		void	add			( const Array<T> &  rhs ) );
-	ax_ALWAYS_INLINE(		void	add			( 		Array<T> && rhs )	);
+	ax_ALWAYS_INLINE(	 	void	addRange	( const T* data, ax_int data_size 	) );
+	ax_ALWAYS_INLINE( 		void	addRange	( const Array<T> &  rhs ) );
+	ax_ALWAYS_INLINE(		void	addRange	( 		Array<T> && rhs )	);
 	
 	ax_ALWAYS_INLINE(		void	assign		( const T* data, ax_int data_size 	) ) { clear(); add( data, data_size ); }
-	ax_ALWAYS_INLINE(		void	assign		( const Array<T> &  rhs				) ) { clear(); add( rhs ); }
-	ax_ALWAYS_INLINE(		void	operator=	( const Array<T> &  rhs 			) )	{ clear(); add( rhs ); }
+	ax_ALWAYS_INLINE(		void	assign		( const Array<T> &  rhs				) ) { clear(); addRange( rhs ); }
+	ax_ALWAYS_INLINE(		void	operator=	( const Array<T> &  rhs 			) )	{ clear(); addRange( rhs ); }
 	ax_ALWAYS_INLINE(		void	operator=	(		Array<T> && rhs 			) ) { move(rhs); }
 
 							void	move		( Array<T> &  rhs ) { onMove( rhs ); }
@@ -239,12 +239,12 @@ void	Array<T>::add		( T && v ) {
 }
 
 template< typename T > inline
-void	Array<T>::add		( const Array<T> & rhs ) {
-	add( rhs.dataPtr(), rhs.size() );
+void	Array<T>::addRange	( const Array<T> & rhs ) {
+	addRange( rhs.dataPtr(), rhs.size() );
 }
 
 template< typename T > inline
-void	Array<T>::add		( const T* data, ax_int data_size ) {
+void	Array<T>::addRange	( const T* data, ax_int data_size ) {
 	reserve( _size + data_size );
 	ArrayUtility::CopyConstructor( dataPtr() + _size, data, data_size );
 	_size += data_size;
@@ -262,7 +262,7 @@ void	Array<T>::onMove		( Array<T> &  rhs ) {
 }
 
 template< typename T > inline
-void	Array<T>::add		( Array<T> && rhs ) {
+void	Array<T>::addRange	( Array<T> && rhs ) {
 	if( _size == 0 ) return move( rhs );
 
 	reserve( _size + rhs.size() );

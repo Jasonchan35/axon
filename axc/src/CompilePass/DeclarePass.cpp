@@ -123,7 +123,7 @@ void DeclarePass::resolvePropPass() {
 	auto procList = & list[0];
 	auto waitList = & list[1];
 
-	waitList->add( g_metadata->propList );
+	waitList->addRange( g_metadata->propList );
 	
 	for(;;) {
 		ax_swap( procList, waitList );
@@ -156,7 +156,7 @@ void DeclarePass::resolveStructTypePass() {
 	auto procList = & list[0];
 	auto waitList = & list[1];
 
-	waitList->add( g_metadata->structList );
+	waitList->addRange( g_metadata->structList );
 	
 	for(;;) {
 		ax_swap( procList, waitList );

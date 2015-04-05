@@ -48,11 +48,11 @@ public:
 
 	Intrusive_LinkedList() { _ctor(); }
 
-	Intrusive_LinkedList( Intrusive_LinkedList && rhs ) { _ctor(); add_move( rhs ); }
+	Intrusive_LinkedList( Intrusive_LinkedList && rhs ) { _ctor(); addRange_move( rhs ); }
 
 	~Intrusive_LinkedList() { release(); }
 	
-	void operator=( Intrusive_LinkedList && rhs ) 		{ clear(); add_move( rhs ); }
+	void operator=( Intrusive_LinkedList && rhs ) 		{ clear(); addRange_move( rhs ); }
 	
 		  T*	head	() 			{ return _head; }
 	const T*	head	() const 	{ return _head; }
@@ -63,20 +63,20 @@ public:
 	
 	ax_int		size	() const { return _size; }
 
-	ax_ALWAYS_INLINE(	void	insert		( T* p )				);
-	ax_ALWAYS_INLINE(	void	insert		( T* p, T* before )		);
+	ax_ALWAYS_INLINE(	void	insert			( T* p )				);
+	ax_ALWAYS_INLINE(	void	insert			( T* p, T* before )		);
 	
-	ax_ALWAYS_INLINE(	void	add		( T* p )				);
-	ax_ALWAYS_INLINE(	void	add		( T* p, T* after )		);
-	ax_ALWAYS_INLINE(	void	add_move( Intrusive_LinkedList & rhs ) );
+	ax_ALWAYS_INLINE(	void	add				( T* p )				);
+	ax_ALWAYS_INLINE(	void	add				( T* p, T* after )		);
+	ax_ALWAYS_INLINE(	void	addRange_move	( Intrusive_LinkedList & rhs ) );
 
-	ax_ALWAYS_INLINE(	T*		removeHead	()						);
+	ax_ALWAYS_INLINE(	T*		removeHead		()						);
 
-	ax_ALWAYS_INLINE(	void	remove		( T* p )				);
-	ax_ALWAYS_INLINE(	void	removeAll	()						);
+	ax_ALWAYS_INLINE(	void	remove			( T* p )				);
+	ax_ALWAYS_INLINE(	void	removeAll		()						);
 	
-	ax_ALWAYS_INLINE(	void	clear		()						);
-	ax_ALWAYS_INLINE(	void	release		()						) { clear(); }
+	ax_ALWAYS_INLINE(	void	clear			()						);
+	ax_ALWAYS_INLINE(	void	release			()						) { clear(); }
 
 	template< typename A >
 	class Enumerator {
@@ -128,7 +128,7 @@ T*	Intrusive_LinkedList<T>::removeHead	() {
 }
 
 template< typename T > inline
-void	Intrusive_LinkedList<T>::add_move	( Intrusive_LinkedList & rhs ) {
+void	Intrusive_LinkedList<T>::addRange_move	( Intrusive_LinkedList & rhs ) {
 	for(;;) {
 		auto p = rhs.removeHead();
 		if( !p ) break;
