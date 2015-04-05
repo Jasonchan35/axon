@@ -63,7 +63,7 @@
 		5E9044CC1AC03462002F7C82 /* Timestamp.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Timestamp.mm; sourceTree = "<group>"; };
 		5E9044CF1AC0622E002F7C82 /* Nullable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Nullable.h; sourceTree = "<group>"; };
 		5EC00F541AB6DFBA0004A32D /* ax_c_str.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ax_c_str.h; sourceTree = "<group>"; };
-		5EC00F551AB6E02A0004A32D /* UtfConverter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UtfConverter.h; sourceTree = "<group>"; };
+		5EC00F551AB6E02A0004A32D /* Utf.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Utf.h; sourceTree = "<group>"; };
 		5EC00F561AB6E7720004A32D /* ax_utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ax_utils.h; sourceTree = "<group>"; };
 		5EC00F591AB6FD200004A32D /* Array.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Array.h; sourceTree = "<group>"; };
 		5EC00F5A1AB6FFBC0004A32D /* LocalBuffer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LocalBuffer.h; sourceTree = "<group>"; };
@@ -329,7 +329,7 @@
 				9666CDA41AB87B8800F584F0 /* String.h */,
 				5E7C55861AB851450079F668 /* StringFormat.h */,
 				9666CDA71AB8850F00F584F0 /* ToStringReq.h */,
-				5EC00F551AB6E02A0004A32D /* UtfConverter.h */,
+				5EC00F551AB6E02A0004A32D /* Utf.h */,
 			);
 			path = string;
 			sourceTree = "<group>";

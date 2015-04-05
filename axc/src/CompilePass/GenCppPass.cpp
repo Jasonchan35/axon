@@ -12,6 +12,9 @@
 namespace ax {
 namespace Compile {
 
+auto	symbol_prefix 		= ax_txt("_ax_");
+auto	symbol_seperator 	= ax_txt("___");
+
 bool GenCppPass::hasToGenSourceFile( ax_Obj< MetaNode > node ) {
 	if( node->ax_is< Namespace >() ) return true;
 
@@ -27,32 +30,125 @@ void GenCppPass::genCode( const ax_string & outFolder ) {
 	ax_log( ax_txt("genCode {?}"), outFolder );
 		
 	this->outFolder = outFolder;
-	
+
+//---- find class App
+	ax_if_let( appNode, g_metadata->root->getNode( ax_txt("App") ) ) {
+		ax_if_not_let( app, appNode->ax_as<Class>() ) {
+			Log::Error( app->pos, ax_txt("App should be class type") );
+		}
+		g_metadata->type_app = app;
+	}
+		
+		
+//------
 	System::IO::Directory::RemoveIfExists( outFolder, true );
 	System::IO::Directory::Create( outFolder );
 
-	genHdr( g_metadata->root );
-	genCpp( g_metadata->root );
+	genMakefile();
+
+	genHdr( g_metadata->namespace_ax );
+	genCpp( g_metadata->namespace_ax );
+	
+	genMainCpp();
+}
+
+void GenCppPass::genMainCpp() {
+	ax_if_not_let( app, g_metadata->type_app ) {
+		return;
+	}
+	ob << ax_txt("#include \"ax/ax_build/App.h\"\n\n");
+	
+	ob << ax_txt("int main() {\n");
+	ob << ax_txt("	ax::ax_build::App app;\n");
+	ob << ax_txt("	app.main();\n");
+	ob << ax_txt("}\n");
+
+	auto filename = ax_format( ax_txt("{?}/main.cpp"), outFolder );
+
+//	ax_log("save file {?}", filename );
+
+	auto dir = System::IO::Path::GetDirectoryName( filename );
+	System::IO::Directory::Create( dir );
+
+	ax_TempStringA	tmp;
+	tmp.assignUtf( ob.buf() );
+
+	System::IO::File::WriteUtf8( filename, tmp );
+	ob.reset();
+}
+
+void GenCppPass::genMakefile() {
+	ob << ax_txt(	"SOURCES=\\\n");
+
+	ax_if_let( app, g_metadata->type_app ) {
+		ob << ax_txt(	"	main.cpp \\\n");
+	}
+
+	genMakefile( g_metadata->namespace_ax );
+	ob << ax_txt(	"#------\n\n");
+
+	ob << ax_txt(	"OBJECTS=$(SOURCES:.cpp=.cpp.o)	\n"
+					"CC=/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang	\n"
+					"CFLAGS=-c -Wall -I../../../ax_core/include	-std=gnu++11 -stdlib=libc++ -fno-rtti\n"
+					"LDFLAGS=-L../../../ax_core/lib/MacOSX/Debug -lax_core -stdlib=libc++ \n"
+					"EXECUTABLE=hello_axc\n"
+					"\n"
+					"all: $(EXECUTABLE)	\n"
+					"\n"
+					"$(EXECUTABLE): $(OBJECTS)	\n"
+					"	$(CC) $(OBJECTS) $(LDFLAGS) -o $@	\n"
+					"\n"
+					"%.cpp.o: %.cpp\n"
+					"	$(CC) $(CFLAGS) $< -o $@	\n");
+
+
+	auto filename = ax_format( ax_txt("{?}/GNUmakefile"), outFolder );
+
+//	ax_log("save file {?}", filename );
+
+	auto dir = System::IO::Path::GetDirectoryName( filename );
+	System::IO::Directory::Create( dir );
+
+	ax_TempStringA	tmp;
+	tmp.assignUtf( ob.buf() );
+
+	System::IO::File::WriteUtf8( filename, tmp );
+	ob.reset();
+}
+
+void GenCppPass::genMakefile( ax_Obj< MetaNode > node ) {
+
+	bool writeFile = hasToGenSourceFile(node);
+	
+	if( writeFile ) {
+		auto filename = node->getFullname( ax_txt("/") );
+		ob << ax_txt("\t") << filename << ax_txt(".cpp \\\n");
+	}
+
+	ax_foreach( &c, *node->children ) {
+		genMakefile( c );
+	}
 }
 
 void GenCppPass::genHdr( ax_Obj< MetaNode > node ) {
 
 	ax_TempString 	define_name;
 	
-	auto define_seperator = ax_txt("__");
-	
 	bool writeFile = hasToGenSourceFile(node);
 	
 	if( writeFile ) {
-		define_name << node->getFullname( define_seperator );
+		define_name << node->getFullname( symbol_seperator );
 		define_name << ax_txt("_h_file");
 	
 		ob << ax_txt("#ifndef ") << define_name << ax_txt("\n");
 		ob << ax_txt("#define ") << define_name << ax_txt("\n");
 		
+		ob.newline();
+		ob << ax_txt("#include <ax/core.h>") << ax_txt("\n");
+		
 		ax_foreach( & c, *node->children ) {
 			if( ! hasToGenSourceFile( c ) ) continue;
-			ob << ax_txt("#include \"") << node->name << ax_txt("/") << c->name << ax_txt( ".h\"\n" );
+			ob << ax_txt("#include \"") << node->cppName() << ax_txt("/") << c->cppName() << ax_txt( ".h\"\n" );
 		}
 
 		ob.beginNamespace( node );
@@ -70,7 +166,6 @@ void GenCppPass::genHdr( ax_Obj< MetaNode > node ) {
 	}
 }
 
-
 void GenCppPass::genCpp		( ax_Obj< MetaNode > node ) {
 
 	bool writeFile = hasToGenSourceFile( node );
@@ -78,10 +173,10 @@ void GenCppPass::genCpp		( ax_Obj< MetaNode > node ) {
 		ax_if_let( ns, node->ax_as< Namespace >() ) {
 			ax_foreach( & c, *ns->children ) {
 				if( ! hasToGenSourceFile( c ) ) continue;
-				ob << ax_txt("#include \"") << node->name << ax_txt("/") << c->name << ax_txt(".cpp\"\n");
+				ob << ax_txt("#include \"") << node->cppName() << ax_txt("/") << c->cppName() << ax_txt(".cpp\"\n");
 			}
 		}else{
-			ob << ax_txt("#include \"") << node->name << ax_txt( ".h\"\n" );
+			ob << ax_txt("#include \"") << node->cppName() << ax_txt( ".h\"\n" );
 		}
 				
 		ob.beginNamespace( node );
@@ -97,20 +192,18 @@ void GenCppPass::genCpp		( ax_Obj< MetaNode > node ) {
 	}
 }
 
-
-
 void GenCppPass::genHdr_dispatch( ax_Obj< MetaNode > node ) {
 	ax_if_let( ns, 		node->ax_as<Namespace>() )	{ return genHdr_namespace( ns ); }
 	ax_if_let( fn, 		node->ax_as<Func>() )		{ return genHdr_func( fn ); }
 	ax_if_let( prop,	node->ax_as<Prop>() )		{ return genHdr_prop( prop ); }
-	ax_if_let( cp,		node->ax_as<StructType>() )		{ return genHdr_struct( cp ); }
+	ax_if_let( cp,		node->ax_as<StructType>() )	{ return genHdr_struct( cp ); }
 }
 
 void GenCppPass::genCpp_dispatch( ax_Obj< MetaNode > node ) {
 	ax_if_let(  ns,		node->ax_as<Namespace>() )	{ return genCpp_namespace( ns ); }
 	ax_if_let(  fn,		node->ax_as<Func>() )		{ return genCpp_func( fn ); }
 	ax_if_let(  prop,	node->ax_as<Prop>() )		{ return genCpp_prop( prop ); }
-	ax_if_let(  cp,		node->ax_as<StructType>() )		{ return genCpp_struct( cp ); }
+	ax_if_let(  cp,		node->ax_as<StructType>() )	{ return genCpp_struct( cp ); }
 }
 
 void GenCppPass::genHdr_namespace( ax_Obj< Namespace > node ) {
@@ -125,12 +218,17 @@ void GenCppPass::genHdr_func( ax_Obj< Func > node ) {
 	}
 }
 
+void GenCppPass::genCpp_func( ax_Obj< Func > node ) {
+	ax_foreach( &fo, node->overloads ) {
+		genCpp_funcOverload( fo );
+	}
+}
 
 void GenCppPass::genHdr_funcOverload( ax_Obj< FuncOverload > fo ) {
 	ob.newline();
 	
 	ob << fo->returnType;
-	ob << ax_txt(" ") << fo->name << ax_txt("(");
+	ob << ax_txt(" ") << fo->cppName() << ax_txt("(");
 	
 	if( fo->params.size() > 0 ) {
 		ob << ax_txt(" ");
@@ -148,19 +246,38 @@ void GenCppPass::genHdr_funcOverload( ax_Obj< FuncOverload > fo ) {
 	ob << ax_txt(");");
 }
 
-void GenCppPass::genCpp_func( ax_Obj< Func > node ) {
+void GenCppPass::genCpp_funcOverload( ax_Obj< FuncOverload > fo ) {
+	ob.newline();
+	
+	ob << fo->returnType;
+	ob << ax_txt(" ") << fo->cppName() << ax_txt("(");
+	
+	if( fo->params.size() > 0 ) {
+		ob << ax_txt(" ");
+		
+		ax_int c = 0;
+		ax_foreach( &p, fo->params ) {
+			if( c > 0 ) ob << ax_txt(", ");
+			ob << p.rtype << ax_txt(" ") << p.name;
+			c++;
+		}
+		
+		ob << ax_txt(" ");
+	}
+	
+	ob << ax_txt(") {\n");
+	ob << ax_txt("}\n");
 }
 
 void GenCppPass::genHdr_prop( ax_Obj< Prop > node ) {
 	ob.newline();
 	ob << node->type;
-//	ob << ax_txt("var");
-	ob << ax_txt("\t") << node->name;
-	
+	ob << ax_txt("\t") << node->cppName();
+/*
 	ax_if_let( expr, node->initExpr ) {
 		ob << ax_txt(" = " ) << expr;
 	}
-	
+*/	
 	ob << ax_txt(";");
 }
 
@@ -190,8 +307,7 @@ void GenCppPass::genHdr_struct( ax_Obj< StructType > node ) {
 	}else{
 		Log::Error( node->pos , ax_txt("unknown type") );
 	}
-	
-	ob << node->name;
+	ob << node->cppName();
 
 	ax_int c = 0;
 
@@ -213,21 +329,31 @@ void GenCppPass::genHdr_struct( ax_Obj< StructType > node ) {
 	}
 	
 	ax_foreach( & c, *node->children ) {
-		if( this != & ob.cppPass ) {
-			throw System::Err_Undefined();
-		}
-	
 		ax_if_let( prop, c->ax_as<Prop>() ) { genHdr_prop(prop); continue; }
 		ax_if_let( fn,	 c->ax_as<Func>() ) { genHdr_func(fn); 	 continue; }
 		ax_if_let( nestedType, c->ax_as<StructType>() ) { genHdr_struct(nestedType); continue; }
 	}
 	
+	ob.newline(-1) << ax_txt("private:");
+	ob.newline();
+	
+	ob << ax_txt("void ") << symbol_prefix << ax_txt("init_props();");
+	
+	
 	ob.closeBlock();
-	ob << ax_txt("; //") << node->name;
+	ob << ax_txt("; //") << node->cppName();
 	ob.newline();
 }
 
 void GenCppPass::genCpp_struct( ax_Obj< StructType > node ) {
+
+
+	ax_foreach( & c, *node->children ) {
+		ax_if_let( prop, c->ax_as<Prop>() ) { genCpp_prop(prop); continue; }
+		ax_if_let( fn,	 c->ax_as<Func>() ) { genCpp_func(fn); 	 continue; }
+		ax_if_let( nestedType, c->ax_as<StructType>() ) { genCpp_struct(nestedType); continue; }
+	}
+
 }
 
 void GenCppPass::saveFile( ax_Obj< MetaNode > node, const ax_string & filename_suffix ) {
@@ -242,12 +368,10 @@ void GenCppPass::saveFile( ax_Obj< MetaNode > node, const ax_string & filename_s
 	System::IO::Directory::Create( dir );
 
 	ax_TempStringA	tmp;
-	
-	tmp.assignUtf( ob._buf );
+	tmp.assignUtf( ob.buf() );
 
 	System::IO::File::WriteUtf8( filename, tmp );
-	
-	ob._buf.clear();
+	ob.reset();
 }
 
 GenCppPass::OutBuf & GenCppPass::OutBuf::operator<< ( ax_Obj< MetaNode > node ) {
@@ -327,7 +451,7 @@ GenCppPass::OutBuf& GenCppPass::OutBuf::nodeName ( ax_Obj< MetaNode > node, bool
 		}
 	}
 */
-	*this << node->name;
+	*this << node->cppName();
 	return *this;
 }
 
@@ -355,20 +479,32 @@ void GenCppPass::OutBuf::beginNamespace		( ax_Obj< MetaNode > node ) {
 		beginNamespace( p );
 	}
 	ax_if_let( ns, node->ax_as< Namespace >() ) {
-		newline() << ax_txt("namespace ") << node->name << ax_txt(" {");
+		newline() << ax_txt("namespace ") << node->cppName() << ax_txt(" {");
 		inNamespace = ns;
 	}
 }
 
 void GenCppPass::OutBuf::endNamespace		( ax_Obj< MetaNode > node ) {
 	ax_if_let( ns, node->ax_as< Namespace >() ) {
-		newline() << ax_txt("} //namespace ") << node->name;
+		newline() << ax_txt("} //namespace ") << node->cppName();
 	}
 	ax_if_let( p, node->parent ) {
 		endNamespace( p );
 	}
 	inNamespace = nullptr;
 }
+
+void GenCppPass::OutBuf::reset() {
+	indentLevel = 0;
+	
+	inNamespace = g_metadata->root;
+	inFor		= false;
+	inStruct	= nullptr;
+//	inBlock		= nullptr;
+	
+	_buf.clear();
+}
+
 
 //--------------
 
@@ -523,17 +659,17 @@ void	GenCppPass::onAST( LocalVarAST 		& p ) {
 */
 
 void	GenCppPass::onAST( PrefixAST 	& p ) {
-	ob << p.funcOverload->name;
+	ob << p.funcOverload->cppName();
 	ob << p.expr;
 }
 
 void	GenCppPass::onAST( PostfixAST 	& p ) {
-	ob << p.funcOverload->name;
+	ob << p.funcOverload->cppName();
 	ob << p.expr;
 }
 
 void	GenCppPass::onAST( BinaryAST 	& p ) {
-	ob << p.lhs << ax_txt(" ") << p.funcOverload->name << ax_txt(" ") << p.rhs;
+	ob << p.lhs << ax_txt(" ") << p.funcOverload->cppName() << ax_txt(" ") << p.rhs;
 }
 
 void	GenCppPass::onAST( FuncArgAST 			& p ) {

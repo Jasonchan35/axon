@@ -90,7 +90,7 @@ template< typename UTF >
 void	MutStringX<T>::_appendUtf( const UTF* data, ax_int data_size, ax_int repeat ) { \
 	if( repeat    <= 0 ) return;
 	if( data_size <= 0 ) return;
-	ax_int req_len = UtfConverter::GetConvertedCount< UTF,T >( data, data_size );
+	ax_int req_len = Utf::GetConvertedCount< UTF,T >( data, data_size );
 
 	auto old_size = size();
 	auto new_size = old_size + req_len * repeat;
@@ -99,7 +99,7 @@ void	MutStringX<T>::_appendUtf( const UTF* data, ax_int data_size, ax_int repeat
 
 	try{
 		auto dst = dataPtr() + old_size;
-		UtfConverter::Convert( dst, req_len, data, data_size );
+		Utf::Convert( dst, req_len, data, data_size );
 
 		auto p0 = dst;
 		dst += req_len;

@@ -13,7 +13,7 @@
 #include "ax_c_str_to.h"
 #include "../base/Exception.h"
 #include "../array/ArrayUtility.h"
-#include "UtfConverter.h"
+#include "Utf.h"
 
 namespace ax {
 namespace System {
@@ -110,9 +110,9 @@ public:
 
 	template< typename R >
 	static	StringX	CloneUtf ( const R* sz, ax_int size ) 	{
-		auto req_len = UtfConverter::GetConvertedCount<R,T>( sz, size );
+		auto req_len = Utf::GetConvertedCount<R,T>( sz, size );
 		Buffer buf( req_len );
-		UtfConverter::Convert( buf.data, buf.size, sz, size );
+		Utf::Convert( buf.data, buf.size, sz, size );
 		return StringX( buf );
 	}
 	

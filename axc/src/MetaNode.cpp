@@ -33,9 +33,9 @@ ax_ImplObject( FuncType );
 
 
 MetaNode::MetaNode( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name ) {
-	this->parent = parent;
-	this->name	 = name;
-	this->pos	 = pos;
+	this->parent	= parent;
+	this->_name		= name;
+	this->pos		= pos;
 	
 	this->children = ax_new_obj( ChildrenDict );
 	
@@ -56,7 +56,7 @@ void MetaNode::appendFullname( ax_MutString & fullname, const ax_string & sepera
 		p->appendFullname( fullname, seperator );
 		fullname.append( seperator );
 	}
-	fullname.append( name );
+	fullname.append( name() );
 }
 
 
@@ -98,7 +98,7 @@ ax_NullableObj<MetaNode>	MetaNode::onGetMember	( const ax_string & name ) {
 }
 
 void MetaNode::OnStringReq( ax_ToStringReq & req ) const {
-	req.indent() << this->getTypeInfo().name() << ax_txt(" ") <<  name;
+	req.indent() << this->getTypeInfo().name() << ax_txt(" ") << name();
 }
 
 ax_NullableObj< Func >	MetaNode::getFunc	( const ax_string & name ) {
@@ -241,7 +241,7 @@ void FuncOverload::OnStringReq( ax_ToStringReq & req ) const {
 }
 
 FuncOverload::FuncOverload( ax_Obj< Func > fn, const LexerPos & pos )
-: base( nullptr, pos, fn->name ) {
+: base( nullptr, pos, fn->name() ) {
 	func = fn;
 	g_metadata->funcOverloadList.add( ax_ThisObj );
 }

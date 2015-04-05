@@ -447,7 +447,7 @@ ax_NullableObj< ExprAST > Parser::parseExpr_BinaryOp( ax_int exprPrec, ax_Obj<Ex
 		}
 		
 		ax_if_not_let( fo, fn->getOverload( candidate, params ) ) {
-			Log::Error( op_pos, ax_txt("no '{?}.func {?} ({?})' overload"), lt->name, op, params );
+			Log::Error( op_pos, ax_txt("no '{?}.func {?} ({?})' overload"), lt->name(), op, params );
 		}
 
 		ax_if_let( rhs_, rhs ) {

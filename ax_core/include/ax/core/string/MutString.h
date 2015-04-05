@@ -10,7 +10,7 @@
 #define ax_core_MutString_h
 
 #include "ax_c_str.h"
-#include "UtfConverter.h"
+#include "Utf.h"
 #include "String.h"
 #include "../array/Array.h"
 

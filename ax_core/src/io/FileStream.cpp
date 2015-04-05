@@ -7,7 +7,7 @@
 //
 
 #include <ax/core/io/FileStream.h>
-#include <ax/core/string/UtfConverter.h>
+#include <ax/core/string/Utf.h>
 
 #if ax_OS_Unix
 	#include <sys/stat.h>

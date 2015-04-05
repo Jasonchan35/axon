@@ -1,20 +1,20 @@
 //
-//  UtfConverter.h
+//  Utf.h
 //  ax_core
 //
 //  Created by Jason Chan on 3/16/15.
 //  Copyright (c) 2015 Awenix. All rights reserved.
 //
 
-#ifndef ax_core_UtfConverter_h
-#define ax_core_UtfConverter_h
+#ifndef ax_core_Utf_h
+#define ax_core_Utf_h
 
 #include "../array/ArrayUtility.h"
 
 namespace ax {
 namespace System {
 
-struct UtfConverter : public StaticClass {
+struct Utf : public StaticClass {
 	template< typename SRC, typename DST >
 	static ax_int	GetConvertedCount ( const SRC* src, ax_int src_len ) {
 		ax_int out_len = 0;
@@ -35,24 +35,24 @@ struct UtfConverter : public StaticClass {
 	}
 
 private:
-	template< typename SRC > ax_ALWAYS_INLINE( static ax_int	_UtfCount 	( ax_unichar v ) );
-	template< typename SRC > ax_ALWAYS_INLINE( static uint32_t 	_DecodeUtf	( const SRC* & src, const SRC* e ) );
-	template< typename DST > ax_ALWAYS_INLINE( static void 		_EncodeUtf	(       DST* & dst, const DST* e, ax_unichar v ) );
+	template< typename SRC > ax_ALWAYS_INLINE( static ax_int		_UtfCount 	( ax_unichar v ) );
+	template< typename SRC > ax_ALWAYS_INLINE( static ax_unichar 	_DecodeUtf	( const SRC* & src, const SRC* e ) );
+	template< typename DST > ax_ALWAYS_INLINE( static void 			_EncodeUtf	(       DST* & dst, const DST* e, ax_unichar v ) );
 
 };
 
 template<> inline
-ax_unichar UtfConverter::_DecodeUtf<wchar_t>( const wchar_t* & src, const wchar_t* e ) {
+ax_unichar Utf::_DecodeUtf<wchar_t>( const wchar_t* & src, const wchar_t* e ) {
 	return *src;
 }
 
 template<> inline
-ax_unichar UtfConverter::_DecodeUtf<char32_t>( const char32_t* & src, const char32_t* e ) {
+ax_unichar Utf::_DecodeUtf<char32_t>( const char32_t* & src, const char32_t* e ) {
 	return *src;
 }
 
 template<> inline
-ax_unichar UtfConverter::_DecodeUtf<char16_t>( const char16_t* & src, const char16_t* e ) {
+ax_unichar Utf::_DecodeUtf<char16_t>( const char16_t* & src, const char16_t* e ) {
 	ax_unichar a = *src;
 	
 	if( a >= 0xD800 && a <= 0xDBFF ) {
@@ -74,31 +74,31 @@ ax_unichar UtfConverter::_DecodeUtf<char16_t>( const char16_t* & src, const char
 }
 
 template<> inline
-ax_unichar UtfConverter::_DecodeUtf<char>( const char* & src, const char* e ) {
+ax_unichar Utf::_DecodeUtf<char>( const char* & src, const char* e ) {
 	ax_unichar a = *src;
 	
 	if( ( a & 0x80 ) == 0 ) return a;
 	
 	if( ( a & 0xE0 ) == 0xC0 ) {
 		if( src+2 > e ) throw Err_StringUTF();
-		UInt32 b = *src; src++;
+		ax_unichar b = *src; src++;
 		
 		return ( ( a & 0x1F ) << 6 ) | ( b & 0x3F );
 	}
 	
 	if( ( a & 0xF0 ) == 0xE0 ) {
 		if( src+3 > e ) throw Err_StringUTF();
-		UInt32 b = *src; src++;
-		UInt32 c = *src; src++;
+		ax_unichar b = *src; src++;
+		ax_unichar c = *src; src++;
 	
 		return ( (a & 0x0F) << 12 ) | ( (b & 0x3F) << 6 ) | ( c & 0x3F );
 	}
 	
 	if( ( a & 0xF8 ) == 0xF0 ) {
 		if( src+4 > e ) throw Err_StringUTF();
-		UInt32 b = *src; src++;
-		UInt32 c = *src; src++;
-		UInt32 d = *src; src++;
+		ax_unichar b = *src; src++;
+		ax_unichar c = *src; src++;
+		ax_unichar d = *src; src++;
 	
 		return ( (a & 0x07) << 18 ) | ( (b & 0x3F) << 12 ) | ( (c & 0x3F) << 6 ) | ( d & 0x3F );
 	}
@@ -106,10 +106,10 @@ ax_unichar UtfConverter::_DecodeUtf<char>( const char* & src, const char* e ) {
 	
 	if( ( a & 0xFC ) == 0xF8 ) {
 		if( src+5 > e ) throw Err_StringUTF();
-		UInt32 b = *src; src++;
-		UInt32 c = *src; src++;
-		UInt32 d = *src; src++;
-		UInt32 e = *src; src++;
+		ax_unichar b = *src; src++;
+		ax_unichar c = *src; src++;
+		ax_unichar d = *src; src++;
+		ax_unichar e = *src; src++;
 	
 		return ( (a & 0x03) << 24 ) | ( (b & 0x3F) << 18 ) | ( (c & 0x3F) << 12 ) | ( (d & 0x3F) << 6 ) | ( e & 0x3F );
 		
@@ -117,11 +117,11 @@ ax_unichar UtfConverter::_DecodeUtf<char>( const char* & src, const char* e ) {
 	
 	if( ( a & 0xFE ) == 0xFC ) {
 		if( src+6 > e ) throw Err_StringUTF();
-		UInt32 b = *src; src++;
-		UInt32 c = *src; src++;
-		UInt32 d = *src; src++;
-		UInt32 e = *src; src++;
-		UInt32 f = *src; src++;
+		ax_unichar b = *src; src++;
+		ax_unichar c = *src; src++;
+		ax_unichar d = *src; src++;
+		ax_unichar e = *src; src++;
+		ax_unichar f = *src; src++;
 
 		return ( (a & 0x01) << 30 ) | ( (b & 0x3F) << 24 ) | ( (c & 0x3F) << 18 ) | ( (d & 0x3F) << 12 ) | ( (e & 0x3F) << 6 ) | ( f & 0x3F );
 	}
@@ -133,17 +133,17 @@ ax_unichar UtfConverter::_DecodeUtf<char>( const char* & src, const char* e ) {
 }
 
 template<> inline
-ax_int UtfConverter::_UtfCount< wchar_t >( ax_unichar v ) {
+ax_int Utf::_UtfCount< wchar_t >( ax_unichar v ) {
 	return 1;
 }
 
 template<> inline
-ax_int UtfConverter::_UtfCount< char32_t >( ax_unichar v ) {
+ax_int Utf::_UtfCount< char32_t >( ax_unichar v ) {
 	return 1;
 }
 
 template<> inline
-ax_int UtfConverter::_UtfCount< char16_t >( ax_unichar v ) {
+ax_int Utf::_UtfCount< char16_t >( ax_unichar v ) {
 	if( v <  0x10000 ) return 1;
 	if( v < 0x110000 ) return 2;
 	
@@ -151,7 +151,7 @@ ax_int UtfConverter::_UtfCount< char16_t >( ax_unichar v ) {
 }
 
 template<> inline
-ax_int UtfConverter::_UtfCount< char >( ax_unichar v ) {
+ax_int Utf::_UtfCount< char >( ax_unichar v ) {
 	if( v <       0x80 ) return 1;
 	if( v <    0x00800 ) return 2;
 	if( v <    0x10000 ) return 3;
@@ -163,20 +163,20 @@ ax_int UtfConverter::_UtfCount< char >( ax_unichar v ) {
 	throw Err_StringUTF();
 }
 
-//template<> inline Int UtfConverter::_UtfCount< wchar_t >( UInt32 u ) { return _UtfCount< WCharAsCharXX >(u); }
+//template<> inline Int Utf::_UtfCount< wchar_t >( UInt32 u ) { return _UtfCount< WCharAsCharXX >(u); }
 
 template<> inline
-void UtfConverter::_EncodeUtf< wchar_t >( wchar_t* & dst, const wchar_t* e, ax_unichar v ) {
+void Utf::_EncodeUtf< wchar_t >( wchar_t* & dst, const wchar_t* e, ax_unichar v ) {
 	*dst = v;
 }
 
 template<> inline
-void UtfConverter::_EncodeUtf< char32_t >( char32_t* & dst, const char32_t* e, ax_unichar v ) {
+void Utf::_EncodeUtf< char32_t >( char32_t* & dst, const char32_t* e, ax_unichar v ) {
 	*dst = v;
 }
 
 template<> inline
-void UtfConverter::_EncodeUtf< char16_t >( char16_t* & dst, const char16_t* e, ax_unichar v ) {
+void Utf::_EncodeUtf< char16_t >( char16_t* & dst, const char16_t* e, ax_unichar v ) {
 	if( v <  0x10000 ) {
 		*dst = v;
 		return;
@@ -192,7 +192,7 @@ void UtfConverter::_EncodeUtf< char16_t >( char16_t* & dst, const char16_t* e, a
 }
 
 template<> inline
-void UtfConverter::_EncodeUtf< char >( char* & dst, const char* e, ax_unichar v ) {
+void Utf::_EncodeUtf< char >( char* & dst, const char* e, ax_unichar v ) {
 	if( v <       0x80 ) {
 		*dst = v;
 		return;
@@ -249,10 +249,10 @@ void UtfConverter::_EncodeUtf< char >( char* & dst, const char* e, ax_unichar v 
 
 #define ax_TYPE_LIST_ITEM( NAME, T ) \
 	template<> inline \
-	ax_int	UtfConverter::GetConvertedCount< T,T > ( const T* src, ax_int src_len ) { return src_len; } \
+	ax_int	Utf::GetConvertedCount< T,T > ( const T* src, ax_int src_len ) { return src_len; } \
 	\
 	template<> inline \
-	void UtfConverter::Convert<T,T> ( T* dst, ax_int dst_len, const T* src, ax_int src_len  ) { ArrayUtility::Copy( dst, src, src_len ); } \
+	void Utf::Convert<T,T> ( T* dst, ax_int dst_len, const T* src, ax_int src_len  ) { ArrayUtility::Copy( dst, src, src_len ); } \
 //-----
 	ax_TYPE_LIST_all_char
 #undef ax_TYPE_LIST_ITEM

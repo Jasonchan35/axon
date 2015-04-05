@@ -54,7 +54,7 @@ void DeclarePass::resolveFuncParamPass () {
 }
 
 void DeclarePass::resolveFuncParam( ax_Obj< FuncOverload > fo ) {
-	ax_log( ax_txt("resolveFuncParam {?}"), fo->name );
+	ax_log( ax_txt("resolveFuncParam {?}"), fo->name() );
 	
 	setPos( fo->paramPos );
 	
@@ -142,7 +142,7 @@ void DeclarePass::resolvePropPass() {
 		
 		if( ok_count == 0 ) {
 			ax_foreach( &s, *procList ) {
-				Log::Error( s->pos, ax_txt("unable to resolve type for property {?}"), s->name );
+				Log::Error( s->pos, ax_txt("unable to resolve type for property {?}"), s->name() );
 			}
 		}
 	}
@@ -175,7 +175,7 @@ void DeclarePass::resolveStructTypePass() {
 		
 		if( ok_count == 0 ) {
 			ax_foreach( &s, *procList ) {
-				Log::Error( s->pos, ax_txt("unable to resolve types {?}"), s->name );
+				Log::Error( s->pos, ax_txt("unable to resolve types {?}"), s->name() );
 			}
 		}
 	}
@@ -183,7 +183,7 @@ void DeclarePass::resolveStructTypePass() {
 
 
 bool DeclarePass::resolveProp( ax_Obj< Prop >	node ) {
-	ax_log( ax_txt("resolve_PropType {?}"), node->name );
+	ax_log( ax_txt("resolve_PropType {?}"), node->name() );
 
 	if( node->type.is_null() ) {
 		if( node->typePos.valid ) {

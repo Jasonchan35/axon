@@ -85,48 +85,47 @@ template<>	inline float	ax_epsilon<float> () { return 1.0e-5f; }
 const  double ax_math_PI = 3.14159265358979323846;
 
 //Splits a floating-point value into fractional and integer parts
-inline float  ax_modf		( float  n, float  *i ) { return ::modff( n, i ); }
-inline double ax_modf		( double n, double *i ) { return ::modf ( n, i ); }
+inline float  ax_modf		( float  n, float  *i ) { return std::modff( n, i ); }
+inline double ax_modf		( double n, double *i ) { return std::modf ( n, i ); }
 
-inline float  ax_sqrt		( float  n )	{ return ::sqrtf( n ); }
-inline double ax_sqrt		( double n )	{ return ::sqrt ( n ); }
+inline float  ax_sqrt		( float  n )	{ return std::sqrtf( n ); }
+inline double ax_sqrt		( double n )	{ return std::sqrt ( n ); }
 
 //! reciprocal square root
-inline float  ax_rsqrt		( float  n )	{ return 1.0f/::sqrtf( n ); }
-inline double ax_rsqrt		( double n )	{ return 1.0 /::sqrt ( n ); }
+inline float  ax_rsqrt		( float  n )	{ return 1.0f/std::sqrtf( n ); }
+inline double ax_rsqrt		( double n )	{ return 1.0 /std::sqrt ( n ); }
 
-inline float  ax_ceil		( float  a )	{ return ::ceilf(a); }
-inline double ax_ceil		( double a )	{ return ::ceil (a); }
+inline float  ax_ceil		( float  a )	{ return std::ceilf(a); }
+inline double ax_ceil		( double a )	{ return std::ceil (a); }
 
-inline float  ax_floor		( float  a )	{ return ::floorf(a); }
-inline double ax_floor		( double a )	{ return ::floor (a); }
+inline float  ax_floor		( float  a )	{ return std::floorf(a); }
+inline double ax_floor		( double a )	{ return std::floor (a); }
 
 //get remainder
-inline float  ax_fmod	( float  a, float  b ) { return ::fmodf(a,b); }
-inline double ax_fmod	( double a, double b ) { return ::fmod (a,b); }
+inline float  ax_fmod	( float  a, float  b ) { return std::fmodf(a,b); }
+inline double ax_fmod	( double a, double b ) { return std::fmod (a,b); }
 
-inline float  ax_cos	( float  a ) { return ::cosf(a); }
-inline double ax_cos	( double a ) { return ::cos (a); }
+inline float  ax_cos	( float  a ) { return std::cosf(a); }
+inline double ax_cos	( double a ) { return std::cos (a); }
 
-inline float  ax_sin	( float  a ) { return ::sinf(a); }
-inline double ax_sin	( double a ) { return ::sin (a); }
+inline float  ax_sin	( float  a ) { return std::sinf(a); }
+inline double ax_sin	( double a ) { return std::sin (a); }
 
-inline float  ax_atan2	( float  a, float  b ) { return ::atan2f(a,b); }
-inline double ax_atan2	( double a, double b ) { return ::atan2 (a,b); }
-
+inline float  ax_atan2	( float  a, float  b ) { return std::atan2f(a,b); }
+inline double ax_atan2	( double a, double b ) { return std::atan2 (a,b); }
 
 #if ax_COMPILER_VC
-	inline float  ax_trunc	( float  n )	{ float  i; return ::modff( n, &i ); }
-	inline double ax_trunc	( double n )	{ double i; return ::modf ( n, &i ); }
+	inline float  ax_trunc	( float  n )	{ float  i; return std::modff( n, &i ); }
+	inline double ax_trunc	( double n )	{ double i; return std::modf ( n, &i ); }
 
 	inline float  ax_round	( float  a )	{ return ax_trunc ( a > 0 ? a+0.5f : a-0.5f ); }
 	inline double ax_round	( double a )	{ return ax_trunc ( a > 0 ? a+0.5  : a-0.5  ); }
 #else
-	inline float  ax_trunc	( float  n )	{ return ::truncf(n); }
-	inline double ax_trunc	( double n )	{ return ::trunc (n); }
+	inline float  ax_trunc	( float  n )	{ return std::truncf(n); }
+	inline double ax_trunc	( double n )	{ return std::trunc (n); }
 
-	inline float  ax_round	( float  a )	{ return ::roundf(a); }
-	inline double ax_round	( double a )	{ return ::round (a); }
+	inline float  ax_round	( float  a )	{ return std::roundf(a); }
+	inline double ax_round	( double a )	{ return std::round (a); }
 #endif
 
 inline ax_int   ax_trunc_to_int	( float  a )	{ return static_cast<ax_int>( ax_trunc(a) ); }

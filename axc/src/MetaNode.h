@@ -43,8 +43,13 @@ public:
 		}
 	}
 
+	const ax_string &	name	() const	{ return _name; }
+	const ax_string &	cppName	() const	{ return _cppName.size() ? _cppName : _name; }
 
-	ax_string			name;
+	void	setCppName( const ax_string & s ) { _cppName = s; }
+
+	ax_string			_name;
+	ax_string			_cppName;
 	LexerPos			pos;
 
 	ax_NullableObj< MetaNode >	parent;

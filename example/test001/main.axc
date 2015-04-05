@@ -1,5 +1,10 @@
 
 class App {
+
+	fn main() {
+				
+	}
+
 /*
 	var a int[] = [4,5,6]
 	var b dict<string,string> = ['a':'apple','b':'boy']
@@ -43,7 +48,7 @@ class App {
 		}
 	}
 
-	delegate	MyDelegate( a int ) int
+//	delegate	MyDelegate( a int ) int
 
 	fn add( a int, b int ) int {
 

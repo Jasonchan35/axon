@@ -20,6 +20,7 @@
 #define ax_MutStringX		ax::System::MutStringX
 #define ax_MutStringX_		ax::System::MutStringX_
 
+#define ax_Object			ax::System::Object
 #define ax_Obj				ax::System::Obj
 #define	ax_Dict				ax::System::Dict
 #define ax_DictObj			ax::System::DictObj
@@ -54,7 +55,7 @@
 	#error
 #endif
 
-typedef uint32_t	ax_unichar;
+typedef uint32_t	ax_unichar;	// a int can hold any unicode character
 
 #define ax_char_define_type 'a'  // a,u,w
 
@@ -170,38 +171,8 @@ template< typename T > 			constexpr T		ax_type_max();
 template< typename T > inline	constexpr T		ax_type_min( const T& v ) { return ax_type_min<T>(); }
 template< typename T > inline	constexpr T		ax_type_max( const T& v ) { return ax_type_max<T>(); }
 
-template<> inline constexpr	uint8_t		ax_type_min<uint8_t>()		{ return 0; }
-template<> inline constexpr	uint8_t		ax_type_max<uint8_t>()		{ return 0xff; }
-
-template<> inline constexpr	uint16_t	ax_type_min<uint16_t>()		{ return 0; }
-template<> inline constexpr	uint16_t	ax_type_max<uint16_t>()		{ return 0xffff; }
-
-template<> inline constexpr	uint32_t	ax_type_min<uint32_t>()		{ return 0; }
-template<> inline constexpr	uint32_t	ax_type_max<uint32_t>()		{ return 0xffffffffU; }
-
-template<> inline constexpr	uint64_t	ax_type_min<uint64_t>()		{ return 0; }
-template<> inline constexpr	uint64_t	ax_type_max<uint64_t>()		{ return 0xffffffffffffffffULL; }
-
-template<> inline constexpr	int8_t		ax_type_min<int8_t>()		{ return (-0x7f-1); }
-template<> inline constexpr	int8_t		ax_type_max<int8_t>()		{ return 0x7f; }
-
-template<> inline constexpr	int16_t		ax_type_min<int16_t>()		{ return (-0x7fff-1); }
-template<> inline constexpr	int16_t		ax_type_max<int16_t>()		{ return 0x7fff; }
-
-template<> inline constexpr	int32_t		ax_type_min<int32_t>()		{ return (-0x7fffffff-1); }
-template<> inline constexpr	int32_t		ax_type_max<int32_t>()		{ return 0x7fffffff; }
-
-template<> inline constexpr	int64_t		ax_type_min<int64_t>()		{ return (-0x7fffffffffffffffLL-1); }
-template<> inline constexpr	int64_t		ax_type_max<int64_t>()		{ return 0x7fffffffffffffffLL; }
-
 template<> inline constexpr	bool		ax_type_min<bool>()			{ return false; }
 template<> inline constexpr	bool		ax_type_max<bool>()			{ return true; }
-
-
-template<> inline constexpr	float		ax_type_min<float>  ()		{ return FLT_MIN; }
-template<> inline constexpr	float		ax_type_max<float>	()		{ return FLT_MAX; }
-template<> inline constexpr	double		ax_type_min<double>	()		{ return DBL_MIN; }
-template<> inline constexpr	double		ax_type_max<double>	()		{ return DBL_MAX; }
 
 template< typename T > 				bool	ax_less_than0			( T value );
 template< typename T > constexpr	T 		ax_type_default_value	();
@@ -247,6 +218,8 @@ inline	int64_t		ax_type_to_signed( uint64_t v ) { return static_cast<int64_t>(v)
 
 #define	ax_TYPE_LIST_ITEM( NAME, T )	\
 	template<> 	struct	ax_type_gc_trace< T > : public std::false_type {}; \
+	template<> 	inline constexpr	T		ax_type_min<T>()		{ return std::numeric_limits<T>::min(); } \
+	template<> 	inline constexpr	T		ax_type_max<T>()		{ return std::numeric_limits<T>::max(); } \
 	template<> 	inline constexpr	T 		ax_type_default_value<T>()				{ return 0; } \
 	template<>	inline constexpr	ax_int	ax_type_fp_precision<T>()				{ return 0; } \
 				inline 				bool	ax_less_than0( T value )				{ return false; } \
@@ -256,6 +229,8 @@ inline	int64_t		ax_type_to_signed( uint64_t v ) { return static_cast<int64_t>(v)
 
 #define	ax_TYPE_LIST_ITEM( NAME, T )	\
 	template<> 	struct	ax_type_gc_trace< T > : public std::false_type {}; \
+	template<> 	inline constexpr	T		ax_type_min<T>()		{ return std::numeric_limits<T>::min(); } \
+	template<> 	inline constexpr	T		ax_type_max<T>()		{ return std::numeric_limits<T>::max(); } \
 	template<> 	inline constexpr	T 		ax_type_default_value<T>()				{ return 0; } \
 	template<>	inline constexpr	ax_int	ax_type_fp_precision<T>()				{ return 0; } \
 				inline 				bool	ax_less_than0( T value )				{ return value < 0; } \
@@ -265,6 +240,8 @@ inline	int64_t		ax_type_to_signed( uint64_t v ) { return static_cast<int64_t>(v)
 
 #define	ax_TYPE_LIST_ITEM( NAME, T )	\
 	template<> 	struct	ax_type_gc_trace< T > : public std::false_type {}; \
+	template<> 	inline constexpr	T		ax_type_min<T>()		{ return std::numeric_limits<T>::min(); } \
+	template<> 	inline constexpr	T		ax_type_max<T>()		{ return std::numeric_limits<T>::max(); } \
 	template<> 	inline constexpr	T 		ax_type_default_value<T>()				{ return 0; } \
 				inline 				bool	ax_less_than0( T value )				{ return value < 0; } \
 //-------

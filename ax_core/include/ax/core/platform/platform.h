@@ -94,22 +94,17 @@
     #include "ax_OS_Windows.h"
 #endif
 
-
-
-//-- C headers ----
-#include <math.h>
-#include <unistd.h>
-
 //--- C++ headers ------
+#include <atomic>
+#include <limits>
+#include <cmath>
+#include <exception>
 #include <new>
 #include <memory>
-#include <exception>
-#include <atomic>
 #include <iostream>
 #include <cstdint>
 #include <cassert>
 #include <type_traits>
-
 
 //-------------------
 #include "ax_macro.h"

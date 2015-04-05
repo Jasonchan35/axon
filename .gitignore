@@ -5,3 +5,4 @@
 ax_core/lib/MacOSX/Debug/libax_core.a
 ax_core/lib/MacOSX/Debug/ax_core_unit_test
 ax_core/lib/MacOSX/libgc.a
+axc/bin/axc

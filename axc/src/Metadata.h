@@ -18,6 +18,7 @@ class Metadata {
 public:
 	Metadata();
 
+	ax_Obj< Namespace > namespace_ax;
 	ax_Obj< Namespace > root;
 
 	TupleTypeTable	tupleTable;
@@ -45,6 +46,7 @@ public:
 	ax_Obj< PrimitiveType >			type_double;
 
 	ax_Obj< Class >					type_object;
+	ax_NullableObj< Class >			type_app;
 	
 	ax_Array_< ax_Obj< PrimitiveType > >	type_all_number;
 	ax_Array_< ax_Obj< PrimitiveType > >	type_all_int;

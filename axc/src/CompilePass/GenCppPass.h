@@ -28,6 +28,11 @@ private:
 	
 	bool	hasToGenSourceFile	( ax_Obj< MetaNode > node );
 	
+	void	genMainCpp			();
+	
+	void	genMakefile			();
+	void	genMakefile			( ax_Obj< MetaNode > node );
+	
 	void	genHdr				( ax_Obj< MetaNode > node );
 	void	genCpp				( ax_Obj< MetaNode > node );
 
@@ -82,7 +87,10 @@ private:
 
 	class OutBuf {
 	public:
-		OutBuf( GenCppPass & pass ) : indentLevel(0), cppPass(pass) {}
+		OutBuf( GenCppPass & pass ) : cppPass(pass) { reset(); }
+
+		ax_MutString &	buf() { return _buf; }
+				void	reset();
 		
 		OutBuf & operator<< ( const ax_string	 & rhs ) {
 //			printf("%ls", rhs.c_str() );
@@ -130,12 +138,13 @@ private:
 		
 		ax_NullableObj< StructType >		inStruct;
 //		ax_ax_NullableObjObj< BlockNode >	inBlock;
-		ax_NullableObj< Namespace >		inNamespace;
+		ax_NullableObj< Namespace >			inNamespace;
 	
 		ax_int			indentLevel;
-		ax_TempString	_buf;
+		GenCppPass & 	cppPass;
 		
-		GenCppPass & cppPass;
+	private:
+		ax_TempString	_buf;
 	};
 	
 	OutBuf		ob;
