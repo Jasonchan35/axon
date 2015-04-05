@@ -12,31 +12,30 @@
 namespace ax {
 namespace Compile {
 
+bool Lexer::getToken( Token & token ) {
 
-bool	Lexer::getToken		( Token & token ) {
-	_getToken(token);
-	
-	#if 0 // debug token
-		ax_log( ax_txt("--- token {?}"), token );
-	#endif
-
-	switch( token.type ) {
-		case TokenType::t_EOF: return false;
-		case TokenType::t_curlyBracketOpen:  c.pos.blockLevel++; break;
-		case TokenType::t_curlyBracketClose: c.pos.blockLevel--; break;
-		default: break;
+	for(;;){
+		_getToken( token );
+		
+		#if 0 // debug token
+			ax_log( ax_txt("--- token {?}"), token );
+		#endif
+		
+		if( token.is_comment() ) continue;
+		
+		switch( token.type ) {
+			case TokenType::t_EOF:		return false;
+			case TokenType::t_curlyBracketOpen:  c.pos.blockLevel++; break;
+			case TokenType::t_curlyBracketClose: c.pos.blockLevel--; break;
+			default: break;
+		}
+		
+		return true;
 	}
-	
-	return true;
-}
-
-void	Lexer::reset ( ax_Obj< SourceFile > sourceFile ) {
-	c.reset( sourceFile );
 }
 
 void	Lexer::setPos	( const LexerPos & pos ) {
 	c.setPos( pos );
-	nextToken();
 }
 
 
@@ -427,47 +426,18 @@ void Lexer::_getToken_number( Token & token, bool dot ) {
 	return _setToken( token, TokenType::t_number, tmp.to_string() );
 }
 
-void	Lexer::nextToken() {
-
-	for(;;){
-		bool b = getToken( token );
-		if( !b ) return;
-		
-		if( token.is_comment() ) continue;
-		break;
-	}
-}
-
-
 //================
 
 
-Lexer::Cursor::Cursor( LexerPos & pos ) : pos(pos) {
+Lexer::Cursor::Cursor( LexerPos & pos_ ) : pos( pos_ ) {
 	p = nullptr;
 	ch = 0;
-}
-
-void Lexer::Cursor::reset( ax_Obj< SourceFile > sourceFile ) {
-	pos.valid = true;
-	pos.file = sourceFile;
-	pos.filePos = 0;
-	pos.line = 1;
-	pos.col  = 1;
-
-	auto & source = sourceFile->source;
-
-	p 	= source.c_str();
-	end = source.c_str() + source.size();
-	
-	if( p ) {
-		ch = *p;
-	}
 }
 
 void Lexer::Cursor::setPos( const LexerPos & pos ) {
 	this->pos = pos;
 	
-	p = nullptr;
+	p 	= nullptr;
 	end = nullptr;
 	
 	ax_if_let( sourceFile, pos.file ) {

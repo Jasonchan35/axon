@@ -19,7 +19,7 @@ ax_ImplObject( TypeNode );
 ax_ImplObject( TupleType );
 ax_ImplObject( PrimitiveType );
 
-ax_ImplObject( StructureType );
+ax_ImplObject( StructType );
 ax_ImplObject( Interface );
 ax_ImplObject( Struct );
 ax_ImplObject( Class );
@@ -176,7 +176,7 @@ ax_string TupleTypeTable::getTupleName( const ax_Array< ax_Obj<TypeNode> > & ele
 }
 
 
-StructureType::StructureType( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name )
+StructType::StructType( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name )
 : base( parent, pos, name ) {
 	isNestedType = false;
 }

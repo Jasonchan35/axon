@@ -21,7 +21,7 @@ public:
 	ax_Obj< Namespace > root;
 
 	TupleTypeTable	tupleTable;
-	ax_Array_< ax_Obj<StructureType> >	structList;
+	ax_Array_< ax_Obj<StructType> >	structList;
 	ax_Array_< ax_Obj<Prop> >		propList;
 	
 	ax_Obj< PrimitiveType >			type_int;

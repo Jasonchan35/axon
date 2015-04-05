@@ -12,6 +12,14 @@
 namespace ax {
 namespace Compile {
 
+void LexerPos::reset( ax_Obj< SourceFile > sourceFile ) {
+	valid = true;
+	file = sourceFile;
+	filePos = 0;
+	line = 1;
+	col  = 1;
+}
+
 ax_string LexerPos::getSourceLine () const {
 	ax_TempString str;
 

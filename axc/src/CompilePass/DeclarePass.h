@@ -9,12 +9,13 @@
 #ifndef __axc__DeclarePass__
 #define __axc__DeclarePass__
 
-#include "CompilePass.h"
+#include "../Parser.h"
+#include "MetaNode.h"
 
 namespace ax {
 namespace Compile {
 
-class DeclarePass : public CompilePass {
+class DeclarePass : public Parser {
 public:
 	void	parseFile( ax_Obj< SourceFile > srcFile );
 
@@ -30,15 +31,15 @@ private:
 	
 	void	parse_namespace		();
 	
-	void	parse_StructNode	( DeclarationModifier & modifier );
+	void	parse_StructType		( DeclarationModifier & modifier );
+	void	parse_StructTypeBody	( ax_Obj< StructType > structNode );
 	
-	bool	resolve_StructBaseType	( ax_Obj< StructureType > 	structNode );
+	bool	resolve_StructBaseType	( ax_Obj< StructType > 	structNode );
 	bool	resolve_PropType		( ax_Obj< Prop >		Prop );
 	
-	void	parse_StructBody	( ax_Obj< StructureType > structNode );
 	
-	void	parse_PropNode		( DeclarationModifier & modifier );
-	void	parse_FuncNode		( DeclarationModifier & modifier );	
+	void	parse_Prop				( DeclarationModifier & modifier );
+	void	parse_Func				( DeclarationModifier & modifier );
 };
 
 

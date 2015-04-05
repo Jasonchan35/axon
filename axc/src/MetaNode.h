@@ -133,35 +133,35 @@ private:
 };
 
 
-class StructureType : public TypeNode {
-	ax_DefObject( StructureType, TypeNode )
+class StructType : public TypeNode {
+	ax_DefObject( StructType, TypeNode )
 public:
-	StructureType( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name );
+	StructType( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name );
 
 	ax_Array_< LexerPos >	baseOrInterfacePos;
 
 	LexerPos				bodyPos;
 	
-	ax_NullableObj< StructureType >			baseType;
-	ax_Array_< ax_Obj< StructureType > >	interfaces;
+	ax_NullableObj< StructType >			baseType;
+	ax_Array_< ax_Obj< StructType > >	interfaces;
 	
 	bool			isNestedType;
 };
 
-class Interface : public StructureType {
-	ax_DefObject( Interface, StructureType );
+class Interface : public StructType {
+	ax_DefObject( Interface, StructType );
 public:
 	Interface( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name ) : base( parent, pos, name ) {}
 };
 
-class Struct : public StructureType {
-	ax_DefObject( Struct, StructureType );
+class Struct : public StructType {
+	ax_DefObject( Struct, StructType );
 public:
 	Struct( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name ) : base( parent, pos, name ) {}
 };
 
-class Class : public StructureType {
-	ax_DefObject( Class, StructureType );
+class Class : public StructType {
+	ax_DefObject( Class, StructType );
 public:
 	Class( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name ) : base( parent, pos, name ) {}
 };

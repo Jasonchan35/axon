@@ -7,6 +7,7 @@
 //
 
 #include "GenCppPass.h"
+#include "Compiler.h"
 
 namespace ax {
 namespace Compile {
@@ -14,7 +15,7 @@ namespace Compile {
 bool GenCppPass::hasToGenSourceFile( ax_Obj< MetaNode > node ) {
 	if( node->ax_is< Namespace >() ) return true;
 
-	ax_if_let( type, node->ax_as< StructureType >() ) {
+	ax_if_let( type, node->ax_as< StructType >() ) {
 		if( ! type->buildin && ! type->isNestedType ) {
 			return true;
 		}
@@ -102,14 +103,14 @@ void GenCppPass::genHdr_dispatch( ax_Obj< MetaNode > node ) {
 	ax_if_let( ns, 		node->ax_as<Namespace>() )	{ return genHdr_namespace( ns ); }
 	ax_if_let( fn, 		node->ax_as<Func>() )		{ return genHdr_func( fn ); }
 	ax_if_let( prop,	node->ax_as<Prop>() )		{ return genHdr_prop( prop ); }
-	ax_if_let( cp,		node->ax_as<StructureType>() )		{ return genHdr_struct( cp ); }
+	ax_if_let( cp,		node->ax_as<StructType>() )		{ return genHdr_struct( cp ); }
 }
 
 void GenCppPass::genCpp_dispatch( ax_Obj< MetaNode > node ) {
 	ax_if_let(  ns,		node->ax_as<Namespace>() )	{ return genCpp_namespace( ns ); }
 	ax_if_let(  fn,		node->ax_as<Func>() )		{ return genCpp_func( fn ); }
 	ax_if_let(  prop,	node->ax_as<Prop>() )		{ return genCpp_prop( prop ); }
-	ax_if_let(  cp,		node->ax_as<StructureType>() )		{ return genCpp_struct( cp ); }
+	ax_if_let(  cp,		node->ax_as<StructType>() )		{ return genCpp_struct( cp ); }
 }
 
 void GenCppPass::genHdr_namespace( ax_Obj< Namespace > node ) {
@@ -144,7 +145,7 @@ void GenCppPass::genHdr_prop( ax_Obj< Prop > node ) {
 void GenCppPass::genCpp_prop( ax_Obj< Prop > node ) {
 }
 
-void GenCppPass::genHdr_struct( ax_Obj< StructureType > node ) {
+void GenCppPass::genHdr_struct( ax_Obj< StructType > node ) {
 	ob.newline();
 	ob.newline();
 
@@ -196,7 +197,7 @@ void GenCppPass::genHdr_struct( ax_Obj< StructureType > node ) {
 	
 		ax_if_let( prop, c->ax_as<Prop>() ) { genHdr_prop(prop); continue; }
 		ax_if_let( fn,	 c->ax_as<Func>() ) { genHdr_func(fn); 	 continue; }
-		ax_if_let( nestedType, c->ax_as<StructureType>() ) { genHdr_struct(nestedType); continue; }
+		ax_if_let( nestedType, c->ax_as<StructType>() ) { genHdr_struct(nestedType); continue; }
 	}
 	
 	ob.closeBlock();
@@ -204,7 +205,7 @@ void GenCppPass::genHdr_struct( ax_Obj< StructureType > node ) {
 	ob.newline();
 }
 
-void GenCppPass::genCpp_struct( ax_Obj< StructureType > node ) {
+void GenCppPass::genCpp_struct( ax_Obj< StructType > node ) {
 }
 
 void GenCppPass::saveFile( ax_Obj< MetaNode > node, const ax_string & filename_suffix ) {

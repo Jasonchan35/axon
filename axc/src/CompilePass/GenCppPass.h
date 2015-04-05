@@ -10,12 +10,13 @@
 #define __axc__GenCppPass__
 
 
-#include "CompilePass.h"
+#include "../Parser.h"
+#include "../MetaNode.h"
 
 namespace ax {
 namespace Compile {
 
-class GenCppPass : public CompilePass, public IExprDispatcher {
+class GenCppPass : public Parser, public IExprDispatcher {
 public:
 	GenCppPass() : ob( *this ) {}
 
@@ -36,8 +37,8 @@ private:
 	void	genHdr_namespace	( ax_Obj< Namespace > node );
 	void	genCpp_namespace	( ax_Obj< Namespace > node );
 
-	void	genHdr_struct		( ax_Obj< StructureType > node );
-	void	genCpp_struct		( ax_Obj< StructureType > node );
+	void	genHdr_struct		( ax_Obj< StructType > node );
+	void	genCpp_struct		( ax_Obj< StructType > node );
 
 	void	genHdr_prop			( ax_Obj< Prop >	node );
 	void	genCpp_prop			( ax_Obj< Prop >	node );
@@ -101,7 +102,7 @@ private:
 
 		OutBuf & operator<< ( ax_Obj< Prop > 			node ) { return *this << node->as_MetaNode(); }
 		OutBuf & operator<< ( ax_Obj< TypeNode >	 	node ) { return *this << node->as_MetaNode(); }
-		OutBuf & operator<< ( ax_Obj< StructureType > 	node ) { return *this << node->as_MetaNode(); }
+		OutBuf & operator<< ( ax_Obj< StructType > 	node ) { return *this << node->as_MetaNode(); }
 		OutBuf & operator<< ( ax_Obj< Class > 			node ) { return *this << node->as_MetaNode(); }
 		OutBuf & operator<< ( ax_Obj< Struct > 			node ) { return *this << node->as_MetaNode(); }
 		OutBuf & operator<< ( ax_Obj< Interface >		node ) { return *this << node->as_MetaNode(); }
@@ -127,7 +128,7 @@ private:
 
 		bool			inFor; //not include body
 		
-		ax_NullableObj< StructureType >		inStruct;
+		ax_NullableObj< StructType >		inStruct;
 //		ax_ax_NullableObjObj< BlockNode >	inBlock;
 		ax_NullableObj< Namespace >		inNamespace;
 	

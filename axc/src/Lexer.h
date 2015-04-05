@@ -20,28 +20,20 @@ namespace Compile {
 
 class Lexer {
 public:
-	Lexer	( Token & token, LexerPos & pos ) : token( token ), c(pos) {}
+	Lexer( LexerPos & pos ) : c(pos) {}
 
-	void	reset 	( ax_Obj< SourceFile > sourceFile );
 	void	setPos	( const LexerPos & pos );
 
-	bool	getToken	( Token & token );
-	void	_getToken	( Token & token );
-	void	_getToken_number	( Token & token, bool dot );
+	bool	getToken		( Token & token );
+	void	_getToken		( Token & token );
+	void	_getToken_number( Token & token, bool dot );
 	
 	void	_setToken( Token & token, TokenType type, const ax_string & str );
 	
-	void	nextToken	();
-
-	Token &	token;
-	
-	
 	class	Cursor {
 	public:
-		Cursor( LexerPos & pos );
+		Cursor( LexerPos & pos_ );
 		
-		void reset( ax_Obj< SourceFile > sourceFile );
-
 		void setPos( const LexerPos & pos );
 		
 		void operator++		(int) 	{ next(); }
@@ -58,7 +50,7 @@ public:
 		bool	isDigit();
 		bool	isHex();
 		
-		LexerPos &	pos;
+		LexerPos & pos;
 		
 	private:
 		const ax_char*	p;

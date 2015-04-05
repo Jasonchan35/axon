@@ -29,6 +29,9 @@ public:
 		blockLevel = 0;
 	}
 	
+	void reset( ax_Obj< SourceFile > sourceFile );
+	
+	
 	ax_string	dumpSourceLine	() const;
 	ax_string	getSourceLine	() const;
 
