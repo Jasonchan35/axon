@@ -21,8 +21,13 @@ public:
 	ax_Obj< Namespace > root;
 
 	TupleTypeTable	tupleTable;
-	ax_Array_< ax_Obj<StructType> >	structList;
-	ax_Array_< ax_Obj<Prop> >		propList;
+	ax_Array_< ax_Obj<StructType> >		structList;
+	ax_Array_< ax_Obj<Prop> >			propList;
+	ax_Array_< ax_Obj<FuncOverload> >	funcOverloadList;
+
+	ax_Obj< PrimitiveType >			type_void;
+	ax_Obj< PrimitiveType >			type_bool;
+	ax_Obj< PrimitiveType >			type_string;
 	
 	ax_Obj< PrimitiveType >			type_int;
 	ax_Obj< PrimitiveType >			type_int8;
@@ -39,10 +44,7 @@ public:
 	ax_Obj< PrimitiveType >			type_float;
 	ax_Obj< PrimitiveType >			type_double;
 
-	ax_Obj< PrimitiveType >			type_string;
-	ax_Obj< PrimitiveType >			type_bool;
-
-	ax_Obj< Class >				type_object;
+	ax_Obj< Class >					type_object;
 	
 	ax_Array_< ax_Obj< PrimitiveType > >	type_all_number;
 	ax_Array_< ax_Obj< PrimitiveType > >	type_all_int;
@@ -61,6 +63,7 @@ private:
 	void _OnStringReq_Node( ax_ToStringReq & req, ax_Obj< MetaNode > node ) const;
 };
 
+extern Metadata*	g_metadata;
 
 }} //namespace
 

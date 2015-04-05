@@ -11,8 +11,16 @@
 namespace ax {
 namespace Compile {
 
+Metadata* g_metadata;
+
 Metadata::Metadata() {
+	g_metadata = this;
+
 	root = ax_new_obj( Namespace, ax_NullableObj< MetaNode >(nullptr), LexerPos(), ax_txt("ax_build") );
+
+	type_void		= ax_new_obj(  PrimitiveType, root, ax_txt("void" ) );
+	type_bool		= ax_new_obj(  PrimitiveType, root, ax_txt("bool" ) );
+	type_string		= ax_new_obj(  PrimitiveType, root, ax_txt("string" ) );
 
 	type_object		= ax_new_obj(  Class, root, LexerPos(), ax_txt("Object" ) );
 	type_object->buildin = true;
@@ -32,9 +40,6 @@ Metadata::Metadata() {
 
 	type_float		= ax_new_obj(  PrimitiveType, root, ax_txt("float" ) );
 	type_double		= ax_new_obj(  PrimitiveType, root, ax_txt("double" ) );
-
-	type_string		= ax_new_obj(  PrimitiveType, root, ax_txt("string" ) );
-	type_bool		= ax_new_obj(  PrimitiveType, root, ax_txt("bool" ) );
 	
 	type_all_int.add( type_int );
 	type_all_int.add( type_int8 );

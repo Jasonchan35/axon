@@ -241,7 +241,7 @@ ax_NullableObj< TypeNode > Parser::parseType () {
 		}
 		nextToken();
 		
-		return g_compiler->metadata.tupleTable.getOrAddTuple( token.pos, elements );
+		return g_metadata->tupleTable.getOrAddTuple( token.pos, elements );
 	}
 
 	ax_if_not_let( o, parseNode() ) {

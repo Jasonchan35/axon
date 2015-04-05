@@ -240,23 +240,23 @@ NumberLiteralAST::NumberLiteralAST( const LexerPos &_pos, const ax_string & _src
 	}
 	
 	switch( numberType ) {
-		case t_int:		base::returnType = RType( g_compiler->metadata.type_int		); break;
-		case t_uint:	base::returnType = RType( g_compiler->metadata.type_uint	); break;
+		case t_int:		base::returnType = RType( g_metadata->type_int		); break;
+		case t_uint:	base::returnType = RType( g_metadata->type_uint	); break;
 
-		case t_int32:	base::returnType = RType( g_compiler->metadata.type_int32	); break;
-		case t_uint32:	base::returnType = RType( g_compiler->metadata.type_uint32	); break;
+		case t_int32:	base::returnType = RType( g_metadata->type_int32	); break;
+		case t_uint32:	base::returnType = RType( g_metadata->type_uint32	); break;
 
-		case t_int64:	base::returnType = RType( g_compiler->metadata.type_int64	); break;
-		case t_uint64:	base::returnType = RType( g_compiler->metadata.type_uint64	); break;
+		case t_int64:	base::returnType = RType( g_metadata->type_int64	); break;
+		case t_uint64:	base::returnType = RType( g_metadata->type_uint64	); break;
 
-		case t_float:	base::returnType = RType( g_compiler->metadata.type_float	); break;
-		case t_double:	base::returnType = RType( g_compiler->metadata.type_double	); break;
+		case t_float:	base::returnType = RType( g_metadata->type_float	); break;
+		case t_double:	base::returnType = RType( g_metadata->type_double	); break;
 		default: Log::Error(_pos, ax_txt("unknown number type") );
 	}
 }
 
 StringLiteralAST::StringLiteralAST( const LexerPos &pos_, const ax_string & value_ )
-: base(pos_, RType( g_compiler->metadata.type_string ) )
+: base(pos_, RType( g_metadata->type_string ) )
 , value(value_) {
 }
 

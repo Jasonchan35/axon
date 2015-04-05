@@ -166,9 +166,6 @@ public:
 	Class( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name ) : base( parent, pos, name ) {}
 };
 
-
-
-
 class Prop : public TypeNode {
 	ax_DefObject( Prop, TypeNode );
 public:
@@ -194,6 +191,8 @@ struct FuncParam {
 
 	LexerPos	pos;
 	ax_string	name;
+	
+	ax_NullableObj< ExprAST >	initExpr;
 	
 	LexerPos	rtypePos;
 	RType		rtype;

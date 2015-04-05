@@ -8,6 +8,7 @@
 
 #include "MetaNode.h"
 #include "Lexer.h"
+#include "Compiler.h"
 
 namespace ax {
 namespace Compile {
@@ -178,12 +179,15 @@ ax_string TupleTypeTable::getTupleName( const ax_Array< ax_Obj<TypeNode> > & ele
 
 StructType::StructType( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name )
 : base( parent, pos, name ) {
-	isNestedType = false;
+	isNestedType = false;				
+	g_metadata->structList.add( ax_ThisObj );
+
 }
 
 Prop::Prop( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name, bool is_let )
 : base( parent, pos, name )
 , is_let( is_let ) {
+	g_metadata->propList.add( ax_ThisObj );
 }
 
 Func::Func( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name )
@@ -239,6 +243,7 @@ void FuncOverload::OnStringReq( ax_ToStringReq & req ) const {
 FuncOverload::FuncOverload( ax_Obj< Func > fn, const LexerPos & pos )
 : base( nullptr, pos, fn->name ) {
 	func = fn;
+	g_metadata->funcOverloadList.add( ax_ThisObj );
 }
 
 

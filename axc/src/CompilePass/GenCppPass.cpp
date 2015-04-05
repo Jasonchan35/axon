@@ -31,8 +31,8 @@ void GenCppPass::genCode( const ax_string & outFolder ) {
 	System::IO::Directory::RemoveIfExists( outFolder, true );
 	System::IO::Directory::Create( outFolder );
 
-	genHdr( g_compiler->metadata.root );
-	genCpp( g_compiler->metadata.root );
+	genHdr( g_metadata->root );
+	genCpp( g_metadata->root );
 }
 
 void GenCppPass::genHdr( ax_Obj< MetaNode > node ) {
@@ -120,10 +120,32 @@ void GenCppPass::genCpp_namespace( ax_Obj< Namespace > node ) {
 }
 
 void GenCppPass::genHdr_func( ax_Obj< Func > node ) {
+	ax_foreach( &fo, node->overloads ) {
+		genHdr_funcOverload( fo );
+	}
+}
+
+
+void GenCppPass::genHdr_funcOverload( ax_Obj< FuncOverload > fo ) {
 	ob.newline();
-//	ob << ax_Obj< MetaNode >( node->type );
-	ob << ax_txt("func ");
-	ob << ax_txt("\t") << node->name << ax_txt("();");
+	
+	ob << fo->returnType;
+	ob << ax_txt(" ") << fo->name << ax_txt("(");
+	
+	if( fo->params.size() > 0 ) {
+		ob << ax_txt(" ");
+		
+		ax_int c = 0;
+		ax_foreach( &p, fo->params ) {
+			if( c > 0 ) ob << ax_txt(", ");
+			ob << p.rtype << ax_txt(" ") << p.name;
+			c++;
+		}
+		
+		ob << ax_txt(" ");
+	}
+	
+	ob << ax_txt(");");
 }
 
 void GenCppPass::genCpp_func( ax_Obj< Func > node ) {

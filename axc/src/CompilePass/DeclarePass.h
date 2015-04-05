@@ -21,12 +21,14 @@ public:
 	void	run2ndPass				();
 
 private:
-	void	parsePropPass			();
 	void	resolveStructTypePass	();
+	
+	void	parsePropPass			();
+	void	resolvePropPass			();
+	
+	void	resolveFuncParamPass	();
 
-	void	resolvePropTypePass		();
-
-	bool	propPass;
+	bool	inPropPass;
 
 	void	parseNamespace			();
 	void	parseNamespaceBody		();
@@ -35,11 +37,12 @@ private:
 	void	parseStructTypeBody		( ax_Obj< StructType >	node );
 	
 	bool	resolveStructType		( ax_Obj< StructType > 	node );
-	bool	resolvePropType			( ax_Obj< Prop >		Prop );
+	bool	resolveProp				( ax_Obj< Prop >		Prop );
 		
 	void	parseProp				( DeclarationModifier & modifier );
 	void	parseFunc				( DeclarationModifier & modifier );
-	void	parseFuncParam			();
+	
+	void	resolveFuncParam		( ax_Obj< FuncOverload > fo );
 };
 
 

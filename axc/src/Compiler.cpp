@@ -62,9 +62,7 @@ void Compiler::compile( const ax_string & project_root ) {
 	
 	loadAllSourceFiles();
 	declarePass();
-	
-	ax_dump( metadata );
-	
+		
 	genCppPass();
 
 	ax_log( ax_txt("=== compile done ! ===") );

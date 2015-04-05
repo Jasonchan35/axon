@@ -13,13 +13,13 @@ namespace ax {
 namespace Compile {
 
 void DeclarePass::parseFile( ax_Obj< SourceFile > sourceFile ) {
-	propPass = false;
+	inPropPass = false;
 	
 	ax_log( ax_txt("compiling... [{?}]"), sourceFile->filename );
 
 	LexerPos pos;
 	pos.reset( sourceFile );
-	pos.inNode = g_compiler->metadata.root;
+	pos.inNode = g_metadata->root;
 	
 	setPos( pos );
 	nextToken();
@@ -28,20 +28,94 @@ void DeclarePass::parseFile( ax_Obj< SourceFile > sourceFile ) {
 
 void DeclarePass::run2ndPass() {
 	resolveStructTypePass();
+	
 	parsePropPass();
+	resolvePropPass();
+	
+	resolveFuncParamPass();
 }
 
 void DeclarePass::parsePropPass	() {
-	propPass = true;
+	inPropPass = true;
 
-	ax_foreach( &s, g_compiler->metadata.structList ) {
+	ax_foreach( &s, g_metadata->structList ) {
+		if( s->buildin ) continue;
 		parseStructTypeBody( s );
 	}
 	
-	resolvePropTypePass();
+	inPropPass = false;
 }
 
-void DeclarePass::resolvePropTypePass() {
+void DeclarePass::resolveFuncParamPass () {
+	ax_foreach( &fo, g_metadata->funcOverloadList ) {
+		if( fo->buildin ) continue;
+		resolveFuncParam( fo );
+	}
+}
+
+void DeclarePass::resolveFuncParam( ax_Obj< FuncOverload > fo ) {
+	ax_log( ax_txt("resolveFuncParam {?}"), fo->name );
+	
+	setPos( fo->paramPos );
+	
+	for(;;) {
+		if( token.is_roundBracketClose() ) {
+			nextToken();
+			break;
+		}
+
+		if( ! token.is_identifier() ) {
+			Log::Error( token, ax_txt("parameter name expected") );
+		}
+	
+		auto & param = fo->params.addNew();
+		param.pos	= token.pos;
+		param.name	= token.str;
+
+		ax_dump( param.name );
+
+		nextToken();
+		
+		if( token.is_identifier() ) {
+			ax_if_not_let( paramType, parseType() ) {
+				Log::Error( token, ax_txt("parameter type expected") );
+			}
+			param.rtype = RType( paramType );
+
+			ax_dump( paramType );
+		}
+		
+		if( token.is_assign() ) {
+			nextToken();
+			ax_if_not_let( expr, parseExpression() ) {
+				Log::Error( token, ax_txt("error expression") );
+			}
+			param.initExpr = expr;
+			param.rtype = expr->returnType;
+		}
+		
+		if( token.is_comma() ) {
+			nextToken();
+			continue;
+		}
+		
+		if( ! token.is_roundBracketClose() ) {
+			Log::Error( token, ax_txt("unexpected tokenr") );
+		}
+	}
+	
+	if( token.is_identifier() ) {
+		fo->returnType = parseType();
+	}else{
+		fo->returnType = RType( g_metadata->type_void );
+	}
+	
+	if( ! token.is_curlyBracketOpen() ) {
+		Log::Error( token, ax_txt("function body { expected") );
+	}
+}
+
+void DeclarePass::resolvePropPass() {
 	ax_Array_< ax_Obj< Prop > >	list[2];
 	list[0].reserve( 64 * 1024 );
 	list[1].reserve( 64 * 1024 );
@@ -49,7 +123,7 @@ void DeclarePass::resolvePropTypePass() {
 	auto procList = & list[0];
 	auto waitList = & list[1];
 
-	waitList->add( g_compiler->metadata.propList );
+	waitList->add( g_metadata->propList );
 	
 	for(;;) {
 		ax_swap( procList, waitList );
@@ -59,7 +133,7 @@ void DeclarePass::resolvePropTypePass() {
 		ax_int	ok_count = 0;
 		
 		ax_foreach( &s, *procList ) {
-			if( resolvePropType( s ) ) {
+			if( resolveProp( s ) ) {
 				ok_count++;
 			}else{
 				waitList->add( s );
@@ -82,7 +156,7 @@ void DeclarePass::resolveStructTypePass() {
 	auto procList = & list[0];
 	auto waitList = & list[1];
 
-	waitList->add( g_compiler->metadata.structList );
+	waitList->add( g_metadata->structList );
 	
 	for(;;) {
 		ax_swap( procList, waitList );
@@ -108,7 +182,7 @@ void DeclarePass::resolveStructTypePass() {
 }
 
 
-bool DeclarePass::resolvePropType( ax_Obj< Prop >	node ) {
+bool DeclarePass::resolveProp( ax_Obj< Prop >	node ) {
 	ax_log( ax_txt("resolve_PropType {?}"), node->name );
 
 	if( node->type.is_null() ) {
@@ -173,7 +247,7 @@ bool DeclarePass::resolveStructType( ax_Obj< StructType > node ) {
 	}
 	
 	if( node->baseType.is_null() && node->ax_is< Class >() ) {
-		node->baseType = g_compiler->metadata.type_object;
+		node->baseType = g_metadata->type_object;
 	}
 	return true;
 }
@@ -260,7 +334,7 @@ void DeclarePass::parseStructType( DeclarationModifier & modifier ) {
 		Log::Error( token, ax_txt("class / struct / interface expected") );
 	}
 	
-	if( propPass ) {
+	if( inPropPass ) {
 		skipUntil( TokenType::t_curlyBracketOpen );
 		nextToken();
 		skipCurlyBracket();
@@ -292,10 +366,7 @@ void DeclarePass::parseStructType( DeclarationModifier & modifier ) {
 	}else{
 		Log::Error( token, ax_txt("cannot delcare sturcture type here") );
 	}
-	
-			
-	g_compiler->metadata.structList.add( new_node );
-	
+		
 	nextToken();
 	
 	new_node->modifier = modifier;
@@ -360,7 +431,7 @@ void DeclarePass::parseStructTypeBody( ax_Obj< StructType > node ) {
 void DeclarePass::parseFunc( DeclarationModifier & modifier ) {
 	if( ! token.is_fn() ) Log::Error( token, ax_txt("fn expected") );
 
-	if( propPass ) {
+	if( inPropPass ) {
 		skipUntil( TokenType::t_curlyBracketOpen );
 		nextToken();
 		skipCurlyBracket();
@@ -409,6 +480,8 @@ void DeclarePass::parseFunc( DeclarationModifier & modifier ) {
 		nextToken();
 		skipCurlyBracket();
 	}
+	
+	fn->addOverload( fo );
 }
 
 void DeclarePass::parseProp( DeclarationModifier & modifier ) {
@@ -416,7 +489,7 @@ void DeclarePass::parseProp( DeclarationModifier & modifier ) {
 		Log::Error( token, ax_txt("let / var expected") );
 	}
 	
-	if( ! propPass ) {
+	if( ! inPropPass ) {
 		skipUntilEndOfLine();
 		nextToken();
 		return;
@@ -438,7 +511,6 @@ void DeclarePass::parseProp( DeclarationModifier & modifier ) {
 		if( ! token.is_identifier() ) Log::Error( token, ax_txt("var name expected") );
 		
 		auto new_node = ax_new_obj( Prop, inNode, token.pos, token.str, is_let );
-		g_compiler->metadata.propList.add( new_node );
 		nextToken();
 				
 		new_node->modifier = modifier;
