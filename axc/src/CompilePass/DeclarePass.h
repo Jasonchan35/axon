@@ -27,9 +27,8 @@ private:
 
 	bool	propPass;
 
-	void	parse_NamespaceBody();
-	
-	void	parse_namespace		();
+	void	parse_Namespace		();
+	void	parse_NamespaceBody();	
 	
 	void	parse_StructType		( DeclarationModifier & modifier );
 	void	parse_StructTypeBody	( ax_Obj< StructType > structNode );

@@ -109,7 +109,7 @@ bool DeclarePass::resolve_PropType( ax_Obj< Prop >	node ) {
 	if( node->type.is_null() ) {
 		if( node->typePos.valid ) {
 			setPos( node->typePos );
-			node->type = parseTypename();
+			node->type = parseType();
 		}
 	}
 	
@@ -148,7 +148,7 @@ bool DeclarePass::resolve_StructBaseType( ax_Obj< StructType > node ) {
 		auto pos = node->baseOrInterfacePos[i];
 		setPos( pos );
 		
-		ax_if_not_let( t, parseTypename() ) {
+		ax_if_not_let( t, parseType() ) {
 			return false;
 		}
 		
@@ -193,7 +193,7 @@ void DeclarePass::parse_NamespaceBody() {
 	//-----
 	
 //		if( token.is_typealias() ) { parseTypealias	(); continue; }
-		if( token.is_namespace() ) { parse_namespace();	continue; }
+		if( token.is_namespace() ) { parse_Namespace();	continue; }
 	
 		if( token.is_curlyBracketClose() ) {
 			nextToken();
@@ -204,7 +204,7 @@ void DeclarePass::parse_NamespaceBody() {
 	}
 }
 
-void DeclarePass::parse_namespace() {
+void DeclarePass::parse_Namespace() {
 	assert( token.is_namespace() );
 	nextToken();
 

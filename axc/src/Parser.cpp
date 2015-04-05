@@ -218,14 +218,14 @@ ax_NullableObj< MetaNode >	Parser::parseNode	() {
 	return nullptr;
 }
 
-ax_NullableObj< TypeNode > Parser::parseTypename	() {
+ax_NullableObj< TypeNode > Parser::parseType () {
 	if( token.is_roundBracketOpen() ) {	//tuple
 		nextToken();
 		
 		ax_Array_< ax_Obj<TypeNode>, 16 >	elements;
 		
 		for(;;) {
-			ax_if_not_let( e, parseTypename() ) {
+			ax_if_not_let( e, parseType() ) {
 				break;
 			}
 			elements.add(e);
