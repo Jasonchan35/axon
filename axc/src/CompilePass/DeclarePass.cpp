@@ -22,7 +22,6 @@ void DeclarePass::parseFile( ax_Obj< SourceFile > sourceFile ) {
 	pos.inNode = g_metadata->root;
 	
 	setPos( pos );
-	nextToken();
 	parseNamespaceBody();
 }
 

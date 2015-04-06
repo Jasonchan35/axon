@@ -11,16 +11,20 @@
 using namespace ax;
 
 int main() {
-	
-	auto filename = ax_txt(__FILE__);
 
+	ax::Compile::Compiler	c;
+
+#if 1
+	auto filename = ax_txt(__FILE__);
 	auto changeDir = System::IO::Path::GetDirectoryName( filename );
 	ax_dump( changeDir );
 	
 	System::IO::Directory::SetCurrent( changeDir );
 
-	ax::Compile::Compiler	c;
 	c.compile( ax_txt("../../example/test001") );
+#else
+	c.compile( ax_txt("./") );
+#endif
 
 	return 0;
 }

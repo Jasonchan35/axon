@@ -442,7 +442,9 @@ void Lexer::Cursor::setPos( const LexerPos & pos ) {
 	
 	ax_if_let( sourceFile, pos.file ) {
 		auto & source = sourceFile->source;
-		if( pos.filePos >= source.size() ) return Log::Error( nullptr, &pos, ax_txt("Error setCursor file position out of range") );
+		if( pos.filePos >= source.size() ) {
+			return Log::Error( nullptr, &pos, ax_txt("Error setCursor file position out of range") );
+		}
 		p 	= source.c_str() + pos.filePos;
 		end = source.c_str() + sourceFile->source.size();
 	}
