@@ -21,27 +21,27 @@ Metadata::Metadata() {
 
 	type_object		= ax_new_obj(  Class, root, LexerPos(), ax_txt("Object" ) );
 	type_object->buildin = true;
-	type_object->setCppName( ax_txt("ax_Object") );
+	type_object->setCppName( ax_txt("ax_Object"), true );
 	
-	type_void		= ax_new_obj(  PrimitiveType, root, ax_txt("void" ) );
-	type_bool		= ax_new_obj(  PrimitiveType, root, ax_txt("bool" ) );
-	type_string		= ax_new_obj(  PrimitiveType, root, ax_txt("string" ) );	type_string->setCppName	( ax_txt("ax_string") );
+	type_void		= ax_new_obj(  PrimitiveType, root, ax_txt("void"	) );	type_void->setCppName	( ax_txt("void"		), true );
+	type_bool		= ax_new_obj(  PrimitiveType, root, ax_txt("bool"	) );	type_bool->setCppName	( ax_txt("bool"		), true );
+	type_string		= ax_new_obj(  PrimitiveType, root, ax_txt("string" ) );	type_string->setCppName	( ax_txt("ax_string"), true );
 
-	type_int8		= ax_new_obj(  PrimitiveType, root, ax_txt("int8"	) );	type_int8->setCppName  	( ax_txt("ax_int8"	) );
-	type_int16		= ax_new_obj(  PrimitiveType, root, ax_txt("int16"	) );	type_int16->setCppName 	( ax_txt("ax_int16"	) );
-	type_int32		= ax_new_obj(  PrimitiveType, root, ax_txt("int32"	) );	type_int32->setCppName 	( ax_txt("ax_int32"	) );
-	type_int64		= ax_new_obj(  PrimitiveType, root, ax_txt("int64"	) );	type_int64->setCppName 	( ax_txt("ax_int64"	) );
+	type_int8		= ax_new_obj(  PrimitiveType, root, ax_txt("int8"	) );	type_int8->setCppName  	( ax_txt("ax_int8"	), true );
+	type_int16		= ax_new_obj(  PrimitiveType, root, ax_txt("int16"	) );	type_int16->setCppName 	( ax_txt("ax_int16"	), true );
+	type_int32		= ax_new_obj(  PrimitiveType, root, ax_txt("int32"	) );	type_int32->setCppName 	( ax_txt("ax_int32"	), true );
+	type_int64		= ax_new_obj(  PrimitiveType, root, ax_txt("int64"	) );	type_int64->setCppName 	( ax_txt("ax_int64"	), true );
 
-	type_uint8		= ax_new_obj(  PrimitiveType, root, ax_txt("uint8"	) );	type_uint8->setCppName 	( ax_txt("ax_uint8"	) );
-	type_uint16		= ax_new_obj(  PrimitiveType, root, ax_txt("uint16" ) );	type_uint16->setCppName	( ax_txt("ax_uint16") );
-	type_uint32		= ax_new_obj(  PrimitiveType, root, ax_txt("uint32" ) );	type_uint32->setCppName	( ax_txt("ax_uint32") );
-	type_uint64		= ax_new_obj(  PrimitiveType, root, ax_txt("uint64" ) );	type_uint64->setCppName	( ax_txt("ax_uint64") );
+	type_uint8		= ax_new_obj(  PrimitiveType, root, ax_txt("uint8"	) );	type_uint8->setCppName 	( ax_txt("ax_uint8"	), true );
+	type_uint16		= ax_new_obj(  PrimitiveType, root, ax_txt("uint16" ) );	type_uint16->setCppName	( ax_txt("ax_uint16"), true );
+	type_uint32		= ax_new_obj(  PrimitiveType, root, ax_txt("uint32" ) );	type_uint32->setCppName	( ax_txt("ax_uint32"), true );
+	type_uint64		= ax_new_obj(  PrimitiveType, root, ax_txt("uint64" ) );	type_uint64->setCppName	( ax_txt("ax_uint64"), true );
 	
-	type_int		= ax_new_obj(  PrimitiveType, root, ax_txt("int"	) );	type_int->setCppName 	( ax_txt("ax_int"	) );
-	type_uint		= ax_new_obj(  PrimitiveType, root, ax_txt("uint"	) );	type_uint->setCppName	( ax_txt("ax_uint"	) );
+	type_int		= ax_new_obj(  PrimitiveType, root, ax_txt("int"	) );	type_int->setCppName 	( ax_txt("ax_int"	), true );
+	type_uint		= ax_new_obj(  PrimitiveType, root, ax_txt("uint"	) );	type_uint->setCppName	( ax_txt("ax_uint"	), true );
 
-	type_float		= ax_new_obj(  PrimitiveType, root, ax_txt("float"	) );
-	type_double		= ax_new_obj(  PrimitiveType, root, ax_txt("double" ) );
+	type_float		= ax_new_obj(  PrimitiveType, root, ax_txt("float"	) );	type_float->setCppName	( ax_txt("float"	), true );
+	type_double		= ax_new_obj(  PrimitiveType, root, ax_txt("double" ) );	type_double->setCppName	( ax_txt("double"	), true );
 	
 	type_all_int.add( type_int );
 	type_all_int.add( type_int8 );

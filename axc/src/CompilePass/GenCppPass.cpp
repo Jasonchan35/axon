@@ -88,9 +88,9 @@ void GenCppPass::genMakefile() {
 	ob << ax_txt(	"#------\n\n");
 
 	ob << ax_txt(	"OBJECTS=$(SOURCES:.cpp=.cpp.o)	\n"
-					"CC=/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang	\n"
+					"CC=/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang++	\n"
 					"CFLAGS=-c -Wall -I../../../ax_core/include	-std=gnu++11 -stdlib=libc++ -fno-rtti\n"
-					"LDFLAGS=-L../../../ax_core/lib/MacOSX/Debug -lax_core -stdlib=libc++ \n"
+					"LDFLAGS=-L../../../ax_core/lib/MacOSX/Debug -L../../../ax_core/lib/MacOSX -ObjC -lax_core -lgc -stdlib=libc++ -framework Foundation \n"
 					"EXECUTABLE=hello_axc\n"
 					"\n"
 					"all: $(EXECUTABLE)	\n"
@@ -151,10 +151,15 @@ void GenCppPass::genHdr( ax_Obj< MetaNode > node ) {
 			ob << ax_txt("#include \"") << node->cppName() << ax_txt("/") << c->cppName() << ax_txt( ".h\"\n" );
 		}
 
-		ob.beginNamespace( node );
+		ax_if_let( inNamespace, node->getUpperByType<Namespace>() ) {
+			ob.inCppNode = inNamespace;
+		}
+
+		ob.beginNamespace( inNamespace );
+			ob.newline();		
 			genHdr_dispatch( node );
 			ob.newline();
-		ob.endNamespace( node );
+		ob.endNamespace( inNamespace );
 
 		ob << ax_txt("\n\n#endif // ") << define_name << ax_txt("\n");
 		
@@ -170,19 +175,27 @@ void GenCppPass::genCpp		( ax_Obj< MetaNode > node ) {
 
 	bool writeFile = hasToGenSourceFile( node );
 	if( writeFile ) {
+	
 		ax_if_let( ns, node->ax_as< Namespace >() ) {
+		/*
 			ax_foreach( & c, *ns->children ) {
 				if( ! hasToGenSourceFile( c ) ) continue;
 				ob << ax_txt("#include \"") << node->cppName() << ax_txt("/") << c->cppName() << ax_txt(".cpp\"\n");
 			}
+		*/	
 		}else{
 			ob << ax_txt("#include \"") << node->cppName() << ax_txt( ".h\"\n" );
 		}
+
+		ax_if_let( inNamespace, node->getUpperByType<Namespace>() ) {
+			ob.inCppNode = inNamespace;
+		}
 				
-		ob.beginNamespace( node );
+		ob.beginNamespace( inNamespace );
+			ob.newline();
 			genCpp_dispatch( node );
 			ob.newline();
-		ob.endNamespace( node );
+		ob.endNamespace( inNamespace );
 		
 		saveFile( node, ax_txt(".cpp") );
 	}
@@ -250,7 +263,7 @@ void GenCppPass::genCpp_funcOverload( ax_Obj< FuncOverload > fo ) {
 	ob.newline();
 	
 	ob << fo->returnType;
-	ob << ax_txt(" ") << fo->cppName() << ax_txt("(");
+	ob << ax_txt(" ") << fo->func << ax_txt("(");
 	
 	if( fo->params.size() > 0 ) {
 		ob << ax_txt(" ");
@@ -288,8 +301,6 @@ void GenCppPass::genHdr_struct( ax_Obj< StructType > node ) {
 	ob.newline();
 	ob.newline();
 
-	auto scope_struct = ax_scope_value( ob.inStruct, node );
-	
 //	if( node->templateParams.size() ) {
 //		outputTemplateParams( node, true );
 //	}
@@ -320,6 +331,8 @@ void GenCppPass::genHdr_struct( ax_Obj< StructType > node ) {
 		ob << ( c == 0 ? ax_txt(" : ") : ax_txt(", ") ) << ax_txt("public ") << p;
 	}
 	
+	auto scope_struct = ax_scope_value( ob.inCppNode, node );
+	
 	ob << ax_txt(" ");
 	ob.openBlock();
 	
@@ -329,9 +342,9 @@ void GenCppPass::genHdr_struct( ax_Obj< StructType > node ) {
 	}
 	
 	ax_foreach( & c, *node->children ) {
-		ax_if_let( prop, c->ax_as<Prop>() ) { genHdr_prop(prop); continue; }
-		ax_if_let( fn,	 c->ax_as<Func>() ) { genHdr_func(fn); 	 continue; }
-		ax_if_let( nestedType, c->ax_as<StructType>() ) { genHdr_struct(nestedType); continue; }
+		ax_if_let( prop, 		c->ax_as<Prop>() 		) { genHdr_prop(prop); continue; }
+		ax_if_let( fn,		 	c->ax_as<Func>() 		) { genHdr_func(fn); 	 continue; }
+		ax_if_let( nestedType, 	c->ax_as<StructType>() 	) { genHdr_struct(nestedType); continue; }
 	}
 	
 	ob.newline(-1) << ax_txt("private:");
@@ -374,18 +387,6 @@ void GenCppPass::saveFile( ax_Obj< MetaNode > node, const ax_string & filename_s
 	ob.reset();
 }
 
-GenCppPass::OutBuf & GenCppPass::OutBuf::operator<< ( ax_Obj< MetaNode > node ) {
-	return nodeName(node);
-}
-
-GenCppPass::OutBuf & GenCppPass::OutBuf::operator<< ( ax_NullableObj< MetaNode > node ) {
-	ax_if_let( node_, node ) {
-		return nodeName( node_ );
-	}else{
-		return *this;
-	}
-}
-
 GenCppPass::OutBuf & GenCppPass::OutBuf::operator<< ( const TokenType 	& t  ) {
 	*this << ax_to_string(t);
 	return *this;
@@ -393,7 +394,7 @@ GenCppPass::OutBuf & GenCppPass::OutBuf::operator<< ( const TokenType 	& t  ) {
 
 GenCppPass::OutBuf & GenCppPass::OutBuf::operator<< ( const RType 		& t  ) {
 	ax_if_let( type, t.type ) {
-		*this << ax_Obj< MetaNode >( type );
+		*this << type;
 	}else{
 		*this << ax_txt("NULL");
 	}
@@ -414,43 +415,21 @@ GenCppPass::OutBuf & GenCppPass::OutBuf::operator<< ( ax_NullableObj< ExprAST > 
 
 
 GenCppPass::OutBuf& GenCppPass::OutBuf::nodeName ( ax_Obj< MetaNode > node, bool fullname ) {
-/*
-	if( ! node ) Log::Error( node->pos, "node=null" );
 
-	auto typealias = node->ax_as< Typealias >();
-	if( typealias ) return nodeName( typealias->alias, fullname );
+//	if( ! node ) Log::Error( node->pos, "node=null" );
 
-	if( node != inClass ) {
-		auto p = node->parent;
-		if( p ) {
-			bool outParent = true;
-			
-			if( ! fullname ) {
-				if( p == inClass || p == inBlock ) {
-					outParent = false;
-				}else{
-					auto ns = inNamespace;
-					while( ns ) {
-						if( p == ns ) {
-							outParent = false;
-							break;
-						}
-						if( ns->parent ) {
-							ns = ns->parent->ax_as<Namespace>();
-						}else{
-							ns = nullptr;
-						}
-					}
-				}
-			}
+//	auto typealias = node->ax_as< Typealias >();
+//	if( typealias ) return nodeName( typealias->alias, fullname );
 
-			if( outParent ) {
-				nodeName( p, fullname );
-				_buf << ax_str("::");
+	if( fullname && ! node->macro_cppName && inCppNode != node ) {
+		ax_if_let( p, node->parent ) {
+			if( inCppNode != p ) {
+				nodeName( p, true );
+				*this << ax_txt("::");
 			}
 		}
 	}
-*/
+
 	*this << node->cppName();
 	return *this;
 }
@@ -474,33 +453,34 @@ GenCppPass::OutBuf & GenCppPass::OutBuf::newline( ax_int indentOffset ) 	{
 	return *this;
 }
 
-void GenCppPass::OutBuf::beginNamespace		( ax_Obj< MetaNode > node ) {
-	ax_if_let( p, node->parent ) {
-		beginNamespace( p );
+void GenCppPass::OutBuf::beginNamespace		( ax_NullableObj< Namespace > node ) {
+	ax_if_not_let( ns, node ) {
+		return;
 	}
-	ax_if_let( ns, node->ax_as< Namespace >() ) {
-		newline() << ax_txt("namespace ") << node->cppName() << ax_txt(" {");
-		inNamespace = ns;
+
+	ax_if_let( p, ns->parent ) {
+		beginNamespace( p->ax_as<Namespace>() );
 	}
+	newline() << ax_txt("namespace ") << ns->cppName() << ax_txt(" {");
 }
 
-void GenCppPass::OutBuf::endNamespace		( ax_Obj< MetaNode > node ) {
-	ax_if_let( ns, node->ax_as< Namespace >() ) {
-		newline() << ax_txt("} //namespace ") << node->cppName();
+void GenCppPass::OutBuf::endNamespace		( ax_NullableObj< Namespace > node ) {
+	ax_if_not_let( ns, node ) {
+		return;
 	}
-	ax_if_let( p, node->parent ) {
-		endNamespace( p );
+
+	newline() << ax_txt("} //namespace ") << ns->cppName();
+	
+	ax_if_let( p, ns->parent ) {
+		endNamespace( p->ax_as<Namespace>() );
 	}
-	inNamespace = nullptr;
 }
 
 void GenCppPass::OutBuf::reset() {
 	indentLevel = 0;
-	
-	inNamespace = g_metadata->root;
+
+	inCppNode	= nullptr;
 	inFor		= false;
-	inStruct	= nullptr;
-//	inBlock		= nullptr;
 	
 	_buf.clear();
 }

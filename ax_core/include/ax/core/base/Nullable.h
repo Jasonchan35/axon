@@ -34,10 +34,15 @@ public:
 		 	T		unsafeGet	() const 					{ _checkNull(); return *_p; }
 
 			bool	is_null		() const { return _p == nullptr; }
-			bool	hasValue	() const { return _p != nullptr; }
+			bool	not_null	() const { return _p != nullptr; }
 
 			bool 	operator==	( std::nullptr_t t ) const { return _p == nullptr; }
 			bool 	operator!=	( std::nullptr_t t ) const { return _p != nullptr; }
+			
+			bool	operator==	( const T & rhs ) const {
+				if( _p == nullptr ) return false;
+				return *_p == rhs;
+			}
 			
 			bool	operator==	( const Nullable & rhs ) const {
 				if( _p == rhs._p ) return true;
@@ -45,6 +50,7 @@ public:
 				return false;
 			}
 			
+			bool	operator!=	( const T		 & rhs ) const { return ! operator==(rhs); }
 			bool	operator!=	( const Nullable & rhs ) const { return ! operator==(rhs); }
 
 	void operator=( const Nullable & rhs ) {

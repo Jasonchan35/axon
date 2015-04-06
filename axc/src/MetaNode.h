@@ -46,10 +46,12 @@ public:
 	const ax_string &	name	() const	{ return _name; }
 	const ax_string &	cppName	() const	{ return _cppName.size() ? _cppName : _name; }
 
-	void	setCppName( const ax_string & s ) { _cppName = s; }
+	void	setCppName( const ax_string & s, bool macro_cppName_ ) { _cppName = s; macro_cppName = macro_cppName_; }
 
 	ax_string			_name;
 	ax_string			_cppName;
+	bool				macro_cppName;
+	
 	LexerPos			pos;
 
 	ax_NullableObj< MetaNode >	parent;

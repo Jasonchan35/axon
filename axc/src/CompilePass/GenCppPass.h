@@ -105,15 +105,8 @@ private:
 			_buf << rhs; return *this;
 		}
 				
-		OutBuf & operator<< ( ax_Obj< MetaNode > node );
-		OutBuf & operator<< ( ax_NullableObj< MetaNode > node );
-
-		OutBuf & operator<< ( ax_Obj< Prop > 			node ) { return *this << node->as_MetaNode(); }
-		OutBuf & operator<< ( ax_Obj< TypeNode >	 	node ) { return *this << node->as_MetaNode(); }
-		OutBuf & operator<< ( ax_Obj< StructType > 	node ) { return *this << node->as_MetaNode(); }
-		OutBuf & operator<< ( ax_Obj< Class > 			node ) { return *this << node->as_MetaNode(); }
-		OutBuf & operator<< ( ax_Obj< Struct > 			node ) { return *this << node->as_MetaNode(); }
-		OutBuf & operator<< ( ax_Obj< Interface >		node ) { return *this << node->as_MetaNode(); }
+		template< typename T >
+		OutBuf & operator<< ( ax_Obj< T > 				node ) { nodeName( node, true ); return *this;; }
 
 
 		OutBuf & operator<< ( const TokenType 	& t  );
@@ -124,21 +117,19 @@ private:
 
 //		OutBuf & output		( const ax_Array< ax_Obj< TemplateParam > >	& tp, bool declare );
 		
-		OutBuf & nodeName	( ax_Obj< MetaNode > node, bool fullname=false );
+		OutBuf & nodeName	( ax_Obj< MetaNode > node, bool fullname );
 		
-		OutBuf & newline( ax_int indentOffset = 0);
+		OutBuf & newline	( ax_int indentOffset = 0);
 		
 		OutBuf & openBlock	();
 		OutBuf & closeBlock	();
 
-		void	beginNamespace		( ax_Obj< MetaNode > node );
-		void	endNamespace		( ax_Obj< MetaNode > node );
+		void	beginNamespace		( ax_NullableObj< Namespace > node );
+		void	endNamespace		( ax_NullableObj< Namespace > node );
 
 		bool			inFor; //not include body
 		
-		ax_NullableObj< StructType >		inStruct;
-//		ax_ax_NullableObjObj< BlockNode >	inBlock;
-		ax_NullableObj< Namespace >			inNamespace;
+		ax_NullableObj< MetaNode >		inCppNode;
 	
 		ax_int			indentLevel;
 		GenCppPass & 	cppPass;

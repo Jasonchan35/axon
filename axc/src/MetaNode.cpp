@@ -37,6 +37,8 @@ MetaNode::MetaNode( ax_NullableObj< MetaNode > parent, const LexerPos & pos, con
 	this->_name		= name;
 	this->pos		= pos;
 	
+	this->macro_cppName	= false;
+	
 	this->children = ax_new_obj( ChildrenDict );
 	
 	ax_if_let( p, parent ) {

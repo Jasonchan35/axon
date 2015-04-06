@@ -54,7 +54,6 @@ void DeclarePass::resolveFuncParamPass () {
 }
 
 void DeclarePass::resolveFuncParam( ax_Obj< FuncOverload > fo ) {
-	ax_log( ax_txt("resolveFuncParam {?}"), fo->name() );
 	
 	setPos( fo->paramPos );
 	
@@ -183,7 +182,6 @@ void DeclarePass::resolveStructTypePass() {
 
 
 bool DeclarePass::resolveProp( ax_Obj< Prop >	node ) {
-	ax_log( ax_txt("resolve_PropType {?}"), node->name() );
 
 	if( node->type.is_null() ) {
 		if( node->typePos.valid ) {
