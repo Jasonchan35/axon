@@ -75,12 +75,12 @@ void DeclarePass::resolveFuncParam( ax_Obj< FuncOverload > fo ) {
 		nextToken();
 		
 		if( token.is_identifier() ) {
-			ax_if_not_let( paramType, parseType() ) {
+			auto paramType = parseTypename();
+			
+			if( paramType.is_null() ) {
 				Log::Error( token, ax_txt("parameter type expected") );
 			}
-			param.rtype = RType( paramType );
-
-			ax_dump( paramType );
+			param.rtype = paramType;
 		}
 		
 		if( token.is_assign() ) {
@@ -102,10 +102,12 @@ void DeclarePass::resolveFuncParam( ax_Obj< FuncOverload > fo ) {
 		}
 	}
 	
+	
+	// function return type
 	if( token.is_identifier() ) {
-		fo->returnType = parseType();
+		fo->returnType = parseTypename();
 	}else{
-		fo->returnType = RType( g_metadata->type_void );
+		fo->returnType = RType::MakePrimitiveValue( g_metadata->type_void );
 	}
 	
 	if( ! token.is_curlyBracketOpen() ) {
@@ -185,7 +187,7 @@ bool DeclarePass::resolveProp( ax_Obj< Prop >	node ) {
 	if( node->type.is_null() ) {
 		if( node->typePos.valid ) {
 			setPos( node->typePos );
-			node->type = parseType();
+			node->type = parseTypename();
 		}
 	}
 	
@@ -224,7 +226,8 @@ bool DeclarePass::resolveStructType( ax_Obj< StructType > node ) {
 		auto pos = node->baseOrInterfacePos[i];
 		setPos( pos );
 		
-		ax_if_not_let( t, parseType() ) {
+		auto rt = parseTypename();
+		ax_if_not_let( t, rt.type ) {
 			return false;
 		}
 		

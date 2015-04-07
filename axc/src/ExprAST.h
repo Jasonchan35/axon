@@ -61,8 +61,8 @@ public:
 //	virtual	void	onAST( LocalVarAST 		& p ) = 0;
 };
 
-class ExprAST : public System::Object {
-	ax_DefObject( ExprAST, System::Object );
+class ExprAST : public ax_Object {
+	ax_DefObject( ExprAST, ax_Object );
 public:
 	struct	ax_type_on_gc_trace : public std::true_type {};
 
@@ -149,9 +149,6 @@ class TypeAST : public ExprAST {
 public:
 	ax_NullableObj< TypeNode >		node;
 
-	bool			dot;
-	RType		dotType;
-	
 	TypeAST( LexerPos &pos_, ax_Obj< TypeNode > node_ );
 
 	virtual	void	onDispatch		( IExprDispatcher & p ) { p.onAST(*this); }

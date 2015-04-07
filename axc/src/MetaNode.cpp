@@ -144,12 +144,12 @@ TypeNode::TypeNode( ax_NullableObj< MetaNode > parent, const LexerPos & pos, con
 	buildin = false;
 }
 
-TupleType::TupleType( const LexerPos & pos, const ax_string & name, const ax_Array< ax_Obj< TypeNode > > & elementTypes_ )
+TupleType::TupleType( const LexerPos & pos, const ax_string & name, const ax_Array< RType > & elementTypes_ )
 : base( nullptr, pos, name ) {
 	this->elementTypes.assign( elementTypes_ );
 }
 
-ax_Obj< TupleType >	TupleTypeTable::getOrAddTuple	( const LexerPos & pos, const ax_Array< ax_Obj<TypeNode> > & elementTypes ) {
+ax_Obj< TupleType >	TupleTypeTable::getOrAddTuple	( const LexerPos & pos, const ax_Array< RType > & elementTypes ) {
 	auto name = getTupleName( elementTypes );
 	
 	ax_if_let( p, tuples.tryGetValue( name ) ) {
@@ -162,7 +162,7 @@ ax_Obj< TupleType >	TupleTypeTable::getOrAddTuple	( const LexerPos & pos, const 
 	return new_tuple;
 }
 
-ax_string TupleTypeTable::getTupleName( const ax_Array< ax_Obj<TypeNode> > & elementTypes ) {
+ax_string TupleTypeTable::getTupleName( const ax_Array< RType > & elementTypes ) {
 	ax_TempString	name;
 
 	name.append( ax_txt("(") );
@@ -170,7 +170,7 @@ ax_string TupleTypeTable::getTupleName( const ax_Array< ax_Obj<TypeNode> > & ele
 	int c = 0;
 	ax_foreach( & e, elementTypes ) {
 		if( c > 0 ) name.append( ax_txt(",") );
-		e->appendFullname( name, ax_txt(".") );
+		e.appendFullname( name, ax_txt(".") );
 		c++;
 	}
 	name.append( ax_txt(")") );

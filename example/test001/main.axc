@@ -14,7 +14,17 @@ class Image {
 class App {
 
 	fn main() {
-				
+		/*
+		print( fmt('a = {?,8:x}', a ) )  
+		printf( 'a = {?,8:x}'@ a )
+		format( 'a = {?,8:x}', a )
+
+		print( 'a = {a,8:x}' )
+		print( 'a = \(str(a,8,'x'))')
+		print( 'a = ' + str(a,8,'x') + ' ' )
+
+		print( "\($name(this))" = $typename(this)" )
+		*/
 	}
 
 /*

@@ -46,6 +46,9 @@ public:
 	ax_Obj< PrimitiveType >			type_double;
 
 	ax_Obj< Class >					type_object;
+	ax_Obj< Class >					type_array;
+	ax_Obj< Class >					type_dict;
+	
 	ax_NullableObj< Class >			type_app;
 	
 	ax_Array_< ax_Obj< PrimitiveType > >	type_all_number;
@@ -54,10 +57,10 @@ public:
 	ax_Array_< ax_Obj< PrimitiveType > >	type_all_float;
 	
 	
-	void	addOperatorFunc			( RType returnType, ax_Obj< TypeNode > type, TokenType op );
+	void	addOperatorFunc			( ax_Obj< TypeNode > returnType, ax_Obj< TypeNode > type, TokenType op );
 	
-	void	addPrefixOperatorFunc	( RType returnType, ax_Obj< TypeNode > type, TokenType op );
-	void	addPostfixOperatorFunc	( RType returnType, ax_Obj< TypeNode > type, TokenType op );
+	void	addPrefixOperatorFunc	( ax_Obj< TypeNode > returnType, ax_Obj< TypeNode > type, TokenType op );
+	void	addPostfixOperatorFunc	( ax_Obj< TypeNode > returnType, ax_Obj< TypeNode > type, TokenType op );
 	
 	void OnStringReq( ax_ToStringReq & req ) const;
 	

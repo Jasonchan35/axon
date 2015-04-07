@@ -218,17 +218,17 @@ ax_NullableObj< MetaNode >	Parser::parseNode	() {
 	return nullptr;
 }
 
-ax_NullableObj< TypeNode > Parser::parseType () {
+RType Parser::parseTypename () {
 	if( token.is_roundBracketOpen() ) {	//tuple
 		nextToken();
 		
-		ax_Array_< ax_Obj<TypeNode>, 16 >	elements;
+		ax_Array_< RType, 16 >	elements;
 		
 		for(;;) {
-			ax_if_not_let( e, parseType() ) {
-				break;
-			}
-			elements.add(e);
+			auto t = parseTypename();
+			if( t.is_null() ) break;
+			
+			elements.add( t );
 			
 			if( token.is_comma() ) {
 				nextToken();
@@ -241,17 +241,18 @@ ax_NullableObj< TypeNode > Parser::parseType () {
 		}
 		nextToken();
 		
-		return g_metadata->tupleTable.getOrAddTuple( token.pos, elements );
+		auto tuple = g_metadata->tupleTable.getOrAddTuple( token.pos, elements );
+		return RType::MakeTypename( tuple );
 	}
 
 	ax_if_not_let( o, parseNode() ) {
-		return nullptr;
+		return RType();
 	}
 	
 	ax_if_not_let( t, o->ax_as< TypeNode >() ) {
 		Log::Error( token, ax_txt("type expected") );
 	}
-	return t;
+	return RType::MakeTypename( t );
 }
 
 
@@ -365,7 +366,8 @@ ax_NullableObj< ExprAST > Parser::parseExpr_BinaryOp( ax_int exprPrec, ax_Obj<Ex
 			return lhs;
 		}
 	
-		ax_if_not_let( lt, lhs->returnType.type ) {
+		auto lt = lhs->returnType;
+		if( lt.is_null() ) {
 			return nullptr;
 		}
 	
@@ -387,10 +389,10 @@ ax_NullableObj< ExprAST > Parser::parseExpr_BinaryOp( ax_int exprPrec, ax_Obj<Ex
 			
 		}else if( op == TokenType::t_squareBracketOpen ) {
 			closeBracket = TokenType::t_squareBracketClose;
-			op = TokenType::t_op_call;
+			op = TokenType::t_op_subscript;
 		}
 		
-		if( op == TokenType::t_op_call ) {
+		if( op == TokenType::t_op_call || op == TokenType::t_op_subscript ) {
 			auto e = ax_new_obj( FuncArgAST, token.pos );
 			rhs = e;
 			
@@ -442,12 +444,16 @@ ax_NullableObj< ExprAST > Parser::parseExpr_BinaryOp( ax_int exprPrec, ax_Obj<Ex
 
 		ax_Array_< ax_Obj< FuncOverload >, 32 > candidate;
 		
-		ax_if_not_let( fn, lt->getOperatorFunc( op ) ) {
-			Log::Error( op_pos, ax_txt("operator '{?}' function not found"), op );
+		ax_if_not_let( ltype, lt.type ) {
+			Log::Error( op_pos, ax_txt("type is expected") );
+		}
+		
+		ax_if_not_let( fn, lt.getOperatorFunc( op ) ) {
+			Log::Error( op_pos, ax_txt("operator '{?}' function not found from {?}"), op, lt );
 		}
 		
 		ax_if_not_let( fo, fn->getOverload( candidate, params ) ) {
-			Log::Error( op_pos, ax_txt("no '{?}.func {?} ({?})' overload"), lt->name(), op, params );
+			Log::Error( op_pos, ax_txt("no '{?}.func {?} ({?})' overload"), ltype->name(), op, params );
 		}
 
 		ax_if_let( rhs_, rhs ) {

@@ -121,9 +121,9 @@ class TupleType : public TypeNode {
 	ax_DefObject( TupleType, TypeNode )
 public:
 
-	TupleType( const LexerPos & pos, const ax_string & name, const ax_Array< ax_Obj< TypeNode > > & elementTypes_ );
+	TupleType( const LexerPos & pos, const ax_string & name, const ax_Array< RType > & elementTypes_ );
 	
-	ax_Array_< ax_Obj<TypeNode>, 8 >		elementTypes;
+	ax_Array_< RType, 8 >		elementTypes;
 	
 };
 
@@ -131,9 +131,9 @@ class TupleTypeTable : System::NonCopyable {
 public:
 
 	ax_NullableObj< TupleType >	getTuple		( const ax_Array< ax_Obj<TypeNode> > & elementTypes );
-			ax_Obj< TupleType >	getOrAddTuple	( const LexerPos & pos, const ax_Array< ax_Obj<TypeNode> > & elementTypes );
+			ax_Obj< TupleType >	getOrAddTuple	( const LexerPos & pos, const ax_Array< RType > & elementTypes );
 
-	ax_string		getTupleName( const ax_Array< ax_Obj<TypeNode> > & elementTypes );
+	ax_string		getTupleName( const ax_Array< RType > & elementTypes );
 
 private:
 	ax_Dict< ax_string, ax_Obj<TupleType> >	tuples;

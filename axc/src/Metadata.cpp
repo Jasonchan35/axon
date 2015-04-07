@@ -23,6 +23,14 @@ Metadata::Metadata() {
 	type_object->buildin = true;
 	type_object->setCppName( ax_txt("ax_Object"), true );
 	
+	type_array		= ax_new_obj(  Class, root, LexerPos(), ax_txt("Array") );
+	type_array->buildin	 = true;
+	type_array->setCppName( ax_txt("ax_Array"), true );
+
+	type_dict		= ax_new_obj(  Class, root, LexerPos(), ax_txt("Dict") );
+	type_dict->buildin	 = true;
+	type_dict->setCppName( ax_txt("ax_Dict"), true );
+	
 	type_void		= ax_new_obj(  PrimitiveType, root, ax_txt("void"	) );	type_void->setCppName	( ax_txt("void"		), true );
 	type_bool		= ax_new_obj(  PrimitiveType, root, ax_txt("bool"	) );	type_bool->setCppName	( ax_txt("bool"		), true );
 	type_string		= ax_new_obj(  PrimitiveType, root, ax_txt("string" ) );	type_string->setCppName	( ax_txt("ax_string"), true );
@@ -64,80 +72,80 @@ Metadata::Metadata() {
 	
 	
 	ax_foreach( & t, type_all_number ) {
-		addPrefixOperatorFunc( RType(t), t, TokenType::t_add );
-		addPrefixOperatorFunc( RType(t), t, TokenType::t_sub );
-		addPrefixOperatorFunc( RType(t), t, TokenType::t_add2 );
-		addPrefixOperatorFunc( RType(t), t, TokenType::t_sub2 );
+		addPrefixOperatorFunc( t, t, TokenType::t_add );
+		addPrefixOperatorFunc( t, t, TokenType::t_sub );
+		addPrefixOperatorFunc( t, t, TokenType::t_add2 );
+		addPrefixOperatorFunc( t, t, TokenType::t_sub2 );
 
-		addPostfixOperatorFunc( RType(t), t, TokenType::t_add2 );
-		addPostfixOperatorFunc( RType(t), t, TokenType::t_sub2 );
+		addPostfixOperatorFunc( t, t, TokenType::t_add2 );
+		addPostfixOperatorFunc( t, t, TokenType::t_sub2 );
 
-		addOperatorFunc( RType(t), t, TokenType::t_assign );
+		addOperatorFunc( t, t, TokenType::t_assign );
 	
-		addOperatorFunc( RType(t), t, TokenType::t_add );
-		addOperatorFunc( RType(t), t, TokenType::t_sub );
-		addOperatorFunc( RType(t), t, TokenType::t_mul );
-		addOperatorFunc( RType(t), t, TokenType::t_div );
-		addOperatorFunc( RType(t), t, TokenType::t_mod );
+		addOperatorFunc( t, t, TokenType::t_add );
+		addOperatorFunc( t, t, TokenType::t_sub );
+		addOperatorFunc( t, t, TokenType::t_mul );
+		addOperatorFunc( t, t, TokenType::t_div );
+		addOperatorFunc( t, t, TokenType::t_mod );
 		
-		addOperatorFunc( RType(type_bool), t, TokenType::t_equal );
-		addOperatorFunc( RType(type_bool), t, TokenType::t_notEqual );
-		addOperatorFunc( RType(type_bool), t, TokenType::t_less );
-		addOperatorFunc( RType(type_bool), t, TokenType::t_lessEqual );
-		addOperatorFunc( RType(type_bool), t, TokenType::t_greater );
-		addOperatorFunc( RType(type_bool), t, TokenType::t_greaterEqual );
+		addOperatorFunc( type_bool, t, TokenType::t_equal );
+		addOperatorFunc( type_bool, t, TokenType::t_notEqual );
+		addOperatorFunc( type_bool, t, TokenType::t_less );
+		addOperatorFunc( type_bool, t, TokenType::t_lessEqual );
+		addOperatorFunc( type_bool, t, TokenType::t_greater );
+		addOperatorFunc( type_bool, t, TokenType::t_greaterEqual );
 	}
 	
-	addPrefixOperatorFunc( RType(type_bool), type_bool, TokenType::t_not );
+	addPrefixOperatorFunc( type_bool, type_bool, TokenType::t_not );
 	
-	addOperatorFunc( RType(type_bool), type_bool, TokenType::t_or  );
-	addOperatorFunc( RType(type_bool), type_bool, TokenType::t_and );
+	addOperatorFunc( type_bool,	type_bool, 	TokenType::t_or  );
+	addOperatorFunc( type_bool,	type_bool, 	TokenType::t_and );
 	
-	addOperatorFunc( RType(type_bool), type_bool, TokenType::t_equal );
-	addOperatorFunc( RType(type_bool), type_bool, TokenType::t_notEqual );
+	addOperatorFunc( type_bool, type_bool, 	TokenType::t_equal );
+	addOperatorFunc( type_bool, type_bool, 	TokenType::t_notEqual );
 
-	addOperatorFunc( RType(type_string),type_string, TokenType::t_add );
-	addOperatorFunc( RType(type_bool),	type_string, TokenType::t_equal );
-	addOperatorFunc( RType(type_bool),	type_string, TokenType::t_notEqual );
-	addOperatorFunc( RType(type_bool),	type_string, TokenType::t_less );
-	addOperatorFunc( RType(type_bool), 	type_string, TokenType::t_lessEqual );
-	addOperatorFunc( RType(type_bool), 	type_string, TokenType::t_greater );
-	addOperatorFunc( RType(type_bool), 	type_string, TokenType::t_greaterEqual );
+	addOperatorFunc( type_string,type_string, TokenType::t_add );
+	addOperatorFunc( type_bool,	type_string, TokenType::t_equal );
+	addOperatorFunc( type_bool,	type_string, TokenType::t_notEqual );
+	addOperatorFunc( type_bool,	type_string, TokenType::t_less );
+	addOperatorFunc( type_bool, type_string, TokenType::t_lessEqual );
+	addOperatorFunc( type_bool, type_string, TokenType::t_greater );
+	addOperatorFunc( type_bool, type_string, TokenType::t_greaterEqual );
 	
 }
 
 
-void Metadata::addOperatorFunc( RType returnType, ax_Obj< TypeNode > type, TokenType op ) {
+void Metadata::addOperatorFunc( ax_Obj< TypeNode > returnType, ax_Obj< TypeNode > type, TokenType op ) {
 	auto fn = type->getOrAddOperatorFunc( op );
 	
 	auto ov = ax_new_obj( FuncOverload, fn, LexerPos() );
 	
 	ov->buildin = true;
-	ov->returnType = returnType;
+	ov->returnType = RType::MakePrimitiveValue( returnType );
 	auto & pm = ov->params.addNew();
-	pm.rtype = RType( type );
+	pm.rtype = RType::MakePrimitiveValue( type );
 	pm.name = ax_txt("rhs");
 	
 	fn->addOverload( ov );
 }
 
-void Metadata::addPrefixOperatorFunc( RType returnType, ax_Obj< TypeNode > type, TokenType op ) {
+void Metadata::addPrefixOperatorFunc( ax_Obj< TypeNode > returnType, ax_Obj< TypeNode > type, TokenType op ) {
 	auto fn = type->getOrAddPrefixOperatorFunc( op );
 	
 	auto ov = ax_new_obj( FuncOverload, fn, LexerPos() );
 	
 	ov->buildin = true;
-	ov->returnType = returnType;
+	ov->returnType = RType::MakePrimitiveValue( returnType );
 	fn->addOverload( ov );
 }
 
-void Metadata::addPostfixOperatorFunc( RType returnType, ax_Obj< TypeNode > type, TokenType op ) {
+void Metadata::addPostfixOperatorFunc( ax_Obj< TypeNode > returnType, ax_Obj< TypeNode > type, TokenType op ) {
 	auto fn = type->getOrAddOperatorFunc( op );
 	
 	auto ov = ax_new_obj( FuncOverload, fn, LexerPos() );
 	
 	ov->buildin = true;
-	ov->returnType = returnType;
+	ov->returnType = RType::MakePrimitiveValue( returnType );
 	fn->addOverload( ov );
 }
 

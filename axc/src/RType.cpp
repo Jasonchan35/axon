@@ -7,12 +7,19 @@
 //
 
 #include "RType.h"
-#include "MetaNode.h"
+#include "MetaData.h"
 
 namespace ax {
 namespace Compile {
 
-RType	RType::kNull;
+void	RType::appendFullname	( ax_MutString & fullname, const ax_string & seperator ) const {
+	ax_if_let( t, type ) {
+		fullname << ax_txt("<NULL>");
+		return;
+	}
+	
+	t->appendFullname( fullname, seperator );
+}
 
 bool RType::canAssignFrom( const RType & rhs ) const {
 	ax_if_not_let( t, type 		) { return false; }
@@ -33,13 +40,26 @@ ax_NullableObj< Func >	RType::getFunc				( const ax_string & name ) {
 ax_NullableObj< Func >	RType::getOperatorFunc		( TokenType op ) {
 	ax_if_not_let( t, type ) return nullptr;
 
-	if( op == TokenType::t_op_call ) {
-		ax_if_let( ft, t->ax_as< FuncType >() ) {
-			return ft->func;
+	if( isTypename ) {
+		if( op == TokenType::t_op_call ) {
+			return t->getFunc( ax_txt("ctor") );
 		}
-	}
+		
+		if( op == TokenType::t_op_subscript ) {
+			return g_metadata->type_array->getFunc( ax_txt("ctor") );
+		}
 	
-	return t->getOperatorFunc(op);
+		return nullptr;
+		
+	}else{
+		if( op == TokenType::t_op_call ) {
+			ax_if_let( ft, t->ax_as< FuncType >() ) {
+				return ft->func;
+			}
+		}
+		
+		return t->getOperatorFunc(op);
+	}
 }
 
 ax_NullableObj< Func >	RType::getPrefixOperatorFunc	( TokenType op ) {

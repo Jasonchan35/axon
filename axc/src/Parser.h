@@ -67,7 +67,7 @@ public:
 //	ax_NullableObj< ExprAST >		parseExpr_LocalVar			( DeclarationModifier & modifier );
 
 
-	ax_NullableObj< TypeNode > 		parseType	();
+						RType 		parseTypename	();
 	ax_NullableObj< MetaNode >		parseNode	();
 	
 	Token 		token;
