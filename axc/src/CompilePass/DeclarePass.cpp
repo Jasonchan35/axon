@@ -107,7 +107,7 @@ void DeclarePass::resolveFuncParam( ax_Obj< FuncOverload > fo ) {
 	if( token.is_identifier() ) {
 		fo->returnType = parseTypename();
 	}else{
-		fo->returnType = RType::MakePrimitiveValue( g_metadata->type_void );
+		fo->returnType = RType::MakeValue( g_metadata->type_void, false );
 	}
 	
 	if( ! token.is_curlyBracketOpen() ) {
@@ -249,6 +249,16 @@ bool DeclarePass::resolveStructType( ax_Obj< StructType > node ) {
 	if( node->baseType.is_null() && node->ax_is< Class >() ) {
 		node->baseType = g_metadata->type_object;
 	}
+	
+	{
+		ax_if_not_let( ctor, node->getFunc( k_ctor_name ) ) {
+			auto fn = node->getOrAddFunc( k_ctor_name );
+			auto fo = ax_new_obj( FuncOverload, fn, node->pos );
+			fo->buildin = true;
+			fo->returnType = RType::MakeValue( node, false );
+		}
+	}
+	
 	return true;
 }
 
@@ -480,8 +490,6 @@ void DeclarePass::parseFunc( DeclarationModifier & modifier ) {
 		nextToken();
 		skipCurlyBracket();
 	}
-	
-	fn->addOverload( fo );
 }
 
 void DeclarePass::parseProp( DeclarationModifier & modifier ) {

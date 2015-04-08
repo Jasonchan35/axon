@@ -16,6 +16,8 @@
 namespace ax {
 namespace Compile {
 
+extern ax_string	k_ctor_name;
+
 class Func;
 class ExprAST;
 
@@ -101,7 +103,7 @@ public:
 	virtual	bool canAssignFrom( ax_Obj< TypeNode > rhs ) const {
 		return true;
 	}
-
+	
 	DeclarationModifier	modifier;
 	
 	bool		buildin;
@@ -139,6 +141,11 @@ private:
 	ax_Dict< ax_string, ax_Obj<TupleType> >	tuples;
 };
 
+class TemplateTypename : public TypeNode {
+	ax_DefObject( TemplateTypename, TypeNode )
+public:
+	TemplateTypename( const LexerPos & pos, const ax_string & name );
+};
 
 class StructType : public TypeNode {
 	ax_DefObject( StructType, TypeNode )
@@ -149,8 +156,10 @@ public:
 
 	LexerPos				bodyPos;
 	
-	ax_NullableObj< StructType >			baseType;
+	ax_NullableObj< StructType >		baseType;
 	ax_Array_< ax_Obj< StructType > >	interfaces;
+	
+	ax_Array_< RType >	templateParams;
 	
 	bool			isNestedType;
 };
@@ -244,7 +253,6 @@ public:
 
 	virtual void OnStringReq( ax_ToStringReq & req ) const;
 	
-						void			addOverload	( ax_Obj< FuncOverload > fo ) { overloads.add(fo); }
 	ax_NullableObj< FuncOverload >		getOverload	( ax_Array< ax_Obj< FuncOverload > > & candidate, const ax_Array< FuncParam > & params );
 	
 	

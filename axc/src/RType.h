@@ -35,13 +35,14 @@ public:
 		return o;
 	}
 	
-	static RType	MakePrimitiveValue( ax_Obj< TypeNode > type_ ) {
+	static RType	MakeValue( ax_Obj< TypeNode > type_, bool isMutable ) {
 		RType o;
 		o.type = type_;
+		o.isMutable  = isMutable;
 		o.isInstance = true;
 		return o;
 	}
-	
+		
 	static RType	MakeTypename( ax_Obj< TypeNode > type_ ) {
 		RType o;
 		o.type = type_;
@@ -54,6 +55,7 @@ public:
 	
 
 	ax_NullableObj< Func >	getFunc					( const ax_string & name );
+	
 	ax_NullableObj< Func >	getOperatorFunc			( TokenType op );
 	ax_NullableObj< Func >	getPrefixOperatorFunc	( TokenType op );
 

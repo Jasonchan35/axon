@@ -23,9 +23,15 @@ Metadata::Metadata() {
 	type_object->buildin = true;
 	type_object->setCppName( ax_txt("ax_Object"), true );
 	
-	type_array		= ax_new_obj(  Class, root, LexerPos(), ax_txt("Array") );
-	type_array->buildin	 = true;
-	type_array->setCppName( ax_txt("ax_Array"), true );
+	{
+		type_array		= ax_new_obj(  Class, root, LexerPos(), ax_txt("Array") );
+		type_array->buildin	 = true;
+		type_array->setCppName( ax_txt("ax_Array"), true );
+		
+		auto p = ax_new_obj( TemplateTypename, LexerPos(), ax_txt("T") );
+		
+		type_array->templateParams.add( RType::MakeTypename( p ) );
+	}
 
 	type_dict		= ax_new_obj(  Class, root, LexerPos(), ax_txt("Dict") );
 	type_dict->buildin	 = true;
@@ -121,12 +127,10 @@ void Metadata::addOperatorFunc( ax_Obj< TypeNode > returnType, ax_Obj< TypeNode 
 	auto ov = ax_new_obj( FuncOverload, fn, LexerPos() );
 	
 	ov->buildin = true;
-	ov->returnType = RType::MakePrimitiveValue( returnType );
+	ov->returnType = RType::MakeValue( returnType, false );
 	auto & pm = ov->params.addNew();
-	pm.rtype = RType::MakePrimitiveValue( type );
+	pm.rtype = RType::MakeValue( type, false );
 	pm.name = ax_txt("rhs");
-	
-	fn->addOverload( ov );
 }
 
 void Metadata::addPrefixOperatorFunc( ax_Obj< TypeNode > returnType, ax_Obj< TypeNode > type, TokenType op ) {
@@ -135,8 +139,7 @@ void Metadata::addPrefixOperatorFunc( ax_Obj< TypeNode > returnType, ax_Obj< Typ
 	auto ov = ax_new_obj( FuncOverload, fn, LexerPos() );
 	
 	ov->buildin = true;
-	ov->returnType = RType::MakePrimitiveValue( returnType );
-	fn->addOverload( ov );
+	ov->returnType = RType::MakeValue( returnType, false );
 }
 
 void Metadata::addPostfixOperatorFunc( ax_Obj< TypeNode > returnType, ax_Obj< TypeNode > type, TokenType op ) {
@@ -145,8 +148,7 @@ void Metadata::addPostfixOperatorFunc( ax_Obj< TypeNode > returnType, ax_Obj< Ty
 	auto ov = ax_new_obj( FuncOverload, fn, LexerPos() );
 	
 	ov->buildin = true;
-	ov->returnType = RType::MakePrimitiveValue( returnType );
-	fn->addOverload( ov );
+	ov->returnType = RType::MakeValue( returnType, false );
 }
 
 	

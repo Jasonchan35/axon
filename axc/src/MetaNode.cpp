@@ -19,6 +19,7 @@ ax_ImplObject( Namespace );
 ax_ImplObject( TypeNode );
 ax_ImplObject( TupleType );
 ax_ImplObject( PrimitiveType );
+ax_ImplObject( TemplateTypename );
 
 ax_ImplObject( StructType );
 ax_ImplObject( Interface );
@@ -30,7 +31,7 @@ ax_ImplObject( Func );
 ax_ImplObject( FuncOverload );
 ax_ImplObject( FuncType );
 
-
+ax_string	k_ctor_name = ax_txt("ctor");
 
 MetaNode::MetaNode( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name ) {
 	this->parent	= parent;
@@ -149,6 +150,10 @@ TupleType::TupleType( const LexerPos & pos, const ax_string & name, const ax_Arr
 	this->elementTypes.assign( elementTypes_ );
 }
 
+TemplateTypename::TemplateTypename( const LexerPos & pos, const ax_string & name )
+: base( nullptr, pos, name ) {
+}
+
 ax_Obj< TupleType >	TupleTypeTable::getOrAddTuple	( const LexerPos & pos, const ax_Array< RType > & elementTypes ) {
 	auto name = getTupleName( elementTypes );
 	
@@ -246,6 +251,7 @@ FuncOverload::FuncOverload( ax_Obj< Func > fn, const LexerPos & pos )
 : base( nullptr, pos, fn->name() ) {
 	func = fn;
 	g_metadata->funcOverloadList.add( ax_ThisObj );
+	fn->overloads.add( ax_ThisObj );
 }
 
 

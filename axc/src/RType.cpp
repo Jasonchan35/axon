@@ -32,7 +32,7 @@ void	RType::OnStringReq( ax_ToStringReq & req ) const {
 	req << ax_txt("RType[") << type << ax_txt("]");
 }
 
-ax_NullableObj< Func >	RType::getFunc				( const ax_string & name ) {
+ax_NullableObj< Func >	RType::getFunc ( const ax_string & name ) {
 	ax_if_not_let( t, type ) return nullptr;
 	return t->getFunc(name);
 }
@@ -42,11 +42,11 @@ ax_NullableObj< Func >	RType::getOperatorFunc		( TokenType op ) {
 
 	if( isTypename ) {
 		if( op == TokenType::t_op_call ) {
-			return t->getFunc( ax_txt("ctor") );
+			return t->getFunc( k_ctor_name );
 		}
 		
 		if( op == TokenType::t_op_subscript ) {
-			return g_metadata->type_array->getFunc( ax_txt("ctor") );
+			return g_metadata->type_array->getFunc( k_ctor_name );
 		}
 	
 		return nullptr;
