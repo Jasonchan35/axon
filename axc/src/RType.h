@@ -49,6 +49,9 @@ public:
 		o.isTypename = true;
 		return o;
 	}
+	
+	bool	operator==( const RType & rhs ) const;
+	bool	operator!=( const RType & rhs ) const { return ! operator==(rhs); }
 
 	bool	is_null() const { return type.is_null(); }
 	bool	canAssignFrom( const RType & rhs ) const;

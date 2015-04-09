@@ -50,13 +50,14 @@ public:
 
 	void	setCppName( const ax_string & s, bool macro_cppName_ ) { _cppName = s; macro_cppName = macro_cppName_; }
 
+	ax_NullableObj< MetaNode >	parent;
 	ax_string			_name;
 	ax_string			_cppName;
 	bool				macro_cppName;
 	
 	LexerPos			pos;
-
-	ax_NullableObj< MetaNode >	parent;
+	bool				buildin;
+	bool				isTemplateInstance;
 		
 		ax_string	getFullname		( const ax_string & seperator ) const;
 			void	appendFullname	( ax_MutString & fullname, const ax_string & seperator ) const;
@@ -71,6 +72,7 @@ public:
 	
 	ax_NullableObj< Func >	getFunc		( const ax_string & name );
 	ax_Obj< Func >			getOrAddFunc( const ax_string & name );
+	ax_Obj< Func >			addFunc		( const ax_string & name );
 		
 	ax_NullableObj< Func >	getOperatorFunc				( TokenType op );
 	ax_Obj< Func >			getOrAddOperatorFunc		( TokenType op );
@@ -78,11 +80,13 @@ public:
 	ax_NullableObj< Func >	getPrefixOperatorFunc		( TokenType op );
 	ax_Obj< Func >			getOrAddPrefixOperatorFunc	( TokenType op );
 	
-	typedef ax_Dict< ax_string, ax_Obj< MetaNode > >	ChildrenDict;
+	ax_Dict< ax_string, ax_Obj< MetaNode > >	children;
+
+	virtual void 	OnStringReq		( ax_ToStringReq & req ) const;
 	
-	ax_Obj<	ChildrenDict >	children;
+	ax_string 		getTemplateInstanceName			( const ax_Array< RType > & templateParams );
 	
-	virtual void OnStringReq( ax_ToStringReq & req ) const;
+	virtual	void	onParentCreateTemplateInstance	( ax_Obj< MetaNode > new_inst_parent, const ax_Array< RType > & templateParams ) {}
 };
 
 class Namespace : public MetaNode {
@@ -104,9 +108,15 @@ public:
 		return true;
 	}
 	
-	DeclarationModifier	modifier;
+	DeclarationModifier		modifier;
 	
-	bool		buildin;
+	ax_Obj< TypeNode >		getOrAddTemplateInstance( const ax_Array< RType > & templateParams );
+	
+	void	OnStringReq( ax_ToStringReq & req ) const;
+	
+	ax_Array_< RType >						templateParams;
+	ax_Dict< ax_string, ax_Obj<TypeNode> >	templateInstance;
+	
 };
 
 
@@ -141,10 +151,10 @@ private:
 	ax_Dict< ax_string, ax_Obj<TupleType> >	tuples;
 };
 
-class TemplateTypename : public TypeNode {
-	ax_DefObject( TemplateTypename, TypeNode )
+class Typename : public TypeNode {
+	ax_DefObject( Typename, TypeNode )
 public:
-	TemplateTypename( const LexerPos & pos, const ax_string & name );
+	Typename( const ax_NullableObj<MetaNode> parent, const LexerPos & pos, const ax_string & name );
 };
 
 class StructType : public TypeNode {
@@ -158,9 +168,7 @@ public:
 	
 	ax_NullableObj< StructType >		baseType;
 	ax_Array_< ax_Obj< StructType > >	interfaces;
-	
-	ax_Array_< RType >	templateParams;
-	
+			
 	bool			isNestedType;
 };
 
@@ -182,8 +190,8 @@ public:
 	Class( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name ) : base( parent, pos, name ) {}
 };
 
-class Prop : public TypeNode {
-	ax_DefObject( Prop, TypeNode );
+class Prop : public MetaNode {
+	ax_DefObject( Prop, MetaNode );
 public:
 	Prop( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name, bool is_let );
 	
@@ -205,17 +213,18 @@ struct FuncParam {
 
 	FuncParam() : opt(false) {}
 
-	LexerPos	pos;
+	LexerPos	namePos;
 	ax_string	name;
 	
-	ax_NullableObj< ExprAST >	initExpr;
+	LexerPos	typePos;
+	RType		type;
 	
-	LexerPos	rtypePos;
-	RType		rtype;
+	ax_NullableObj< ExprAST >	defaultValueExpr;
+		
 	bool		opt;
 	
 	void OnStringReq( ax_ToStringReq & req ) const {
-		req << name << ax_txt(":") << rtype;
+		req << name << ax_txt(":") << type;
 	}
 };
 
@@ -224,6 +233,7 @@ class FuncType : public TypeNode {
 public:
 	FuncType( const ax_string & name, ax_Obj< Func > func );
 	ax_Obj< Func >	func;
+		
 };
 
 class FuncOverload : public TypeNode {
@@ -235,10 +245,14 @@ public:
 
 	bool	isMatch		( const ax_Array<FuncParam> & callParams );
 
-	ax_Array_< FuncParam, 8 >	params;
-	
+	ax_Obj< FuncOverload >	cloneTemplateInstance( ax_Obj< Func > new_func );
+
+	FuncParam &	addParam( const ax_string & name, const LexerPos & namePos, const RType & type, const LexerPos & typePos );
+
 	ax_Obj< Func >	func;
 
+	ax_Array_< FuncParam, 8 >	params;
+	
 	LexerPos		returnTypePos;
 	LexerPos		paramPos;
 	LexerPos		bodyPos;

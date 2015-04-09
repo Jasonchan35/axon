@@ -63,24 +63,23 @@ void DeclarePass::resolveFuncParam( ax_Obj< FuncOverload > fo ) {
 		}
 
 		if( ! token.is_identifier() ) {
-			Log::Error( token, ax_txt("parameter name expected") );
+			Log::Error( token, ax_txt("parameter name expected when resolving\n  {?}"), fo );
 		}
 	
-		auto & param = fo->params.addNew();
-		param.pos	= token.pos;
-		param.name	= token.str;
-
-		ax_dump( param.name );
-
 		nextToken();
+
+		RType		paramType;
+		LexerPos	typePos;
+		
+		ax_NullableObj< ExprAST >	defaultValueExpr;
 		
 		if( token.is_identifier() ) {
-			auto paramType = parseTypename();
+			paramType = parseTypename();
+			typePos   = token.pos;
 			
 			if( paramType.is_null() ) {
 				Log::Error( token, ax_txt("parameter type expected") );
 			}
-			param.rtype = paramType;
 		}
 		
 		if( token.is_assign() ) {
@@ -88,10 +87,13 @@ void DeclarePass::resolveFuncParam( ax_Obj< FuncOverload > fo ) {
 			ax_if_not_let( expr, parseExpression() ) {
 				Log::Error( token, ax_txt("error expression") );
 			}
-			param.initExpr = expr;
-			param.rtype = expr->returnType;
+			defaultValueExpr = expr;
+			paramType = expr->returnType;
 		}
-		
+
+		auto & param = fo->addParam( token.str, token.pos, paramType, typePos );
+		param.defaultValueExpr = defaultValueExpr;
+				
 		if( token.is_comma() ) {
 			nextToken();
 			continue;
@@ -521,7 +523,7 @@ void DeclarePass::parseProp( DeclarationModifier & modifier ) {
 		auto new_node = ax_new_obj( Prop, inNode, token.pos, token.str, is_let );
 		nextToken();
 				
-		new_node->modifier = modifier;
+//		new_node->modifier = modifier;
 						
 		if( token.is_identifier() ) {
 			new_node->typePos = token.pos;

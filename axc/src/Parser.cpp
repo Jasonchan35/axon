@@ -402,8 +402,9 @@ ax_NullableObj< ExprAST > Parser::parseExpr_BinaryOp( ax_int exprPrec, ax_Obj<Ex
 				for(;;) {
 					auto a = parseExpression();
 					ax_if_let( a_, a ) {
+					
 						auto & fp = params.addNew();
-						fp.rtype = a_->returnType;
+						fp.type = a_->returnType;
 
 						e->args.add( a_ );
 						
@@ -427,7 +428,7 @@ ax_NullableObj< ExprAST > Parser::parseExpr_BinaryOp( ax_int exprPrec, ax_Obj<Ex
 			
 			ax_if_let( rhs_, rhs ) {
 				auto & fp = params.addNew();
-				fp.rtype = rhs_->returnType;
+				fp.type = rhs_->returnType;
 			}
 			
 		}
@@ -453,7 +454,7 @@ ax_NullableObj< ExprAST > Parser::parseExpr_BinaryOp( ax_int exprPrec, ax_Obj<Ex
 		}
 		
 		ax_if_not_let( fo, fn->getOverload( candidate, params ) ) {
-			Log::Error( op_pos, ax_txt("no '{?}.func {?} ({?})' overload"), ltype->name(), op, params );
+			Log::Error( op_pos, ax_txt("function overload not match: {?} {?} ({?})'\n ----------\n {?} \n----------\n"), fn, op, params, fn->overloads );
 		}
 
 		ax_if_let( rhs_, rhs ) {

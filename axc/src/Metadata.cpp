@@ -18,21 +18,7 @@ Metadata::Metadata() {
 
 	namespace_ax	= ax_new_obj( Namespace, nullptr, LexerPos(), ax_txt("ax") );
 	root			= ax_new_obj( Namespace, namespace_ax, LexerPos(), ax_txt("ax_build") );
-
-	type_object		= ax_new_obj(  Class, root, LexerPos(), ax_txt("Object" ) );
-	type_object->buildin = true;
-	type_object->setCppName( ax_txt("ax_Object"), true );
 	
-	{
-		type_array		= ax_new_obj(  Class, root, LexerPos(), ax_txt("Array") );
-		type_array->buildin	 = true;
-		type_array->setCppName( ax_txt("ax_Array"), true );
-		
-		auto p = ax_new_obj( TemplateTypename, LexerPos(), ax_txt("T") );
-		
-		type_array->templateParams.add( RType::MakeTypename( p ) );
-	}
-
 	type_dict		= ax_new_obj(  Class, root, LexerPos(), ax_txt("Dict") );
 	type_dict->buildin	 = true;
 	type_dict->setCppName( ax_txt("ax_Dict"), true );
@@ -118,6 +104,35 @@ Metadata::Metadata() {
 	addOperatorFunc( type_bool, type_string, TokenType::t_greater );
 	addOperatorFunc( type_bool, type_string, TokenType::t_greaterEqual );
 	
+	
+	{
+		auto fn = root->addFunc( ax_txt("ax_new_array") );
+		func_new_array = fn;
+		
+		auto fo = ax_new_obj( FuncOverload, fn, LexerPos() );
+		fo->buildin = true;
+		fo->addParam( ax_txt("size"), LexerPos(), RType::MakeValue( type_int, false ), LexerPos() );
+		fo->returnType = RType::MakeValue( type_array, false );
+	}
+	
+	type_object		= ax_new_obj(  Class, root, LexerPos(), ax_txt("Object" ) );
+	type_object->buildin = true;
+	type_object->setCppName( ax_txt("ax_Object"), true );
+	
+	{
+		type_array		= ax_new_obj(  Class, root, LexerPos(), ax_txt("Array") );
+		type_array->buildin	 = true;
+		type_array->setCppName( ax_txt("ax_Array"), true );
+		
+		auto p = ax_new_obj( Typename, type_array, LexerPos(), ax_txt("T") );
+		
+		type_array->templateParams.add( RType::MakeTypename( p ) );
+		auto fn = type_array->addFunc( ax_txt("New") );
+		auto fo = ax_new_obj( FuncOverload, fn, LexerPos() );
+		fo->addParam( ax_txt("size"), LexerPos(), RType::MakeValue( type_int, false ), LexerPos() );
+	}
+	
+	
 }
 
 
@@ -128,9 +143,8 @@ void Metadata::addOperatorFunc( ax_Obj< TypeNode > returnType, ax_Obj< TypeNode 
 	
 	ov->buildin = true;
 	ov->returnType = RType::MakeValue( returnType, false );
-	auto & pm = ov->params.addNew();
-	pm.rtype = RType::MakeValue( type, false );
-	pm.name = ax_txt("rhs");
+		
+	ov->addParam( ax_txt("rhs"), LexerPos(), RType::MakeValue( type, false ), LexerPos() );
 }
 
 void Metadata::addPrefixOperatorFunc( ax_Obj< TypeNode > returnType, ax_Obj< TypeNode > type, TokenType op ) {
@@ -157,7 +171,8 @@ void Metadata::_OnStringReq_Node( ax_ToStringReq & req, ax_Obj< MetaNode > node 
 	
 	req.newLine();
 	req.indentLevel++;	
-	ax_foreach( & c, *node->children ) {
+	ax_foreach( & c, node->children ) {
+		req.indent();
 		_OnStringReq_Node( req, c );
 	}
 	req.indentLevel--;

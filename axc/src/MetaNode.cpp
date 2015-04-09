@@ -19,7 +19,7 @@ ax_ImplObject( Namespace );
 ax_ImplObject( TypeNode );
 ax_ImplObject( TupleType );
 ax_ImplObject( PrimitiveType );
-ax_ImplObject( TemplateTypename );
+ax_ImplObject( Typename );
 
 ax_ImplObject( StructType );
 ax_ImplObject( Interface );
@@ -33,17 +33,16 @@ ax_ImplObject( FuncType );
 
 ax_string	k_ctor_name = ax_txt("ctor");
 
-MetaNode::MetaNode( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name ) {
-	this->parent	= parent;
-	this->_name		= name;
-	this->pos		= pos;
-	
-	this->macro_cppName	= false;
-	
-	this->children = ax_new_obj( ChildrenDict );
+MetaNode::MetaNode( ax_NullableObj< MetaNode > parent_, const LexerPos & pos_, const ax_string & name_ )
+: parent( parent_ )
+, _name( name_ )
+, macro_cppName( false )
+, pos( pos_ )
+, buildin( false )
+, isTemplateInstance( false ) {
 	
 	ax_if_let( p, parent ) {
-		p->children->add( name, ax_ThisObj );
+		p->children.add( name_, ax_ThisObj );
 	}
 }
 
@@ -90,7 +89,7 @@ ax_NullableObj<MetaNode>	MetaNode::getNode( const ax_string & name ) {
 }
 
 ax_NullableObj<MetaNode>	MetaNode::getMember ( const ax_string & name ) {
-	ax_if_let( t, children->tryGetValue( name ) ) {
+	ax_if_let( t, children.tryGetValue( name ) ) {
 		return t;
 	}
 	return onGetMember( name );
@@ -101,11 +100,13 @@ ax_NullableObj<MetaNode>	MetaNode::onGetMember	( const ax_string & name ) {
 }
 
 void MetaNode::OnStringReq( ax_ToStringReq & req ) const {
-	req.indent() << this->getTypeInfo().name() << ax_txt(" ") << name();
+	req << this->getTypeInfo().name();
+	req << ax_txt(" \"") << name() << ax_txt("\"");
+//	if( buildin ) req << ax_txt(" buildin");
 }
 
 ax_NullableObj< Func >	MetaNode::getFunc	( const ax_string & name ) {
-	ax_if_not_let( p, children->tryGetValue( name ) ) {
+	ax_if_not_let( p, children.tryGetValue( name ) ) {
 		return nullptr;
 	}else{
 		return p->ax_as< Func >();
@@ -116,11 +117,49 @@ ax_Obj< Func >			MetaNode::getOrAddFunc	( const ax_string & name ) {
 	ax_if_let( p, getFunc( name ) ) {
 		return p;
 	}
-	
-	auto fn = ax_new_obj( Func, ax_ThisObj, LexerPos(), name );
-	return fn;
+	return addFunc( name );
 }
 
+ax_Obj< Func >			MetaNode::addFunc	( const ax_string & name ) {
+	return ax_new_obj( Func, ax_ThisObj, LexerPos(), name );
+}
+
+
+ax_string MetaNode::getTemplateInstanceName( const ax_Array< RType > & elementTypes ) {
+	ax_TempString	o;
+
+	o.append( this->name() );
+	o.append( ax_txt("<") );
+	
+	int c = 0;
+	ax_foreach( & e, elementTypes ) {
+		if( c > 0 ) o.append( ax_txt(",") );
+		e.appendFullname( o, ax_txt(".") );
+		c++;
+	}
+	o.append( ax_txt(">") );
+	
+	return o.to_string();
+}
+
+ax_Obj< TypeNode > TypeNode::getOrAddTemplateInstance( const ax_Array< RType > & templateParams ) {
+	auto new_name = getTemplateInstanceName( templateParams );
+	
+	ax_if_let( p, templateInstance.tryGetValue( new_name ) ) {
+		return p;
+	}
+
+	auto new_inst = ax_new_obj( Func, this->parent, this->pos, new_name );
+	new_inst->buildin = buildin;
+	
+	templateInstance.add( new_name, new_inst );
+	
+	ax_foreach( & c, children ) {
+		c->onParentCreateTemplateInstance( new_inst, templateParams );
+	}
+	
+	return new_inst;
+}
 
 Namespace::Namespace( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name )
 : base( parent, pos, name ) {
@@ -128,7 +167,7 @@ Namespace::Namespace( ax_NullableObj< MetaNode > parent, const LexerPos & pos, c
 
 ax_Obj< Namespace >	Namespace::getOrAddNamespace	( const ax_string & name, LexerPos & pos ) {
 
-	ax_if_not_let( p, children->tryGetValue( name ) ) {
+	ax_if_not_let( p, children.tryGetValue( name ) ) {
 		auto new_node = ax_new_obj( Namespace, ax_ThisObj, pos, name );
 		return new_node;
 	}
@@ -145,13 +184,31 @@ TypeNode::TypeNode( ax_NullableObj< MetaNode > parent, const LexerPos & pos, con
 	buildin = false;
 }
 
+void TypeNode::OnStringReq( ax_ToStringReq & req ) const {
+	base::OnStringReq( req );
+		
+	if( templateParams.size() > 0 ) {
+		req << ax_txt("<");
+		
+		ax_int c = 0;
+		ax_foreach( &p, templateParams ) {
+			if( c > 0 ) req << ax_txt(", ");
+			req << p;
+			c++;
+		}
+		
+		req << ax_txt(">");
+	}
+}
+
+
 TupleType::TupleType( const LexerPos & pos, const ax_string & name, const ax_Array< RType > & elementTypes_ )
 : base( nullptr, pos, name ) {
 	this->elementTypes.assign( elementTypes_ );
 }
 
-TemplateTypename::TemplateTypename( const LexerPos & pos, const ax_string & name )
-: base( nullptr, pos, name ) {
+Typename::Typename( ax_NullableObj< MetaNode> parent, const LexerPos & pos, const ax_string & name )
+: base( parent, pos, name ) {
 }
 
 ax_Obj< TupleType >	TupleTypeTable::getOrAddTuple	( const LexerPos & pos, const ax_Array< RType > & elementTypes ) {
@@ -188,7 +245,6 @@ StructType::StructType( ax_NullableObj< MetaNode > parent, const LexerPos & pos,
 : base( parent, pos, name ) {
 	isNestedType = false;				
 	g_metadata->structList.add( ax_ThisObj );
-
 }
 
 Prop::Prop( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name, bool is_let )
@@ -216,10 +272,26 @@ ax_NullableObj< FuncOverload > Func::getOverload( ax_Array< ax_Obj< FuncOverload
 
 void Func::OnStringReq( ax_ToStringReq & req ) const {
 	base::OnStringReq( req );
-	req << ax_txt("\n");
-	req << overloads;
+	req.indentLevel++;
+	
+	ax_foreach( &fo, overloads ) {
+		req.newLine();
+		req.indent() << fo;
+	}
+	
+	req.indentLevel--;
 }
 
+FuncParam &	FuncOverload::addParam( const ax_string & name, const LexerPos & namePos, const RType & type, const LexerPos & typePos ) {
+	auto & o = params.addNew();
+	
+	o.name		= name;
+	o.namePos	= namePos;
+	o.type		= type;
+	o.typePos	= typePos;
+	
+	return o;
+}
 
 bool	FuncOverload::isMatch ( const ax_Array< FuncParam > & callParams ) {
 	ax_int i = 0;
@@ -227,7 +299,7 @@ bool	FuncOverload::isMatch ( const ax_Array< FuncParam > & callParams ) {
 		if( i >= params.size() ) return false;
 		auto & p = params[i];
 		
-		if( c.rtype.type != p.rtype.type ) return false;
+		if( c.type != p.type ) return false;
 
 		i++;
 	}
@@ -243,8 +315,21 @@ bool	FuncOverload::isMatch ( const ax_Array< FuncParam > & callParams ) {
 
 void FuncOverload::OnStringReq( ax_ToStringReq & req ) const {
 	base::OnStringReq( req );
-	req << params;
-	req << ax_txt("\n");
+	
+	ax_int c = 0;
+	req << ax_txt(" (");
+	
+	if( params.size() > 0 ) {
+		req << ax_txt(" ");
+		ax_foreach( &p, params ) {
+			if( c > 0 ) req << ax_txt(", ");
+			req << p.name;
+			req << ax_txt(":") << p.type;
+			c++;
+		}
+		req << ax_txt(" ");
+	}
+	req << ax_txt(")");
 }
 
 FuncOverload::FuncOverload( ax_Obj< Func > fn, const LexerPos & pos )

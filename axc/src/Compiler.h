@@ -22,6 +22,8 @@ public:
 	void	compile( const ax_string & project_root );
 	void	loadAllSourceFiles();
 	
+	void	dumpMetadata();
+	
 	void	declarePass();
 	
 	void	genCppPass();

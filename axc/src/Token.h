@@ -197,8 +197,8 @@ public:
 };
 
 
-ax_string ax_to_string( TokenType v );
-void ax_to_string_req( ax::System::ToStringReq & req, const TokenType & v );
+ax_string 	ax_to_string( TokenType v );
+void 		ax_to_string_req( ax::System::ToStringReq & req, const TokenType & v );
 
 
 }} //namespace

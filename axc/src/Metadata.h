@@ -20,6 +20,10 @@ public:
 
 	ax_Obj< Namespace > namespace_ax;
 	ax_Obj< Namespace > root;
+	
+	
+	ax_Obj< Func >		func_new_array;
+	
 
 	TupleTypeTable	tupleTable;
 	ax_Array_< ax_Obj<StructType> >		structList;
@@ -62,7 +66,8 @@ public:
 	void	addPrefixOperatorFunc	( ax_Obj< TypeNode > returnType, ax_Obj< TypeNode > type, TokenType op );
 	void	addPostfixOperatorFunc	( ax_Obj< TypeNode > returnType, ax_Obj< TypeNode > type, TokenType op );
 	
-	void OnStringReq( ax_ToStringReq & req ) const;
+	
+	void 	OnStringReq( ax_ToStringReq & req ) const;
 	
 private:
 	void _OnStringReq_Node( ax_ToStringReq & req, ax_Obj< MetaNode > node ) const;

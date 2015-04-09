@@ -42,16 +42,25 @@ void Compiler::declarePass() {
 		DeclarePass	pass;
 		pass.parseFile( f );
 	}
+	dumpMetadata();
 
 	{
 		DeclarePass pass;
 		pass.run2ndPass();
 	}
+	dumpMetadata();
+}
+
+void Compiler::dumpMetadata() {
+	auto s = ax_format( ax_txt("{?}"), *g_metadata );
+	System::IO::File::WriteText( project_root + ax_txt("/_auto_gen_/metadata.txt")  , s );
 }
 
 void Compiler::genCppPass() {
 	GenCppPass	pass;
 	pass.genCode( project_root + ax_txt("/_auto_gen_") );
+	
+	dumpMetadata();
 }
 
 void Compiler::compile( const ax_string & project_root ) {
@@ -62,7 +71,7 @@ void Compiler::compile( const ax_string & project_root ) {
 	
 	loadAllSourceFiles();
 	declarePass();
-		
+				
 	genCppPass();
 
 	ax_log( ax_txt("=== compile done ! ===") );

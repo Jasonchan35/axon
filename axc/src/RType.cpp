@@ -21,6 +21,12 @@ void	RType::appendFullname	( ax_MutString & fullname, const ax_string & seperato
 	t->appendFullname( fullname, seperator );
 }
 
+bool RType::operator==( const RType & rhs ) const {
+	ax_if_not_let( t, type 		) { return false; }
+	ax_if_not_let( r, rhs.type 	) { return false; }
+	return t == r;
+}
+
 bool RType::canAssignFrom( const RType & rhs ) const {
 	ax_if_not_let( t, type 		) { return false; }
 	ax_if_not_let( r, rhs.type 	) { return false; }
@@ -29,7 +35,11 @@ bool RType::canAssignFrom( const RType & rhs ) const {
 }
 
 void	RType::OnStringReq( ax_ToStringReq & req ) const {
-	req << ax_txt("RType[") << type << ax_txt("]");
+	ax_if_let( t, type ) {
+		req << t->name();
+	}else{
+		req << ax_txt("RType<NULL>");
+	}
 }
 
 ax_NullableObj< Func >	RType::getFunc ( const ax_string & name ) {
@@ -46,7 +56,13 @@ ax_NullableObj< Func >	RType::getOperatorFunc		( TokenType op ) {
 		}
 		
 		if( op == TokenType::t_op_subscript ) {
-			return g_metadata->type_array->getFunc( k_ctor_name );
+			auto a = g_metadata->type_array;
+			
+			ax_Array_< RType, 32 > templateParam;
+			templateParam.add( *this );
+			
+			auto ai = a->getOrAddTemplateInstance( templateParam );
+			return ai->getFunc( ax_txt("New") );
 		}
 	
 		return nullptr;
