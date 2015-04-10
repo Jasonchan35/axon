@@ -153,13 +153,6 @@ class TypeNode : public MetaNode {
 	
 	ax_Dict< ax_string, ax_Obj<TypeNode> >	templateInstance;
 	
-
-	void onInit_TypeNode() {}
-	void onCopy_TypeNode( ax_Obj<TypeNode> p ) {
-		modifier = p->modifier;
-		_templateParams = p->_templateParams;
-	}
-
 	virtual	bool canAssignFrom( ax_Obj< TypeNode > rhs ) const {
 		return true;
 	}
@@ -173,6 +166,8 @@ class TypeNode : public MetaNode {
 
 class TemplateParam : public TypeNode {
 	DefMetaNode( TemplateParam, TypeNode )
+	
+	virtual void OnStringReq( ax_ToStringReq & req ) const;
 	
 	RType	type;
 };

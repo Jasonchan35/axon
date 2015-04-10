@@ -120,9 +120,8 @@ ax_NullableObj<MetaNode>	MetaNode::onGetMember	( const ax_string & name ) {
 }
 
 void MetaNode::OnStringReq( ax_ToStringReq & req ) const {
-	req << this->getTypeInfo().name();
-	req << ax_txt(" \"") << name() << ax_txt("\"");
-//	if( buildin ) req << ax_txt(" buildin");
+	req << getTypeInfo().name() << ax_txt(" ");
+	req << name() << ax_txt(" ");
 }
 
 ax_NullableObj< Func >	MetaNode::getFunc	( const ax_string & name ) {
@@ -172,6 +171,12 @@ void TemplateParam::onCopy( ax_Obj< TemplateParam > p ) {
 	type = p->type;
 }
 
+void TemplateParam::OnStringReq( ax_ToStringReq & req ) const {
+	base::OnStringReq( req );
+
+	req << type;
+}
+
 TemplateReplaceReq &	TemplateReplaceReq::operator<<( ax_Obj< TemplateParam > rhs ) {
 	RType	new_value;
 	if( dict.tryGetValue( rhs, new_value ) ) {
@@ -194,6 +199,14 @@ TemplateReplaceReq &	TemplateReplaceReq::operator<<( RType & rhs ) {
 #pragma mark =========================
 #endif
 
+void TypeNode::onInit() {
+}
+
+void TypeNode::onCopy( ax_Obj< TypeNode > src ) {
+	modifier 		= src->modifier;
+	_templateParams	= src->_templateParams;
+}
+
 ax_Obj< TemplateParam > TypeNode::addTemplateParam( const ax_string & name, const LexerPos & pos ) {
 	auto p = ax_new_obj( TemplateParam, ax_ThisObj, name, pos );
 
@@ -203,9 +216,9 @@ ax_Obj< TemplateParam > TypeNode::addTemplateParam( const ax_string & name, cons
 }
 
 void TypeNode::onVisit( TemplateReplaceReq & req ) {
-	ax_foreach( &p, _templateParams ) {
-		req << p;
-	}
+//	ax_foreach( &p, _templateParams ) {
+//		req << p;
+//	}
 }
 
 ax_Obj< TypeNode > TypeNode::getOrAddTemplateInstance( const ax_Array< RType > & params, const LexerPos & pos ) {
@@ -279,20 +292,6 @@ ax_Obj< Namespace >	Namespace::getOrAddNamespace	( const ax_string & name, Lexer
 
 	return p->ax_cast< Namespace >();
 }
-
-
-#if 0
-#pragma mark =========================
-#endif
-
-void TypeNode::onInit() {
-}
-
-void TypeNode::onCopy( ax_Obj< TypeNode > src ) {
-	modifier 		= src->modifier;
-	_templateParams	= src->_templateParams;
-}
-
 
 #if 0
 #pragma mark =========================

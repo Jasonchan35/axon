@@ -164,6 +164,9 @@ void Metadata::addPostfixOperatorFunc( ax_Obj< TypeNode > returnType, ax_Obj< Ty
 	
 void Metadata::_OnStringReq_Node( ax_ToStringReq & req, ax_Obj< MetaNode > node ) const {
 	req << node;
+//	req << node->getTypeInfo().name() << ax_txt(" ");
+//	req << node->name() << ax_txt(" ");
+//	req << ax_txt("  [") << (const void*) node.ptr() << ax_txt("] ");
 	
 	req.newLine();
 	req.indentLevel++;	
@@ -181,3 +184,5 @@ void Metadata::OnStringReq( ax_ToStringReq & req ) const {
 }
 
 }} //namespace
+
+
