@@ -53,7 +53,6 @@ void DeclarePass::resolveFuncParamPass () {
 }
 
 void DeclarePass::resolveFuncParam( ax_Obj< FuncOverload > fo ) {
-	
 	setPos( fo->paramPos );
 	
 	for(;;) {
@@ -255,7 +254,8 @@ bool DeclarePass::resolveStructType( ax_Obj< StructType > node ) {
 	{
 		ax_if_not_let( ctor, node->getFunc( k_ctor_name ) ) {
 			auto fn = node->getOrAddFunc( k_ctor_name );
-			auto fo = ax_new_obj( FuncOverload, fn, node->pos );
+			auto fo = fn->addOverload( node->pos );
+			fo->pos		= node->pos;
 			fo->buildin = true;
 			fo->returnType = RType::MakeValue( node, false );
 		}
@@ -364,13 +364,13 @@ void DeclarePass::parseStructType( DeclarationModifier & modifier ) {
 				
 	ax_Obj< StructType >	new_node;
 	switch( nodeType ) {
-		case TokenType::t_interface: 	new_node = ax_new_obj( Interface,	inNode, token.pos, token.str );	break;
-		case TokenType::t_struct: 		new_node = ax_new_obj( Struct,		inNode, token.pos, token.str );	break;
-		case TokenType::t_class: 		new_node = ax_new_obj( Class,		inNode, token.pos, token.str );	break;
+		case TokenType::t_interface: 	new_node = ax_new_obj( Interface,	inNode, token.str, token.pos );	break;
+		case TokenType::t_struct: 		new_node = ax_new_obj( Struct,		inNode, token.str, token.pos );	break;
+		case TokenType::t_class: 		new_node = ax_new_obj( Class,		inNode, token.str, token.pos );	break;
 
 		default:
 			Log::Error( token, ax_txt("class / struct / interface expected") );
-	}
+	}	
 
 	if( inNode->ax_is< Namespace >() ) {
 	}else if( inNode->ax_is< StructType >() ) {
@@ -465,7 +465,7 @@ void DeclarePass::parseFunc( DeclarationModifier & modifier ) {
 	}
 	
 	auto fn = inNode->getOrAddFunc( token.str );
-	auto fo = ax_new_obj( FuncOverload, fn, token.pos );
+	auto fo = fn->addOverload( token.pos );
 	nextToken();
 
 	if( ! token.is_roundBracketOpen() ) {
@@ -520,7 +520,8 @@ void DeclarePass::parseProp( DeclarationModifier & modifier ) {
 	for(;;) {
 		if( ! token.is_identifier() ) Log::Error( token, ax_txt("var name expected") );
 		
-		auto new_node = ax_new_obj( Prop, inNode, token.pos, token.str, is_let );
+		auto new_node = ax_new_obj( Prop, inNode, token.str, token.pos );
+		new_node->is_let = is_let;
 		nextToken();
 				
 //		new_node->modifier = modifier;

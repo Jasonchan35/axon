@@ -79,6 +79,7 @@ void _ax_to_string_req_pointer( ax::System::ToStringReq_<T> & req, const void* &
 
 
 #define ax_TYPE_LIST_ITEM( NAME, T ) \
+	template<> void ax_to_string_req( ax::System::ToStringReq_<T> & req, const void*      v ) { _ax_to_string_req_pointer ( req, v ); } \
 	template<> void ax_to_string_req( ax::System::ToStringReq_<T> & req, const void*    & v ) { _ax_to_string_req_pointer ( req, v ); } \
 	template<> void ax_to_string_req( ax::System::ToStringReq_<T> & req, const bool   	& v ) { _ax_to_string_req_bool	  ( req, v ); } \
 	\

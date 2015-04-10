@@ -16,10 +16,38 @@
 namespace ax {
 namespace Compile {
 
+#define DefMetaNode(T,B)	\
+	ax_DefObject(T,B);	\
+public:	\
+	T( ax_NullableObj< MetaNode > parent, const ax_string & name, const LexerPos & pos ) \
+	: base( parent, name, pos ) { \
+		onInit(); \
+	} \
+	void onInit(); \
+	virtual	ax_Obj<MetaNode> clone ( ax_Obj< MetaNode > new_parent ) { \
+		auto p = ax_new_obj( T, new_parent, name(), pos ); \
+		p->onDeepCopy( ax_ThisObj ); \
+		return p; \
+	} \
+	virtual	ax_Obj<MetaNode> clone ( const ax_string & new_name ) { \
+		auto p = ax_new_obj( T, parent, new_name, pos ); \
+		p->onDeepCopy( ax_ThisObj ); \
+		return p; \
+	} \
+	virtual void onDeepCopy( ax_Obj<MetaNode> p ) { \
+		B::onDeepCopy( p ); \
+		T::onCopy( p->ax_cast<T>() ); \
+	} \
+	void onCopy( ax_Obj<T> p ); \
+//----------
+
 extern ax_string	k_ctor_name;
 
 class Func;
 class ExprAST;
+
+class TemplateParam;
+class TemplateReplaceReq;
 
 class LexerPos;
 class MetaNode : public System::Object {
@@ -27,7 +55,7 @@ class MetaNode : public System::Object {
 public:
 	struct	ax_type_on_gc_trace : public std::true_type {};
 
-	MetaNode( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name );
+	MetaNode( ax_NullableObj< MetaNode > parent, const ax_string & name, const LexerPos & pos );
 
 	template< typename T >
 	ax_NullableObj<T>	getUpperByType	() {
@@ -44,7 +72,7 @@ public:
 			return nullptr;
 		}
 	}
-
+	
 	const ax_string &	name	() const	{ return _name; }
 	const ax_string &	cppName	() const	{ return _cppName.size() ? _cppName : _name; }
 
@@ -59,8 +87,9 @@ public:
 	bool				buildin;
 	bool				isTemplateInstance;
 		
+		ax_string	fullname		() const { return getFullname( ax_txt(".") ); }
 		ax_string	getFullname		( const ax_string & seperator ) const;
-			void	appendFullname	( ax_MutString & fullname, const ax_string & seperator ) const;
+		void		appendFullname	( ax_MutString & fullname, const ax_string & seperator ) const;
 
 
 			ax_NullableObj< MetaNode >	getNode			( const ax_string & name );
@@ -84,87 +113,95 @@ public:
 
 	virtual void 	OnStringReq		( ax_ToStringReq & req ) const;
 	
-	ax_string 		getTemplateInstanceName			( const ax_Array< RType > & templateParams );
+	ax_string 		getTemplateInstanceName		( const ax_Array< RType > & templateParams );
 	
-	virtual	void	onParentCreateTemplateInstance	( ax_Obj< MetaNode > new_inst_parent, const ax_Array< RType > & templateParams ) {}
+	template< typename REQ >
+	void	onDeepVisit( REQ & req ) {
+		onVisit( req );
+		ax_foreach( &c, children ) {
+			c->onDeepVisit( req );
+		}
+	}
+	
+	virtual	void onVisit( TemplateReplaceReq & req ) {}
+	
+	virtual	ax_Obj<MetaNode> clone ( ax_Obj< MetaNode > new_parent ) = 0;
+	virtual	ax_Obj<MetaNode> clone ( const ax_string & new_name ) = 0;
+				
+			void	onDeepInit() { onInit(); }
+			void	onInit();
+	
+	virtual	void 	onDeepCopy	( ax_Obj<MetaNode> p ) { onCopy(p); }
+			void 	onCopy		( ax_Obj<MetaNode> p );
 };
 
 class Namespace : public MetaNode {
-	ax_DefObject( Namespace, MetaNode )
-public:
-	struct	ax_type_on_gc_trace : public std::true_type {};
-
-	Namespace( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name );
+	DefMetaNode( Namespace, MetaNode )
 
 	ax_Obj< Namespace > getOrAddNamespace	( const ax_string & name, LexerPos & pos );
+
 };
 
 class TypeNode : public MetaNode {
-	ax_DefObject( TypeNode, MetaNode );
-public:
-	TypeNode( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name );
+	DefMetaNode( TypeNode, MetaNode );
+	
+	DeclarationModifier						modifier;
+	
+	 ax_Obj< TemplateParam >				 addTemplateParam( const ax_string & name, const LexerPos & pos );
+	
+	ax_Array_< ax_Obj< TemplateParam > >	_templateParams;
+	
+	ax_Dict< ax_string, ax_Obj<TypeNode> >	templateInstance;
+	
+
+	void onInit_TypeNode() {}
+	void onCopy_TypeNode( ax_Obj<TypeNode> p ) {
+		modifier = p->modifier;
+		_templateParams = p->_templateParams;
+	}
 
 	virtual	bool canAssignFrom( ax_Obj< TypeNode > rhs ) const {
 		return true;
 	}
+		
+	ax_Obj< TypeNode >		getOrAddTemplateInstance( const ax_Array< RType > & params, const LexerPos & pos );
 	
-	DeclarationModifier		modifier;
-	
-	ax_Obj< TypeNode >		getOrAddTemplateInstance( const ax_Array< RType > & templateParams );
+	virtual	void onVisit( TemplateReplaceReq & req );
 	
 	void	OnStringReq( ax_ToStringReq & req ) const;
+};
+
+class TemplateParam : public TypeNode {
+	DefMetaNode( TemplateParam, TypeNode )
 	
-	ax_Array_< RType >						templateParams;
-	ax_Dict< ax_string, ax_Obj<TypeNode> >	templateInstance;
+	RType	type;
+};
+
+class TemplateReplaceReq : public System::NonCopyable {
+public:
+	ax_Dict< ax_Obj<MetaNode>, RType > dict;
 	
+	TemplateReplaceReq &	operator << ( RType & rhs );
+	TemplateReplaceReq &	operator << ( ax_Obj< TemplateParam > rhs );
 };
 
 
 class PrimitiveType : public TypeNode {
-	ax_DefObject( PrimitiveType, TypeNode );
-public:
-	PrimitiveType( ax_NullableObj< MetaNode > parent, const ax_string & name )
-	: base( parent, LexerPos(), name )
-	{ buildin = true; }	
-};
-
-
-class TupleType : public TypeNode {
-	ax_DefObject( TupleType, TypeNode )
-public:
-
-	TupleType( const LexerPos & pos, const ax_string & name, const ax_Array< RType > & elementTypes_ );
-	
-	ax_Array_< RType, 8 >		elementTypes;
-	
-};
-
-class TupleTypeTable : System::NonCopyable {
-public:
-
-	ax_NullableObj< TupleType >	getTuple		( const ax_Array< ax_Obj<TypeNode> > & elementTypes );
-			ax_Obj< TupleType >	getOrAddTuple	( const LexerPos & pos, const ax_Array< RType > & elementTypes );
-
-	ax_string		getTupleName( const ax_Array< RType > & elementTypes );
-
-private:
-	ax_Dict< ax_string, ax_Obj<TupleType> >	tuples;
+	DefMetaNode( PrimitiveType, TypeNode );	
 };
 
 class Typename : public TypeNode {
-	ax_DefObject( Typename, TypeNode )
-public:
-	Typename( const ax_NullableObj<MetaNode> parent, const LexerPos & pos, const ax_string & name );
+	DefMetaNode( Typename, TypeNode )
+	
+	void onInit_Typename();
 };
 
 class StructType : public TypeNode {
-	ax_DefObject( StructType, TypeNode )
-public:
-	StructType( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name );
+	DefMetaNode( StructType, TypeNode )
+	
+	ax_Array_< LexerPos >				baseOrInterfacePos;
 
-	ax_Array_< LexerPos >	baseOrInterfacePos;
-
-	LexerPos				bodyPos;
+	LexerPos							bodyPos;
 	
 	ax_NullableObj< StructType >		baseType;
 	ax_Array_< ax_Obj< StructType > >	interfaces;
@@ -173,27 +210,19 @@ public:
 };
 
 class Interface : public StructType {
-	ax_DefObject( Interface, StructType );
-public:
-	Interface( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name ) : base( parent, pos, name ) {}
+	DefMetaNode( Interface, StructType );	
 };
 
 class Struct : public StructType {
-	ax_DefObject( Struct, StructType );
-public:
-	Struct( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name ) : base( parent, pos, name ) {}
+	DefMetaNode( Struct, StructType );
 };
 
 class Class : public StructType {
-	ax_DefObject( Class, StructType );
-public:
-	Class( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name ) : base( parent, pos, name ) {}
+	DefMetaNode( Class, StructType );
 };
 
 class Prop : public MetaNode {
-	ax_DefObject( Prop, MetaNode );
-public:
-	Prop( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name, bool is_let );
+	DefMetaNode( Prop, MetaNode );
 	
 	LexerPos					initExprPos;
 	ax_NullableObj< ExprAST >	initExpr;
@@ -229,27 +258,19 @@ struct FuncParam {
 };
 
 class FuncType : public TypeNode {
-	ax_DefObject( FuncType, TypeNode );
-public:
-	FuncType( const ax_string & name, ax_Obj< Func > func );
+	DefMetaNode( FuncType, TypeNode );
+	
 	ax_Obj< Func >	func;
-		
 };
 
 class FuncOverload : public TypeNode {
-	ax_DefObject( FuncOverload, TypeNode )
-public:
-	FuncOverload( ax_Obj< Func > parent, const LexerPos & pos );
+	DefMetaNode( FuncOverload, TypeNode )
 
 	virtual void OnStringReq( ax_ToStringReq & req ) const;
 
 	bool	isMatch		( const ax_Array<FuncParam> & callParams );
 
-	ax_Obj< FuncOverload >	cloneTemplateInstance( ax_Obj< Func > new_func );
-
 	FuncParam &	addParam( const ax_string & name, const LexerPos & namePos, const RType & type, const LexerPos & typePos );
-
-	ax_Obj< Func >	func;
 
 	ax_Array_< FuncParam, 8 >	params;
 	
@@ -258,19 +279,20 @@ public:
 	LexerPos		bodyPos;
 	
 	RType			returnType;
+	
+	ax_Obj<Func>	func;
+
+	void		onVisit( TemplateReplaceReq & req );
 };
 
 class Func : public TypeNode {
-	ax_DefObject( Func, TypeNode );
-public:
-	Func( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name );
+	DefMetaNode( Func, TypeNode );
 
-	virtual void OnStringReq( ax_ToStringReq & req ) const;
-	
 	ax_NullableObj< FuncOverload >		getOverload	( ax_Array< ax_Obj< FuncOverload > > & candidate, const ax_Array< FuncParam > & params );
 	
+	ax_Obj< FuncOverload >	addOverload( const LexerPos & pos );
 	
-	ax_Array_< ax_Obj< FuncOverload > >		overloads;
+	ax_Array_< ax_Obj< FuncOverload > >		overloads;	
 };
 
 }} //namespace

@@ -71,6 +71,10 @@ typedef	ToStringReq_< ax_char >		ToStringReq;
 
 //-----------
 
+template< typename T > void ax_to_string_req( ax::System::ToStringReq_<T> & req, const void* & v );
+template< typename T > void ax_to_string_req( ax::System::ToStringReq_<T> & req, const void*   v );
+
+
 template< typename T, typename VALUE >
 void ax_to_string_req( ax::System::ToStringReq_<T> & req, const VALUE & v );
 
@@ -97,8 +101,6 @@ void	ax::System::Array<T>::OnStringReq( ax_ToStringReq & req ) const {
 //-------
 	ax_TYPE_LIST_all_char
 #undef ax_TYPE_LIST_ITEM
-
-template< typename T > void ax_to_string_req( ax::System::ToStringReq_<T> & req, const void* & v );
 
 #define ax_TYPE_LIST_ITEM( NAME, VALUE ) \
 	template< typename T > void ax_to_string_req( ax::System::ToStringReq_<T> & req, const VALUE & v ); \

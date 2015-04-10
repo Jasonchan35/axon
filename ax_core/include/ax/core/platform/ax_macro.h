@@ -46,6 +46,10 @@
 	if( ! (RHS).tryGet( VAR_NAME ) )
 //---------
 
+#define ax_get( VAR_NAME, MEMBER, DEFAULT_VALUE ) \
+	( VAR_NAME.is_null() ? DEFAULT_VALUE : VAR_NAME.unsafeGet()->MEMBER )
+//---------
+
 #if _DEBUG
 	#define ax_assert(a)	assert(a)
 	#define	ax_assert_equals( a, b )	\

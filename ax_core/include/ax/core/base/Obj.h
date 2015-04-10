@@ -21,7 +21,7 @@
 	private:\
 		typedef BASE		base; \
 	public: \
-		typedef	T			THIS_CLASS; \
+		typedef	T			ax_THIS_CLASS; \
 		static  const ax_TypeInfo	ax_typeinfo; \
 		virtual	const ax_TypeInfo &	getTypeInfo() const { return ax_typeinfo; } \
 		ax_Obj< T >			as_##T() { return ax_ThisObj; } \
@@ -112,6 +112,8 @@ public:
 			req << *_p;
 		}
 	}
+	
+	ax_int GetHash() const { return (ax_int)(intptr_t*) _p; }
 	
 private:
 	Obj( T* p ) : _p(p) { _checkIsObject(p); }

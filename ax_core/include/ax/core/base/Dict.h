@@ -103,7 +103,9 @@ public:
 		auto h = ax_hash_of(key);
 		auto & list = _listForAdd( h );
 		
-		if( _getPairFromList( list, h, key ) ) { throw Err_Dict_DuplicateKey(); }
+		if( _getPairFromList( list, h, key ) ) {
+			throw Err_Dict_DuplicateKey();
+		}
 		
 		auto u = ax_new( Pair, h, key, value );
 		list.add( & u->_hashNode );
@@ -132,6 +134,13 @@ public:
 
 	ax_ALWAYS_INLINE(	 bool	hasKey( const KEY & key ) 	) {
 		return tryGetPair( key ) != nullptr;
+	}
+	
+	ax_ALWAYS_INLINE(	bool	tryGetValue( const KEY & key, VALUE & outValue ) ) {
+		auto p = tryGetPair( key );
+		if( !p ) return false;
+		outValue = p->value;
+		return true;
 	}
 	
 	ax_ALWAYS_INLINE(	 Nullable<VALUE>	tryGetValue( const KEY & key ) 	) {

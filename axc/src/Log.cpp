@@ -7,9 +7,13 @@
 //
 
 #include "Log.h"
+#include "Compiler.h"
 
 namespace ax {
 namespace Compile {
 
+void Log::dumpMetadata() {
+	g_compiler->dumpMetadata();
+}
 
 }} //namespace

@@ -13,7 +13,7 @@ namespace ax {
 namespace Compile {
 
 void	RType::appendFullname	( ax_MutString & fullname, const ax_string & seperator ) const {
-	ax_if_let( t, type ) {
+	ax_if_not_let( t, type ) {
 		fullname << ax_txt("<NULL>");
 		return;
 	}
@@ -47,7 +47,7 @@ ax_NullableObj< Func >	RType::getFunc ( const ax_string & name ) {
 	return t->getFunc(name);
 }
 
-ax_NullableObj< Func >	RType::getOperatorFunc		( TokenType op ) {
+ax_NullableObj< Func >	RType::getOperatorFunc	( TokenType op, const LexerPos & pos ) {
 	ax_if_not_let( t, type ) return nullptr;
 
 	if( isTypename ) {
@@ -61,7 +61,7 @@ ax_NullableObj< Func >	RType::getOperatorFunc		( TokenType op ) {
 			ax_Array_< RType, 32 > templateParam;
 			templateParam.add( *this );
 			
-			auto ai = a->getOrAddTemplateInstance( templateParam );
+			auto ai = a->getOrAddTemplateInstance( templateParam, pos );
 			return ai->getFunc( ax_txt("New") );
 		}
 	
@@ -78,11 +78,14 @@ ax_NullableObj< Func >	RType::getOperatorFunc		( TokenType op ) {
 	}
 }
 
-ax_NullableObj< Func >	RType::getPrefixOperatorFunc	( TokenType op ) {
+ax_NullableObj< Func >	RType::getPrefixOperatorFunc	( TokenType op, const LexerPos & pos ) {
 	ax_if_not_let( t, type ) return nullptr;
 	return t->getPrefixOperatorFunc(op);
 }
 
+void RValue::OnStringReq( ax_ToStringReq & req ) const {
+	req << name << ax_txt(":") << type;
+}
 
 }} //namespace
 

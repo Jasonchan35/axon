@@ -22,17 +22,23 @@ public:
 	template< typename... Args >
 	static void Error( const LexerPos & pos, Args &&... args ) { Error( nullptr, &pos, args... ); }
 
+	static void dumpMetadata();
+
 	template< typename... Args >
 	static void Error( Token* token, const LexerPos* pos, const ax_string & fmt ) {
+		dumpMetadata();
+		
 		ax_log( ax_txt("!! ERROR:") );
 		ax_log( fmt );
 		if( token ) ax_log( ax_txt("{?}"), *token );
 		if( pos ) 	ax_log( ax_txt("{?}"), *pos );
 		throw System::Err_Undefined();
 	}
-
+	
 	template< typename... Args >
 	static void Error( Token* token, const LexerPos* pos, Args &&... args ) {
+		dumpMetadata();
+		
 		ax_log( ax_txt("!! ERROR:") );
 		ax_log( args... );
 		if( token ) ax_log( ax_txt("{?}"), *token );

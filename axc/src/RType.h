@@ -56,11 +56,10 @@ public:
 	bool	is_null() const { return type.is_null(); }
 	bool	canAssignFrom( const RType & rhs ) const;
 	
-
 	ax_NullableObj< Func >	getFunc					( const ax_string & name );
 	
-	ax_NullableObj< Func >	getOperatorFunc			( TokenType op );
-	ax_NullableObj< Func >	getPrefixOperatorFunc	( TokenType op );
+	ax_NullableObj< Func >	getOperatorFunc			( TokenType op, const LexerPos & pos );
+	ax_NullableObj< Func >	getPrefixOperatorFunc	( TokenType op, const LexerPos & pos );
 
 	void	OnStringReq( ax_ToStringReq & req ) const;
 
@@ -70,6 +69,18 @@ public:
 	bool	isMutable	:1;
 	bool	isInstance	:1;
 	bool	isTypename	:1;
+};
+
+class RValue {
+public:
+	struct	ax_type_on_gc_trace : public std::true_type {};
+
+	RType		type;
+	ax_string	name;
+	LexerPos	pos;
+	
+	void	OnStringReq( ax_ToStringReq & req ) const;
+	
 };
 
 }} //namespace

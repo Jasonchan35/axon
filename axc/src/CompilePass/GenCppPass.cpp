@@ -263,7 +263,7 @@ void GenCppPass::genCpp_funcOverload( ax_Obj< FuncOverload > fo ) {
 	ob.newline();
 	
 	ob << fo->returnType;
-	ob << ax_txt(" ") << fo->func << ax_txt("(");
+	ob << ax_txt(" ") << fo->func->name() << ax_txt("(");
 	
 	if( fo->params.size() > 0 ) {
 		ob << ax_txt(" ");

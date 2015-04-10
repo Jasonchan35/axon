@@ -17,9 +17,10 @@ ax_ImplObject( MetaNode );
 
 ax_ImplObject( Namespace );
 ax_ImplObject( TypeNode );
-ax_ImplObject( TupleType );
 ax_ImplObject( PrimitiveType );
 ax_ImplObject( Typename );
+
+ax_ImplObject( TemplateParam );
 
 ax_ImplObject( StructType );
 ax_ImplObject( Interface );
@@ -33,19 +34,38 @@ ax_ImplObject( FuncType );
 
 ax_string	k_ctor_name = ax_txt("ctor");
 
-MetaNode::MetaNode( ax_NullableObj< MetaNode > parent_, const LexerPos & pos_, const ax_string & name_ )
+#if 0
+#pragma mark =========================
+#endif
+
+
+MetaNode::MetaNode( ax_NullableObj< MetaNode > parent_, const ax_string & name_, const LexerPos & pos_ )
 : parent( parent_ )
 , _name( name_ )
 , macro_cppName( false )
 , pos( pos_ )
 , buildin( false )
 , isTemplateInstance( false ) {
+
+//	ax_log( ax_txt("new {?} parent={?}"), getFullname( ax_txt(".") ), ax_get( parent, name(), ax_txt("") ) );
 	
 	ax_if_let( p, parent ) {
 		p->children.add( name_, ax_ThisObj );
 	}
 }
 
+void MetaNode::onInit() {
+}
+
+void	MetaNode::onCopy( ax_Obj< MetaNode > src ) {
+	pos					= src->pos;
+	buildin				= src->buildin;
+	isTemplateInstance	= src->isTemplateInstance;
+	
+	ax_foreach( &c, src->children ) {
+		c->clone( ax_ThisObj );
+	}
+}
 
 ax_string MetaNode::getFullname( const ax_string & seperator ) const {
 	ax_TempString s;
@@ -113,17 +133,16 @@ ax_NullableObj< Func >	MetaNode::getFunc	( const ax_string & name ) {
 	}
 }
 
-ax_Obj< Func >			MetaNode::getOrAddFunc	( const ax_string & name ) {
+ax_Obj< Func >	MetaNode::getOrAddFunc	( const ax_string & name ) {
 	ax_if_let( p, getFunc( name ) ) {
 		return p;
 	}
 	return addFunc( name );
 }
 
-ax_Obj< Func >			MetaNode::addFunc	( const ax_string & name ) {
-	return ax_new_obj( Func, ax_ThisObj, LexerPos(), name );
+ax_Obj< Func >	MetaNode::addFunc	( const ax_string & name ) {
+	return ax_new_obj( Func, ax_ThisObj, name, LexerPos() );
 }
-
 
 ax_string MetaNode::getTemplateInstanceName( const ax_Array< RType > & elementTypes ) {
 	ax_TempString	o;
@@ -142,33 +161,115 @@ ax_string MetaNode::getTemplateInstanceName( const ax_Array< RType > & elementTy
 	return o.to_string();
 }
 
-ax_Obj< TypeNode > TypeNode::getOrAddTemplateInstance( const ax_Array< RType > & templateParams ) {
-	auto new_name = getTemplateInstanceName( templateParams );
+#if 0
+#pragma mark =========================
+#endif
+
+void TemplateParam::onInit() {
+}
+
+void TemplateParam::onCopy( ax_Obj< TemplateParam > p ) {
+	type = p->type;
+}
+
+TemplateReplaceReq &	TemplateReplaceReq::operator<<( ax_Obj< TemplateParam > rhs ) {
+	RType	new_value;
+	if( dict.tryGetValue( rhs, new_value ) ) {
+		rhs->type = new_value;
+	}
+	return *this;
+}
+
+TemplateReplaceReq &	TemplateReplaceReq::operator<<( RType & rhs ) {
+	ax_if_let( t, rhs.type ) {
+		if( dict.tryGetValue( t, rhs ) ) {
+			ax_log( ax_txt("template replace {?} -> {?}"), t, rhs );
+		}
+	}
+
+	return *this;
+}
+
+#if 0
+#pragma mark =========================
+#endif
+
+ax_Obj< TemplateParam > TypeNode::addTemplateParam( const ax_string & name, const LexerPos & pos ) {
+	auto p = ax_new_obj( TemplateParam, ax_ThisObj, name, pos );
+
+	_templateParams.add( p );
+	
+	return p;
+}
+
+void TypeNode::onVisit( TemplateReplaceReq & req ) {
+	ax_foreach( &p, _templateParams ) {
+		req << p;
+	}
+}
+
+ax_Obj< TypeNode > TypeNode::getOrAddTemplateInstance( const ax_Array< RType > & params, const LexerPos & pos ) {
+	if( _templateParams.size() != params.size() ) {
+		Log::Error( pos, ax_txt("invalid number of template parameters") );
+	}
+
+	auto new_name = getTemplateInstanceName( params );
 	
 	ax_if_let( p, templateInstance.tryGetValue( new_name ) ) {
 		return p;
 	}
-
-	auto new_inst = ax_new_obj( Func, this->parent, this->pos, new_name );
-	new_inst->buildin = buildin;
 	
+	auto new_inst = this->clone( new_name )->ax_cast<TypeNode>();
+		
 	templateInstance.add( new_name, new_inst );
+
+	TemplateReplaceReq	req;
 	
-	ax_foreach( & c, children ) {
-		c->onParentCreateTemplateInstance( new_inst, templateParams );
+	ax_int n = params.size();
+	for( ax_int i=0; i<n; i++ ) {
+		req.dict.add( _templateParams[i], params[i] );
 	}
+	
+	new_inst->onDeepVisit( req );
+
+	g_compiler->dumpMetadata();
 	
 	return new_inst;
 }
 
-Namespace::Namespace( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name )
-: base( parent, pos, name ) {
+void TypeNode::OnStringReq( ax_ToStringReq & req ) const {
+	base::OnStringReq( req );
+		
+	if( _templateParams.size() > 0 ) {
+		req << ax_txt("<");
+		
+		ax_int c = 0;
+		ax_foreach( &p, _templateParams ) {
+			if( c > 0 ) req << ax_txt(", ");
+			req << p;
+			c++;
+		}
+		
+		req << ax_txt(">");
+	}
+}
+
+#if 0
+#pragma mark =========================
+#endif
+
+
+void Namespace::onInit() {
+}
+
+void Namespace::onCopy( ax_Obj< Namespace > p ) {
+
 }
 
 ax_Obj< Namespace >	Namespace::getOrAddNamespace	( const ax_string & name, LexerPos & pos ) {
 
 	ax_if_not_let( p, children.tryGetValue( name ) ) {
-		auto new_node = ax_new_obj( Namespace, ax_ThisObj, pos, name );
+		auto new_node = ax_new_obj( Namespace, ax_ThisObj, name, pos );
 		return new_node;
 	}
 
@@ -179,82 +280,124 @@ ax_Obj< Namespace >	Namespace::getOrAddNamespace	( const ax_string & name, Lexer
 	return p->ax_cast< Namespace >();
 }
 
-TypeNode::TypeNode( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name )
-: base( parent, pos, name ) {
-	buildin = false;
+
+#if 0
+#pragma mark =========================
+#endif
+
+void TypeNode::onInit() {
 }
 
-void TypeNode::OnStringReq( ax_ToStringReq & req ) const {
-	base::OnStringReq( req );
-		
-	if( templateParams.size() > 0 ) {
-		req << ax_txt("<");
-		
-		ax_int c = 0;
-		ax_foreach( &p, templateParams ) {
-			if( c > 0 ) req << ax_txt(", ");
-			req << p;
-			c++;
-		}
-		
-		req << ax_txt(">");
-	}
+void TypeNode::onCopy( ax_Obj< TypeNode > src ) {
+	modifier 		= src->modifier;
+	_templateParams	= src->_templateParams;
 }
 
 
-TupleType::TupleType( const LexerPos & pos, const ax_string & name, const ax_Array< RType > & elementTypes_ )
-: base( nullptr, pos, name ) {
-	this->elementTypes.assign( elementTypes_ );
-}
+#if 0
+#pragma mark =========================
+#endif
 
-Typename::Typename( ax_NullableObj< MetaNode> parent, const LexerPos & pos, const ax_string & name )
-: base( parent, pos, name ) {
-}
-
-ax_Obj< TupleType >	TupleTypeTable::getOrAddTuple	( const LexerPos & pos, const ax_Array< RType > & elementTypes ) {
-	auto name = getTupleName( elementTypes );
+void StructType::onInit() {
+	isNestedType = false;
 	
-	ax_if_let( p, tuples.tryGetValue( name ) ) {
-		return p;
-	}
-
-	auto new_tuple = ax_new_obj( TupleType, pos, name, elementTypes );
-	tuples.add( name, new_tuple );
-	
-	return new_tuple;
-}
-
-ax_string TupleTypeTable::getTupleName( const ax_Array< RType > & elementTypes ) {
-	ax_TempString	name;
-
-	name.append( ax_txt("(") );
-	
-	int c = 0;
-	ax_foreach( & e, elementTypes ) {
-		if( c > 0 ) name.append( ax_txt(",") );
-		e.appendFullname( name, ax_txt(".") );
-		c++;
-	}
-	name.append( ax_txt(")") );
-	
-	return name.to_string();
-}
-
-
-StructType::StructType( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name )
-: base( parent, pos, name ) {
-	isNestedType = false;				
 	g_metadata->structList.add( ax_ThisObj );
 }
 
-Prop::Prop( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name, bool is_let )
-: base( parent, pos, name )
-, is_let( is_let ) {
+void StructType::onCopy( ax_Obj< StructType > p ) {
+	isNestedType = p->isNestedType;
+}
+
+#if 0
+#pragma mark =========================
+#endif
+
+void PrimitiveType::onInit() {
+	buildin=true;
+}
+
+void PrimitiveType::onCopy( ax_Obj< PrimitiveType > p ) {
+
+}
+
+#if 0
+#pragma mark =========================
+#endif
+
+void Typename::onInit() {
+}
+
+void Typename::onCopy( ax_Obj< Typename > p ) {
+
+}
+
+#if 0
+#pragma mark =========================
+#endif
+
+void Struct::onInit() {
+}
+
+void Struct::onCopy( ax_Obj< Struct > p ) {
+}
+
+
+#if 0
+#pragma mark =========================
+#endif
+
+void Class::onInit() {
+}
+
+void Class::onCopy( ax_Obj< Class > p ) {
+}
+
+
+
+#if 0
+#pragma mark =========================
+#endif
+
+void Interface::onInit() {
+}
+
+void Interface::onCopy( ax_Obj< Interface > p ) {
+}
+
+#if 0
+#pragma mark =========================
+#endif
+
+void Prop::onInit() {
 	g_metadata->propList.add( ax_ThisObj );
 }
 
-Func::Func( ax_NullableObj< MetaNode > parent, const LexerPos & pos, const ax_string & name )
-: base( parent, pos, name ) {
+void Prop::onCopy( ax_Obj< Prop > p ) {
+}
+
+#if 0
+#pragma mark =========================
+#endif
+
+void Func::onInit() {
+}
+
+void Func::onCopy( ax_Obj<Func> p ) {
+	ax_foreach( &c, children ) {
+		ax_if_let( fo, c->ax_as<FuncOverload>() ) {
+			overloads.add( fo );
+		}
+	}
+}
+
+ax_Obj< FuncOverload > Func::addOverload( const LexerPos & pos ) {
+	auto fo_name = ax_format( ax_txt("fo{?}"), overloads.size() );
+
+	auto fo = ax_new_obj( FuncOverload, ax_ThisObj, fo_name, pos );
+	
+	overloads.add( fo );
+	
+	return fo;
 }
 
 ax_NullableObj< FuncOverload > Func::getOverload( ax_Array< ax_Obj< FuncOverload > > & candidate, const ax_Array<FuncParam> & params ) {
@@ -270,17 +413,9 @@ ax_NullableObj< FuncOverload > Func::getOverload( ax_Array< ax_Obj< FuncOverload
 	return nullptr;
 }
 
-void Func::OnStringReq( ax_ToStringReq & req ) const {
-	base::OnStringReq( req );
-	req.indentLevel++;
-	
-	ax_foreach( &fo, overloads ) {
-		req.newLine();
-		req.indent() << fo;
-	}
-	
-	req.indentLevel--;
-}
+#if 0
+#pragma mark =========================
+#endif
 
 FuncParam &	FuncOverload::addParam( const ax_string & name, const LexerPos & namePos, const RType & type, const LexerPos & typePos ) {
 	auto & o = params.addNew();
@@ -291,6 +426,16 @@ FuncParam &	FuncOverload::addParam( const ax_string & name, const LexerPos & nam
 	o.typePos	= typePos;
 	
 	return o;
+}
+
+void	FuncOverload::onVisit( TemplateReplaceReq & req ) {
+	ax_dump( this->fullname() );
+
+	ax_foreach( &p, params ) {
+		req << p.type;
+	}
+	
+	req << returnType;
 }
 
 bool	FuncOverload::isMatch ( const ax_Array< FuncParam > & callParams ) {
@@ -330,15 +475,27 @@ void FuncOverload::OnStringReq( ax_ToStringReq & req ) const {
 		req << ax_txt(" ");
 	}
 	req << ax_txt(")");
+	
+	req << ax_txt(" : ") << returnType;
 }
 
-FuncOverload::FuncOverload( ax_Obj< Func > fn, const LexerPos & pos )
-: base( nullptr, pos, fn->name() ) {
-	func = fn;
+void FuncOverload::onInit() {
 	g_metadata->funcOverloadList.add( ax_ThisObj );
-	fn->overloads.add( ax_ThisObj );
+	ax_if_not_let( p, parent ) {
+		Log::Error( pos, ax_txt("func overload parent must be func") );
+	}
+	func = p->ax_cast<Func>();
 }
 
+void FuncOverload::onCopy( ax_Obj< FuncOverload > src ) {
+	params			= src->params;
 
+	paramPos		= src->paramPos;
+	
+	returnType		= src->returnType;
+	returnTypePos	= src->returnTypePos;
+	
+	bodyPos			= src->bodyPos;
+}
 
 }} //namespace

@@ -24,11 +24,11 @@ public:
 	
 	ax_Obj< Func >		func_new_array;
 	
-
-	TupleTypeTable	tupleTable;
 	ax_Array_< ax_Obj<StructType> >		structList;
 	ax_Array_< ax_Obj<Prop> >			propList;
 	ax_Array_< ax_Obj<FuncOverload> >	funcOverloadList;
+
+	ax_Obj< TypeNode >				type_any;
 
 	ax_Obj< PrimitiveType >			type_void;
 	ax_Obj< PrimitiveType >			type_bool;

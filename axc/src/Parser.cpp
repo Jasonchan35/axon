@@ -241,8 +241,9 @@ RType Parser::parseTypename () {
 		}
 		nextToken();
 		
-		auto tuple = g_metadata->tupleTable.getOrAddTuple( token.pos, elements );
-		return RType::MakeTypename( tuple );
+		throw System::Err_Undefined(); //TODO !!
+//		auto tuple = g_metadata->tupleTable.getOrAddTuple( token.pos, elements );
+//		return RType::MakeTypename( tuple );
 	}
 
 	ax_if_not_let( o, parseNode() ) {
@@ -449,7 +450,7 @@ ax_NullableObj< ExprAST > Parser::parseExpr_BinaryOp( ax_int exprPrec, ax_Obj<Ex
 			Log::Error( op_pos, ax_txt("type is expected") );
 		}
 		
-		ax_if_not_let( fn, lt.getOperatorFunc( op ) ) {
+		ax_if_not_let( fn, lt.getOperatorFunc( op, token.pos ) ) {
 			Log::Error( op_pos, ax_txt("operator '{?}' function not found from {?}"), op, lt );
 		}
 		
