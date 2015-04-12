@@ -46,6 +46,8 @@ void Compiler::declarePass() {
 
 	{
 		DeclarePass pass;
+		pass.findBuildinTypePass();
+		
 		pass.run2ndPass();
 	}
 	dumpMetadata();

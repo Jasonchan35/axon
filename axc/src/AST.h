@@ -66,13 +66,13 @@ class AST : public ax_Object {
 public:
 	struct	ax_type_on_gc_trace : public std::true_type {};
 
-	AST	( const Location & pos_, const Type & returnType_ );
+	AST	( const Location & pos_, ax_NullableObj<Type> returnType_ );
 	
 			void	dispatch		( IASTDispatcher & p ) { onDispatch(p); }
 	virtual	void	onDispatch		( IASTDispatcher & p ) = 0;
 	
-	Location	pos;
-	Type		returnType;
+	Location				pos;
+	ax_NullableObj< Type >	returnType;
 };
 
 

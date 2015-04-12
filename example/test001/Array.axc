@@ -1,0 +1,11 @@
+
+
+class Array<T> {
+	fn New( size int ) Array<T> {
+
+	}
+
+	fn	add( value T ) {
+
+	}	
+}

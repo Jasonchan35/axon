@@ -204,7 +204,7 @@ ax_NullableObj< MetaNode >	Parser::parseNode	() {
 			
 			o = p;
 			nextToken();
-			
+								
 			if( token.is_dot() ) {
 				nextToken();
 				continue;
@@ -218,18 +218,19 @@ ax_NullableObj< MetaNode >	Parser::parseNode	() {
 	return nullptr;
 }
 
-Type Parser::parseTypename () {
+ax_NullableObj<Type> Parser::parseTypename () {
 	if( token.is_roundBracketOpen() ) {	//tuple
 		nextToken();
 		
-		ax_Array_< Type, 16 >	elements;
+		ax_Array_< ax_Obj<Type>, 16 >	elements;
 		
 		for(;;) {
-			auto t = parseTypename();
-			if( t.is_null() ) break;
+			ax_if_not_let( t, parseTypename() ) {
+				break;
+			}
 			
 			elements.add( t );
-			
+						
 			if( token.is_comma() ) {
 				nextToken();
 				continue;
@@ -247,7 +248,7 @@ Type Parser::parseTypename () {
 	}
 
 	ax_if_not_let( o, parseNode() ) {
-		return Type();
+		return nullptr;
 	}
 	
 	ax_if_not_let( t, o->ax_as< TypeSpec >() ) {
@@ -367,12 +368,10 @@ ax_NullableObj< AST > Parser::parseExpr_BinaryOp( ax_int exprPrec, ax_Obj<AST>& 
 			return lhs;
 		}
 	
-		auto lt = lhs->returnType;
-		if( lt.is_null() ) {
-			return nullptr;
+		ax_if_not_let( lt, lhs->returnType ) {
+			Log::Error( lhs->pos, ax_txt("error return type") );
 		}
-	
-	
+		
 		auto op = token.type;
 		auto op_pos = token.pos;
 		nextToken();
@@ -446,11 +445,11 @@ ax_NullableObj< AST > Parser::parseExpr_BinaryOp( ax_int exprPrec, ax_Obj<AST>& 
 
 		ax_Array_< ax_Obj< FuncOverload >, 32 > candidate;
 		
-		ax_if_not_let( ltype, lt.type ) {
+		ax_if_not_let( ltype, lt->type ) {
 			Log::Error( op_pos, ax_txt("type is expected") );
 		}
 		
-		ax_if_not_let( fn, lt.getOperatorFunc( op, token.pos ) ) {
+		ax_if_not_let( fn, lt->getOperatorFunc( op, token.pos ) ) {
 			Log::Error( op_pos, ax_txt("operator '{?}' function not found from {?}"), op, lt );
 		}
 		
@@ -522,13 +521,11 @@ ax_NullableObj< AST >	Parser::parseExpr_Primary() {
 		ax_if_not_let( expr_, expr ) {
 			Log::Error( token, ax_txt("error prefix {?}"), prefixOp );
 		}else{
-			auto & t = expr_->returnType;
-			
-			ax_if_not_let( nodeType, t.type ) {
+			ax_if_not_let( t, expr_->returnType ) {
 				Log::Error( nullptr, &expr_->pos, ax_txt("no 'prefix func {?}' "), prefixOp, t );
 			}
 			
-			ax_if_not_let( opFunc, nodeType->getPrefixOperatorFunc( prefixOp ) ) {
+			ax_if_not_let( opFunc, t->getPrefixOperatorFunc( prefixOp, expr_->pos ) ) {
 				Log::Error( nullptr, &expr_->pos, ax_txt("no 'prefix func {?}' "), prefixOp, t );
 			}
 
@@ -555,13 +552,11 @@ ax_NullableObj< AST >	Parser::parseExpr_Primary() {
 			}
 			
 			auto op = token.type;
-			auto &t = expr_->returnType;
-			
-			ax_if_not_let( nodeType, t.type ) {
+			ax_if_not_let( t, expr_->returnType ) {
 				Log::Error( nullptr, &expr_->pos, ax_txt("no 'postfix func {?}' "), op, t );
 			}
 			
-			ax_if_not_let( opFunc, nodeType->getOperatorFunc( op ) ) {
+			ax_if_not_let( opFunc, t->getOperatorFunc( op, expr_->pos ) ) {
 				Log::Error( nullptr, &expr_->pos, ax_txt("no 'postfix func {?}' "), op, t );
 			}
 

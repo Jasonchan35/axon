@@ -19,8 +19,23 @@ class DeclarePass : public Parser {
 public:
 	void	parseFile( ax_Obj< SourceFile > srcFile );
 	void	run2ndPass				();
+	void	findBuildinTypePass		();
 
 private:
+	template< typename T >
+	void	findBuildinType	( ax_Obj<T> & o, const ax_string & name ) {
+		ax_if_not_let( p, _findBuildinType( name ) ) {
+			Log::Error( nullptr, nullptr, ax_txt("cannot find buildin type {?}"), name );
+		}
+		if( ! p->ax_is<T>() ) {
+			Log::Error( nullptr, nullptr, ax_txt("invalid buildin type {?}"), name );
+		}
+		o = p->ax_cast<T>();
+		o->buildin = true;
+	}
+	
+	ax_NullableObj< MetaNode >	_findBuildinType( const ax_string & name );
+
 	void	resolveStructTypePass	();
 	
 	void	parsePropPass			();
@@ -33,7 +48,7 @@ private:
 	void	parseNamespace			();
 	void	parseNamespaceBody		();
 	
-	void	parseStructType			( Modifier & modifier );
+	void	parseCompsiteType			( Modifier & modifier );
 	void	parseStructTypeBody		( ax_Obj< CompositeTypeSpec >	node );
 	
 	bool	resolveStructType		( ax_Obj< CompositeTypeSpec > 	node );

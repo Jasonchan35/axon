@@ -385,17 +385,21 @@ void GenCppPass::saveFile( ax_Obj< MetaNode > node, const ax_string & filename_s
 }
 
 GenCppPass::OutBuf & GenCppPass::OutBuf::operator<< ( const TokenType 	& t  ) {
-	*this << ax_to_string(t);
-	return *this;
+	return *this << ax_to_string(t);
 }
 
-GenCppPass::OutBuf & GenCppPass::OutBuf::operator<< ( const Type 		& t  ) {
-	ax_if_let( type, t.type ) {
-		*this << type;
-	}else{
-		*this << ax_txt("NULL");
+GenCppPass::OutBuf & GenCppPass::OutBuf::operator<< ( ax_Obj<Type>	t  ) {
+	ax_if_let( _t, t->type ) {
+		return *this << _t;
 	}
-	return *this;
+	return *this << ax_txt("NULL");
+}
+
+GenCppPass::OutBuf & GenCppPass::OutBuf::operator<< ( ax_NullableObj<Type>	t  ) {
+	ax_if_let( _t, t ) {
+		return *this << _t;
+	}
+	return *this << ax_txt("NULL");
 }
 
 GenCppPass::OutBuf & GenCppPass::OutBuf::operator<< ( ax_Obj< AST >  expr ) {

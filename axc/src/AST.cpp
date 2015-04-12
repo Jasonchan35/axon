@@ -25,14 +25,14 @@ ax_ImplObject( StringLiteralAST );
 ax_ImplObject( BinaryAST );
 
 
-AST::AST	( const Location & pos_, const Type & returnType_ )
+AST::AST	( const Location & pos_, ax_NullableObj<Type> returnType_ )
 : pos(pos_)
 , returnType( returnType_ ) {
 }
 
 
 NumberLiteralAST::NumberLiteralAST( const Location &_pos, const ax_string & _srcStr )
-: base(_pos, Type() )
+: base(_pos, nullptr )
 , srcStr(_srcStr)
 , numberType(t_none)
 , numberPrefix(0)
@@ -292,7 +292,7 @@ PropAST::PropAST( Location &pos_, ax_Obj< Prop > node_ )
 }
 
 FuncParamAST::FuncParamAST( const Location &_pos )
-: base(_pos, Type() ) {
+: base(_pos, nullptr ) {
 }
 
 

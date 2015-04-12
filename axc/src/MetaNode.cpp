@@ -47,9 +47,10 @@ MetaNode::MetaNode( ax_NullableObj< MetaNode > parent_, const ax_string & name_,
 , buildin( false )
 , isTemplateInstance( false ) {
 
-//	ax_log( ax_txt("new {?} parent={?}"), getFullname( ax_txt(".") ), ax_get( parent, name(), ax_txt("") ) );
-	
 	ax_if_let( p, parent ) {
+		if( p->children.hasKey( name_ ) ) {
+			Log::Error( pos_, ax_txt("identify {?} already exists in {?}"), name_, p->name() );
+		}
 		p->children.add( name_, ax_ThisObj );
 	}
 }
@@ -57,7 +58,7 @@ MetaNode::MetaNode( ax_NullableObj< MetaNode > parent_, const ax_string & name_,
 void MetaNode::onInit() {
 }
 
-void	MetaNode::onCopy( ax_Obj< MetaNode > src ) {
+void	MetaNode::onClone( ax_Obj< MetaNode > src ) {
 	pos					= src->pos;
 	buildin				= src->buildin;
 	isTemplateInstance	= src->isTemplateInstance;
@@ -143,7 +144,7 @@ ax_Obj< Func >	MetaNode::addFunc	( const ax_string & name ) {
 	return ax_new_obj( Func, ax_ThisObj, name, Location() );
 }
 
-ax_string MetaNode::getTemplateInstanceName( const ax_Array< Type > & elementTypes ) {
+ax_string MetaNode::getTemplateInstanceName( ax_Array< ax_Obj<Type> > & elementTypes ) {
 	ax_TempString	o;
 
 	o.append( this->name() );
@@ -152,7 +153,7 @@ ax_string MetaNode::getTemplateInstanceName( const ax_Array< Type > & elementTyp
 	int c = 0;
 	ax_foreach( & e, elementTypes ) {
 		if( c > 0 ) o.append( ax_txt(",") );
-		e.appendFullname( o, ax_txt(".") );
+		e->appendFullname( o, ax_txt(".") );
 		c++;
 	}
 	o.append( ax_txt(">") );
@@ -167,32 +168,31 @@ ax_string MetaNode::getTemplateInstanceName( const ax_Array< Type > & elementTyp
 void TemplateParam::onInit() {
 }
 
-void TemplateParam::onCopy( ax_Obj< TemplateParam > p ) {
-	type = p->type;
+void TemplateParam::onClone( ax_Obj< TemplateParam > p ) {
 }
 
-void TemplateParam::OnStringReq( ax_ToStringReq & req ) const {
-	base::OnStringReq( req );
+#if 0
+#pragma mark =========================
+#endif
 
-	req << type;
-}
-
-TemplateInstantiateRequest &	TemplateInstantiateRequest::operator<<( ax_Obj< TemplateParam > rhs ) {
-	Type	new_value;
-	if( dict.tryGetValue( rhs, new_value ) ) {
-		rhs->type = new_value;
+void TemplateInstantiateRequest::resolve( ax_Obj<Type> src, const Location & pos ) {
+	ax_if_not_let( t, src->type ) {
+//		Log::Error( pos, ax_txt("unsolved template parameter") );
+		return;
 	}
-	return *this;
-}
-
-TemplateInstantiateRequest &	TemplateInstantiateRequest::operator<<( Type & rhs ) {
-	ax_if_let( t, rhs.type ) {
-		if( dict.tryGetValue( t, rhs ) ) {
-			ax_log( ax_txt("template replace {?} -> {?}"), t, rhs );
+	
+	ax_Array_< ax_Obj<Type>, 32 > params;
+	
+	ax_foreach( p, t->_templateParams ) {
+		ax_if_not_let( r, dict.tryGetValue(p) ) {
+			Log::Error( pos, ax_txt("unsolved template parameter") );
 		}
+	
+		params.add( r );
 	}
 
-	return *this;
+	auto ti = t->getOrAddTemplateInstance( params, pos );
+	src = Type::MakeValue( ti, src->isMutable );
 }
 
 #if 0
@@ -202,9 +202,8 @@ TemplateInstantiateRequest &	TemplateInstantiateRequest::operator<<( Type & rhs 
 void TypeSpec::onInit() {
 }
 
-void TypeSpec::onCopy( ax_Obj< TypeSpec > src ) {
+void TypeSpec::onClone( ax_Obj< TypeSpec > src ) {
 	modifier 		= src->modifier;
-	_templateParams	= src->_templateParams;
 }
 
 ax_Obj< TemplateParam > TypeSpec::addTemplateParam( const ax_string & name, const Location & pos ) {
@@ -215,13 +214,7 @@ ax_Obj< TemplateParam > TypeSpec::addTemplateParam( const ax_string & name, cons
 	return p;
 }
 
-void TypeSpec::onVisit( TemplateInstantiateRequest & req ) {
-//	ax_foreach( &p, _templateParams ) {
-//		req << p;
-//	}
-}
-
-ax_Obj< TypeSpec > TypeSpec::getOrAddTemplateInstance( const ax_Array< Type > & params, const Location & pos ) {
+ax_Obj< TypeSpec > TypeSpec::getOrAddTemplateInstance( ax_Array< ax_Obj<Type> > & params, const Location & pos ) {
 	if( _templateParams.size() != params.size() ) {
 		Log::Error( pos, ax_txt("invalid number of template parameters") );
 	}
@@ -231,18 +224,18 @@ ax_Obj< TypeSpec > TypeSpec::getOrAddTemplateInstance( const ax_Array< Type > & 
 	ax_if_let( p, templateInstance.tryGetValue( new_name ) ) {
 		return p;
 	}
-	
-	auto new_inst = this->clone( new_name )->ax_cast<TypeSpec>();
-		
-	templateInstance.add( new_name, new_inst );
 
-	TemplateInstantiateRequest	req;
+	TemplateInstantiateRequest	req;	
 	
 	ax_int n = params.size();
 	for( ax_int i=0; i<n; i++ ) {
 		req.dict.add( _templateParams[i], params[i] );
 	}
 	
+	auto new_inst = clone( new_name )->ax_cast<TypeSpec>();
+		
+	templateInstance.add( new_name, new_inst );
+
 	new_inst->onVisitInDeep( req );
 
 	g_compiler->dumpMetadata();
@@ -275,7 +268,7 @@ void TypeSpec::OnStringReq( ax_ToStringReq & req ) const {
 void Namespace::onInit() {
 }
 
-void Namespace::onCopy( ax_Obj< Namespace > p ) {
+void Namespace::onClone( ax_Obj< Namespace > p ) {
 
 }
 
@@ -303,7 +296,7 @@ void CompositeTypeSpec::onInit() {
 	g_metadata->structList.add( ax_ThisObj );
 }
 
-void CompositeTypeSpec::onCopy( ax_Obj< CompositeTypeSpec > p ) {
+void CompositeTypeSpec::onClone( ax_Obj< CompositeTypeSpec > p ) {
 	isNestedType = p->isNestedType;
 }
 
@@ -315,7 +308,7 @@ void PrimitiveTypeSpec::onInit() {
 	buildin=true;
 }
 
-void PrimitiveTypeSpec::onCopy( ax_Obj< PrimitiveTypeSpec > p ) {
+void PrimitiveTypeSpec::onClone( ax_Obj< PrimitiveTypeSpec > p ) {
 
 }
 
@@ -326,7 +319,7 @@ void PrimitiveTypeSpec::onCopy( ax_Obj< PrimitiveTypeSpec > p ) {
 void TypenameSpec::onInit() {
 }
 
-void TypenameSpec::onCopy( ax_Obj< TypenameSpec > p ) {
+void TypenameSpec::onClone( ax_Obj< TypenameSpec > p ) {
 
 }
 
@@ -337,7 +330,7 @@ void TypenameSpec::onCopy( ax_Obj< TypenameSpec > p ) {
 void Struct::onInit() {
 }
 
-void Struct::onCopy( ax_Obj< Struct > p ) {
+void Struct::onClone( ax_Obj< Struct > p ) {
 }
 
 
@@ -348,7 +341,7 @@ void Struct::onCopy( ax_Obj< Struct > p ) {
 void Class::onInit() {
 }
 
-void Class::onCopy( ax_Obj< Class > p ) {
+void Class::onClone( ax_Obj< Class > p ) {
 }
 
 
@@ -360,7 +353,7 @@ void Class::onCopy( ax_Obj< Class > p ) {
 void Interface::onInit() {
 }
 
-void Interface::onCopy( ax_Obj< Interface > p ) {
+void Interface::onClone( ax_Obj< Interface > p ) {
 }
 
 #if 0
@@ -371,7 +364,7 @@ void Prop::onInit() {
 	g_metadata->propList.add( ax_ThisObj );
 }
 
-void Prop::onCopy( ax_Obj< Prop > p ) {
+void Prop::onClone( ax_Obj< Prop > p ) {
 }
 
 #if 0
@@ -381,7 +374,7 @@ void Prop::onCopy( ax_Obj< Prop > p ) {
 void Func::onInit() {
 }
 
-void Func::onCopy( ax_Obj<Func> p ) {
+void Func::onClone( ax_Obj<Func> p ) {
 	ax_foreach( &c, children ) {
 		ax_if_let( fo, c->ax_as<FuncOverload>() ) {
 			overloads.add( fo );
@@ -416,7 +409,7 @@ ax_NullableObj< FuncOverload > Func::getOverload( ax_Array< ax_Obj< FuncOverload
 #pragma mark =========================
 #endif
 
-FuncParam &	FuncOverload::addParam( const ax_string & name, const Location & namePos, const Type & type, const Location & typePos ) {
+FuncParam &	FuncOverload::addParam( const ax_string & name, const Location & namePos, ax_Obj<Type> type, const Location & typePos ) {
 	auto & o = params.addNew();
 	
 	o.name		= name;
@@ -425,16 +418,6 @@ FuncParam &	FuncOverload::addParam( const ax_string & name, const Location & nam
 	o.typePos	= typePos;
 	
 	return o;
-}
-
-void	FuncOverload::onVisit( TemplateInstantiateRequest & req ) {
-	ax_dump( this->fullname() );
-
-	ax_foreach( &p, params ) {
-		req << p.type;
-	}
-	
-	req << returnType;
 }
 
 bool	FuncOverload::isMatch ( const ax_Array< FuncParam > & callParams ) {
@@ -455,6 +438,10 @@ bool	FuncOverload::isMatch ( const ax_Array< FuncParam > & callParams ) {
 	}
 	
 	return true;
+}
+
+void FuncOverload::onVisit( TemplateInstantiateRequest & req ) {
+	req.resolve( returnType, returnTypePos );
 }
 
 void FuncOverload::OnStringReq( ax_ToStringReq & req ) const {
@@ -486,15 +473,15 @@ void FuncOverload::onInit() {
 	func = p->ax_cast<Func>();
 }
 
-void FuncOverload::onCopy( ax_Obj< FuncOverload > src ) {
+void FuncOverload::onClone( ax_Obj< FuncOverload > src ) {
 	params			= src->params;
 
 	paramPos		= src->paramPos;
 	
+	bodyPos			= src->bodyPos;
+	
 	returnType		= src->returnType;
 	returnTypePos	= src->returnTypePos;
-	
-	bodyPos			= src->bodyPos;
 }
 
 }} //namespace

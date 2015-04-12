@@ -106,11 +106,11 @@ private:
 		}
 				
 		template< typename T >
-		OutBuf & operator<< ( ax_Obj< T > 				node ) { nodeName( node, true ); return *this;; }
-
+		OutBuf & operator<< ( ax_Obj< T > 		node ) { nodeName( node, true ); return *this;; }
 
 		OutBuf & operator<< ( const TokenType 	& t  );
-		OutBuf & operator<< ( const Type 		& t  );
+		OutBuf & operator<< ( ax_Obj<Type>			t  );
+		OutBuf & operator<< ( ax_NullableObj<Type>	t  );
 		
 		OutBuf & operator<< ( ax_Obj< AST >  expr );
 		OutBuf & operator<< ( ax_NullableObj< AST > expr );

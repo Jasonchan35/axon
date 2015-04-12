@@ -26,19 +26,19 @@ public:	\
 	void onInit(); \
 	virtual	ax_Obj<MetaNode> clone ( ax_Obj< MetaNode > new_parent ) { \
 		auto p = ax_new_obj( T, new_parent, name(), pos ); \
-		p->onCopyInDeep( ax_ThisObj ); \
+		p->onDeepClone( ax_ThisObj ); \
 		return p; \
 	} \
-	virtual	ax_Obj<MetaNode> clone ( const ax_string & new_name ) { \
+	virtual	ax_Obj<MetaNode> clone ( const ax_string &  new_name   ) { \
 		auto p = ax_new_obj( T, parent, new_name, pos ); \
-		p->onCopyInDeep( ax_ThisObj ); \
+		p->onDeepClone( ax_ThisObj ); \
 		return p; \
 	} \
-	virtual void onCopyInDeep( ax_Obj<MetaNode> p ) { \
-		B::onCopyInDeep( p ); \
-		T::onCopy( p->ax_cast<T>() ); \
+	virtual void onDeepClone( ax_Obj<MetaNode> src ) { \
+		B::onDeepClone( src ); \
+		T::onClone( src->ax_cast<T>() ); \
 	} \
-	void onCopy( ax_Obj<T> p ); \
+	void onClone( ax_Obj<T> p ); \
 //----------
 
 extern ax_string	k_ctor_name;
@@ -91,10 +91,9 @@ public:
 		ax_string	getFullname		( const ax_string & seperator ) const;
 		void		appendFullname	( ax_MutString & fullname, const ax_string & seperator ) const;
 
-
 			ax_NullableObj< MetaNode >	getNode			( const ax_string & name );
 	virtual	ax_NullableObj< MetaNode >	onGetNode		( const ax_string & name ) { return nullptr; }
-	
+		
 			ax_NullableObj< MetaNode >	getMember		( const ax_string & name );
 	virtual	ax_NullableObj< MetaNode >	onGetMember		( const ax_string & name );
 
@@ -113,7 +112,7 @@ public:
 
 	virtual void 	OnStringReq		( ax_ToStringReq & req ) const;
 	
-	ax_string 		getTemplateInstanceName		( const ax_Array< Type > & templateParams );
+	ax_string 		getTemplateInstanceName		( ax_Array< ax_Obj<Type> > & templateParams );
 	
 	template< typename REQ >
 	void	onVisitInDeep( REQ & req ) {
@@ -123,16 +122,16 @@ public:
 		}
 	}
 	
-	virtual	void onVisit( TemplateInstantiateRequest & req ) {}
-	
-	virtual	ax_Obj<MetaNode> clone ( ax_Obj< MetaNode > new_parent ) = 0;
-	virtual	ax_Obj<MetaNode> clone ( const ax_string & new_name ) = 0;
+	virtual	void	onVisit( TemplateInstantiateRequest & req ) {}
+		
+	virtual	ax_Obj<MetaNode> clone 	( ax_Obj< MetaNode > new_parent ) = 0;
+	virtual	ax_Obj<MetaNode> clone 	( const ax_string & new_name    ) = 0;
 				
-			void	onInitInDeep() { onInit(); }
-			void	onInit();
+			void	onInitInDeep	() { onInit(); }
+			void	onInit			();
 	
-	virtual	void 	onCopyInDeep	( ax_Obj<MetaNode> p ) { onCopy(p); }
-			void 	onCopy		( ax_Obj<MetaNode> p );
+	virtual	void 	onDeepClone		( ax_Obj<MetaNode> p ) { onClone(p); }
+			void 	onClone			( ax_Obj<MetaNode> p );
 };
 
 class Namespace : public MetaNode {
@@ -157,27 +156,20 @@ class TypeSpec : public MetaNode {
 		return true;
 	}
 		
-	ax_Obj< TypeSpec >		getOrAddTemplateInstance( const ax_Array< Type > & params, const Location & pos );
-	
-	virtual	void onVisit( TemplateInstantiateRequest & req );
-	
+	ax_Obj< TypeSpec >		getOrAddTemplateInstance( ax_Array< ax_Obj<Type> > & params, const Location & pos );
+		
 	void	OnStringReq( ax_ToStringReq & req ) const;
 };
 
 class TemplateParam : public TypeSpec {
 	DefMetaNode( TemplateParam, TypeSpec )
-	
-	virtual void OnStringReq( ax_ToStringReq & req ) const;
-	
-	Type	type;
 };
 
 class TemplateInstantiateRequest : public System::NonCopyable {
 public:
-	ax_Dict< ax_Obj<MetaNode>, Type > dict;
+	ax_Dict< ax_Obj<MetaNode>, ax_Obj<Type> > dict;
 	
-	TemplateInstantiateRequest &	operator << ( Type & rhs );
-	TemplateInstantiateRequest &	operator << ( ax_Obj< TemplateParam > rhs );
+	void resolve( ax_Obj<Type> src, const Location & pos );
 };
 
 
@@ -218,13 +210,14 @@ class Class : public CompositeTypeSpec {
 class Prop : public MetaNode {
 	DefMetaNode( Prop, MetaNode );
 	
-	Location					initExprPos;
+	Location				initExprPos;
 	ax_NullableObj< AST >	initExpr;
 	
-	bool		is_let;
-	Location	typePos;
-	Type		type;
+	bool					is_let;
 	
+	Location				typePos;
+	ax_NullableObj<Type>	type;
+		
 	void OnStringReq( ax_ToStringReq & req ) const {
 		base::OnStringReq( req );
 		req << ax_txt(" type=") << type;		
@@ -236,11 +229,11 @@ struct FuncParam {
 
 	FuncParam() : opt(false) {}
 
-	Location	namePos;
-	ax_string	name;
+	Location				namePos;
+	ax_string				name;
 	
-	Location	typePos;
-	Type		type;
+	Location				typePos;
+	ax_NullableObj<Type>	type;
 	
 	ax_NullableObj< AST >	defaultValueExpr;
 		
@@ -260,11 +253,12 @@ class FuncType : public TypeSpec {
 class FuncOverload : public TypeSpec {
 	DefMetaNode( FuncOverload, TypeSpec )
 
-	virtual void OnStringReq( ax_ToStringReq & req ) const;
+	virtual void	OnStringReq( ax_ToStringReq & req ) const;
+	virtual	void	onVisit( TemplateInstantiateRequest & req );
 
 	bool	isMatch		( const ax_Array<FuncParam> & callParams );
 
-	FuncParam &	addParam( const ax_string & name, const Location & namePos, const Type & type, const Location & typePos );
+	FuncParam &	addParam( const ax_string & name, const Location & namePos, ax_Obj<Type> type, const Location & typePos );
 
 	ax_Array_< FuncParam, 8 >	params;
 	
@@ -272,11 +266,9 @@ class FuncOverload : public TypeSpec {
 	Location		paramPos;
 	Location		bodyPos;
 	
-	Type			returnType;
+	ax_Obj<Type>	returnType;
 	
 	ax_Obj<Func>	func;
-
-	void		onVisit( TemplateInstantiateRequest & req );
 };
 
 class Func : public TypeSpec {

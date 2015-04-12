@@ -12,6 +12,9 @@
 namespace ax {
 namespace Compile {
 
+ax_ImplObject( Type )
+
+
 void	Type::appendFullname	( ax_MutString & fullname, const ax_string & seperator ) const {
 	ax_if_not_let( t, type ) {
 		fullname << ax_txt("<NULL>");
@@ -27,16 +30,16 @@ bool Type::operator==( const Type & rhs ) const {
 	return t == r;
 }
 
-bool Type::canAssignFrom( const Type & rhs ) const {
+bool Type::canAssignFrom( ax_Obj<Type> rhs ) const {
 	ax_if_not_let( t, type 		) { return false; }
-	ax_if_not_let( r, rhs.type 	) { return false; }
+	ax_if_not_let( r, rhs->type	) { return false; }
 	
 	return t->canAssignFrom( r );
 }
 
 void	Type::OnStringReq( ax_ToStringReq & req ) const {
 	ax_if_let( t, type ) {
-		req << t->name();
+		req << t;
 	}else{
 		req << ax_txt("Type<NULL>");
 	}
@@ -54,12 +57,12 @@ ax_NullableObj< Func >	Type::getOperatorFunc	( TokenType op, const Location & po
 		if( op == TokenType::t_op_call ) {
 			return t->getFunc( k_ctor_name );
 		}
-		
+
 		if( op == TokenType::t_op_subscript ) {
 			auto a = g_metadata->type_array;
 			
-			ax_Array_< Type, 32 > templateParam;
-			templateParam.add( *this );
+			ax_Array_< ax_Obj<Type>, 32 > templateParam;
+			templateParam.add( ax_ThisObj );
 			
 			auto ai = a->getOrAddTemplateInstance( templateParam, pos );
 			return ai->getFunc( ax_txt("New") );

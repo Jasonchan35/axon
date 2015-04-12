@@ -25,6 +25,14 @@ void DeclarePass::parseFile( ax_Obj< SourceFile > sourceFile ) {
 	parseNamespaceBody();
 }
 
+void DeclarePass::findBuildinTypePass() {
+	findBuildinType( g_metadata->type_array, ax_txt("Array") );
+}
+
+ax_NullableObj< MetaNode >	DeclarePass::_findBuildinType( const ax_string & name ) {
+	return g_metadata->root->getNode( name );
+}
+
 void DeclarePass::run2ndPass() {
 	resolveStructTypePass();
 	
@@ -67,18 +75,18 @@ void DeclarePass::resolveFuncParam( ax_Obj< FuncOverload > fo ) {
 	
 		nextToken();
 
-		Type		paramType;
-		Location	typePos;
+		ax_Obj<Type>	paramType;
+		Location		typePos;
 		
 		ax_NullableObj< AST >	defaultValueExpr;
 		
 		if( token.is_identifier() ) {
-			paramType = parseTypename();
-			typePos   = token.pos;
 			
-			if( paramType.is_null() ) {
+			ax_if_not_let( _paramType, parseTypename() ) {
 				Log::Error( token, ax_txt("parameter type expected") );
 			}
+			paramType = _paramType;
+			typePos   = token.pos;
 		}
 		
 		if( token.is_assign() ) {
@@ -86,8 +94,13 @@ void DeclarePass::resolveFuncParam( ax_Obj< FuncOverload > fo ) {
 			ax_if_not_let( expr, parseExpression() ) {
 				Log::Error( token, ax_txt("error expression") );
 			}
+			
+			ax_if_not_let( exprReturnType, expr->returnType ) {
+				Log::Error( token, ax_txt("error expression") );
+			}
+			
 			defaultValueExpr = expr;
-			paramType = expr->returnType;
+			paramType = exprReturnType;
 		}
 
 		auto & param = fo->addParam( token.str, token.pos, paramType, typePos );
@@ -106,13 +119,16 @@ void DeclarePass::resolveFuncParam( ax_Obj< FuncOverload > fo ) {
 	
 	// function return type
 	if( token.is_identifier() ) {
-		fo->returnType = parseTypename();
+		ax_if_not_let( returnType, parseTypename() ) {
+			Log::Error( token, ax_txt("return type expected") );
+		}
+		fo->returnType = returnType;
 	}else{
 		fo->returnType = Type::MakeValue( g_metadata->type_void, false );
 	}
 	
 	if( ! token.is_curlyBracketOpen() ) {
-		Log::Error( token, ax_txt("function body { expected") );
+		Log::Error( token, ax_txt("function body {{ expected") );
 	}
 }
 
@@ -188,7 +204,10 @@ bool DeclarePass::resolveProp( ax_Obj< Prop >	node ) {
 	if( node->type.is_null() ) {
 		if( node->typePos.valid ) {
 			setPos( node->typePos );
-			node->type = parseTypename();
+			ax_if_not_let( t, parseTypename() ) {
+				return false;
+			}
+			node->type = t;
 		}
 	}
 	
@@ -198,8 +217,13 @@ bool DeclarePass::resolveProp( ax_Obj< Prop >	node ) {
 		ax_if_let( expr, parseExpression() ) {
 			node->initExpr = expr;
 			
-			if( ! node->type.is_null() ) {
-				if( node->type.canAssignFrom( expr->returnType ) ) {
+			ax_if_let( t, node->type ) {
+				ax_if_not_let( returnType, expr->returnType ) {
+					Log::Error( expr->pos, ax_txt("unknown return type") );
+					return false;
+				}
+			
+				if( t->canAssignFrom( returnType ) ) {
 					Log::Error( node->initExprPos, ax_txt("'{?}' type mis-match '{?}' expected"), expr->returnType, node->type );
 				}
 			}
@@ -227,16 +251,19 @@ bool DeclarePass::resolveStructType( ax_Obj< CompositeTypeSpec > node ) {
 		auto pos = node->baseOrInterfacePos[i];
 		setPos( pos );
 		
-		auto rt = parseTypename();
-		ax_if_not_let( t, rt.type ) {
+		ax_if_not_let( rt, parseTypename() ) {
 			return false;
 		}
 		
-		ax_if_not_let( s, t->ax_as< CompositeTypeSpec >() ) {
+		ax_if_not_let( ts, rt->type ) {
+			return false;
+		}
+		
+		ax_if_not_let( s, ts->ax_as< CompositeTypeSpec >() ) {
 			Log::Error( pos, ax_txt("interface / class / struct expected") );
 		}
 
-		ax_if_let( f, t->ax_as< Interface >() ) {
+		ax_if_let( f, rt->ax_as< Interface >() ) {
 			node->interfaces.add( f );
 			continue;
 		}
@@ -272,9 +299,9 @@ void DeclarePass::parseNamespaceBody() {
 
 		auto modifier = parseDeclarationModifier();
 		
-		if( token.is_class() 		) { parseStructType	(modifier); continue; }
-		if( token.is_struct() 		) { parseStructType	(modifier); continue; }
-		if( token.is_interface() 	) { parseStructType	(modifier); continue; }
+		if( token.is_class() 		) { parseCompsiteType	(modifier); continue; }
+		if( token.is_struct() 		) { parseCompsiteType	(modifier); continue; }
+		if( token.is_interface() 	) { parseCompsiteType	(modifier); continue; }
 		
 //		if( token.is_func() 	) { parse_func		(modifier); continue; }
 
@@ -340,7 +367,7 @@ void DeclarePass::parseNamespace() {
 	}
 }
 
-void DeclarePass::parseStructType( Modifier & modifier ) {
+void DeclarePass::parseCompsiteType( Modifier & modifier ) {
 	
 	if( ! token.is_class() && ! token.is_struct() && ! token.is_interface() ) {
 		Log::Error( token, ax_txt("class / struct / interface expected") );
@@ -387,10 +414,12 @@ void DeclarePass::parseStructType( Modifier & modifier ) {
 		nextToken();
 		
 		for(;;) {
-			if( token.is_identifier() ) {
-				new_node->baseOrInterfacePos.add( token.pos );
-				skipTypeName();
+			if( ! token.is_identifier() ) {
+				Log::Error( token, ax_txt("Base class or interface name expected") );
 			}
+			
+			new_node->baseOrInterfacePos.add( token.pos );
+			skipTypeName();
 			
 			if( token.is_comma() ) {
 				nextToken();
@@ -398,6 +427,36 @@ void DeclarePass::parseStructType( Modifier & modifier ) {
 			}
 			
 			break;
+		}
+	}
+	
+	if( token.is_less() ) { //template parameter
+		nextToken();
+		
+		for(;;) {
+			if( token.is_greater() ) {
+				nextToken();
+				break;
+			}
+
+			if( ! token.is_identifier() ) {
+				Log::Error( token, ax_txt("Template parameter expected") );
+			}
+			
+			new_node->addTemplateParam( token.str, token.pos );
+			nextToken();
+			
+			if( token.is_comma() ) {
+				nextToken();
+				continue;
+			}
+			
+			if( token.is_greater() ) {
+				nextToken();
+				break;
+			}
+			
+			Log::Error( token, ax_txt("unexpected token") );
 		}
 	}
 
@@ -430,9 +489,9 @@ void DeclarePass::parseStructTypeBody( ax_Obj< CompositeTypeSpec > node ) {
 		if( token.is_let()			) { parseProp		(modifier); continue; }
 		if( token.is_fn()			) {	parseFunc		(modifier); continue; }
 					
-		if( token.is_class() 		) { parseStructType	(modifier); continue; }
-		if( token.is_struct() 		) { parseStructType	(modifier); continue; }
-		if( token.is_interface() 	) { parseStructType	(modifier); continue; }
+		if( token.is_class() 		) { parseCompsiteType	(modifier); continue; }
+		if( token.is_struct() 		) { parseCompsiteType	(modifier); continue; }
+		if( token.is_interface() 	) { parseCompsiteType	(modifier); continue; }
 
 //		if( token.is_enum()			) { parseEnum		(modifier); continue; }
 

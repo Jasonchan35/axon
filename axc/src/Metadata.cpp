@@ -110,6 +110,7 @@ Metadata::Metadata() {
 	type_object->buildin = true;
 	type_object->setCppName( ax_txt("ax_Object"), true );
 	
+	/*
 	{
 		type_array		= ax_new_obj(  Class, root, ax_txt("Array"), Location() );
 		type_array->buildin	 = true;
@@ -133,6 +134,7 @@ Metadata::Metadata() {
 			fo->returnType = Type::MakeTypename( type_void );
 		}
 	}
+	*/
 }
 
 void Metadata::addOperatorFunc( ax_Obj< TypeSpec > returnType, ax_Obj< TypeSpec > type, TokenType op ) {

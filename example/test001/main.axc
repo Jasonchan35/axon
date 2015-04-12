@@ -7,7 +7,7 @@ class Color {
 }
 
 class Image {
-	var pixels = Color[0]
+//	var pixels = Color[0]
 }
 
 
