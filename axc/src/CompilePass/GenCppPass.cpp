@@ -18,7 +18,7 @@ auto	symbol_seperator 	= ax_txt("___");
 bool GenCppPass::hasToGenSourceFile( ax_Obj< MetaNode > node ) {
 	if( node->ax_is< Namespace >() ) return true;
 
-	ax_if_let( type, node->ax_as< CompositeType >() ) {
+	ax_if_let( type, node->ax_as< CompositeTypeSpec >() ) {
 		if( ! type->buildin && ! type->isNestedType ) {
 			return true;
 		}
@@ -209,14 +209,14 @@ void GenCppPass::genHdr_dispatch( ax_Obj< MetaNode > node ) {
 	ax_if_let( ns, 		node->ax_as<Namespace>() )	{ return genHdr_namespace( ns ); }
 	ax_if_let( fn, 		node->ax_as<Func>() )		{ return genHdr_func( fn ); }
 	ax_if_let( prop,	node->ax_as<Prop>() )		{ return genHdr_prop( prop ); }
-	ax_if_let( cp,		node->ax_as<CompositeType>() )	{ return genHdr_struct( cp ); }
+	ax_if_let( cp,		node->ax_as<CompositeTypeSpec>() )	{ return genHdr_struct( cp ); }
 }
 
 void GenCppPass::genCpp_dispatch( ax_Obj< MetaNode > node ) {
 	ax_if_let(  ns,		node->ax_as<Namespace>() )	{ return genCpp_namespace( ns ); }
 	ax_if_let(  fn,		node->ax_as<Func>() )		{ return genCpp_func( fn ); }
 	ax_if_let(  prop,	node->ax_as<Prop>() )		{ return genCpp_prop( prop ); }
-	ax_if_let(  cp,		node->ax_as<CompositeType>() )	{ return genCpp_struct( cp ); }
+	ax_if_let(  cp,		node->ax_as<CompositeTypeSpec>() )	{ return genCpp_struct( cp ); }
 }
 
 void GenCppPass::genHdr_namespace( ax_Obj< Namespace > node ) {
@@ -297,7 +297,7 @@ void GenCppPass::genHdr_prop( ax_Obj< Prop > node ) {
 void GenCppPass::genCpp_prop( ax_Obj< Prop > node ) {
 }
 
-void GenCppPass::genHdr_struct( ax_Obj< CompositeType > node ) {
+void GenCppPass::genHdr_struct( ax_Obj< CompositeTypeSpec > node ) {
 	ob.newline();
 	ob.newline();
 
@@ -344,7 +344,7 @@ void GenCppPass::genHdr_struct( ax_Obj< CompositeType > node ) {
 	ax_foreach( & c, node->children ) {
 		ax_if_let( prop, 		c->ax_as<Prop>() 		) { genHdr_prop(prop); continue; }
 		ax_if_let( fn,		 	c->ax_as<Func>() 		) { genHdr_func(fn); 	 continue; }
-		ax_if_let( nestedType, 	c->ax_as<CompositeType>() 	) { genHdr_struct(nestedType); continue; }
+		ax_if_let( nestedType, 	c->ax_as<CompositeTypeSpec>() 	) { genHdr_struct(nestedType); continue; }
 	}
 	
 	ob.newline(-1) << ax_txt("private:");
@@ -358,11 +358,11 @@ void GenCppPass::genHdr_struct( ax_Obj< CompositeType > node ) {
 	ob.newline();
 }
 
-void GenCppPass::genCpp_struct( ax_Obj< CompositeType > node ) {
+void GenCppPass::genCpp_struct( ax_Obj< CompositeTypeSpec > node ) {
 	ax_foreach( & c, node->children ) {
 		ax_if_let( prop, c->ax_as<Prop>() ) { genCpp_prop(prop); continue; }
 		ax_if_let( fn,	 c->ax_as<Func>() ) { genCpp_func(fn); 	 continue; }
-		ax_if_let( nestedType, c->ax_as<CompositeType>() ) { genCpp_struct(nestedType); continue; }
+		ax_if_let( nestedType, c->ax_as<CompositeTypeSpec>() ) { genCpp_struct(nestedType); continue; }
 	}
 }
 
@@ -389,7 +389,7 @@ GenCppPass::OutBuf & GenCppPass::OutBuf::operator<< ( const TokenType 	& t  ) {
 	return *this;
 }
 
-GenCppPass::OutBuf & GenCppPass::OutBuf::operator<< ( const RType 		& t  ) {
+GenCppPass::OutBuf & GenCppPass::OutBuf::operator<< ( const Type 		& t  ) {
 	ax_if_let( type, t.type ) {
 		*this << type;
 	}else{

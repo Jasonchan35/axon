@@ -25,14 +25,14 @@ ax_ImplObject( StringLiteralAST );
 ax_ImplObject( BinaryAST );
 
 
-AST::AST	( const Location & pos_, const RType & returnType_ )
+AST::AST	( const Location & pos_, const Type & returnType_ )
 : pos(pos_)
 , returnType( returnType_ ) {
 }
 
 
 NumberLiteralAST::NumberLiteralAST( const Location &_pos, const ax_string & _srcStr )
-: base(_pos, RType() )
+: base(_pos, Type() )
 , srcStr(_srcStr)
 , numberType(t_none)
 , numberPrefix(0)
@@ -240,23 +240,23 @@ NumberLiteralAST::NumberLiteralAST( const Location &_pos, const ax_string & _src
 	}
 	
 	switch( numberType ) {
-		case t_int:		base::returnType = RType::MakeLiteral( g_metadata->type_int 	); break;
-		case t_uint:	base::returnType = RType::MakeLiteral( g_metadata->type_uint	); break;
+		case t_int:		base::returnType = Type::MakeLiteral( g_metadata->type_int 	); break;
+		case t_uint:	base::returnType = Type::MakeLiteral( g_metadata->type_uint	); break;
 
-		case t_int32:	base::returnType = RType::MakeLiteral( g_metadata->type_int32	); break;
-		case t_uint32:	base::returnType = RType::MakeLiteral( g_metadata->type_uint32	); break;
+		case t_int32:	base::returnType = Type::MakeLiteral( g_metadata->type_int32	); break;
+		case t_uint32:	base::returnType = Type::MakeLiteral( g_metadata->type_uint32	); break;
 
-		case t_int64:	base::returnType = RType::MakeLiteral( g_metadata->type_int64	); break;
-		case t_uint64:	base::returnType = RType::MakeLiteral( g_metadata->type_uint64	); break;
+		case t_int64:	base::returnType = Type::MakeLiteral( g_metadata->type_int64	); break;
+		case t_uint64:	base::returnType = Type::MakeLiteral( g_metadata->type_uint64	); break;
 
-		case t_float:	base::returnType = RType::MakeLiteral( g_metadata->type_float	); break;
-		case t_double:	base::returnType = RType::MakeLiteral( g_metadata->type_double	); break;
+		case t_float:	base::returnType = Type::MakeLiteral( g_metadata->type_float	); break;
+		case t_double:	base::returnType = Type::MakeLiteral( g_metadata->type_double	); break;
 		default: Log::Error(_pos, ax_txt("unknown number type") );
 	}
 }
 
 StringLiteralAST::StringLiteralAST( const Location &pos_, const ax_string & value_ )
-: base(pos_, RType::MakeLiteral( g_metadata->type_string ) )
+: base(pos_, Type::MakeLiteral( g_metadata->type_string ) )
 , value(value_) {
 }
 
@@ -281,8 +281,8 @@ BinaryAST::BinaryAST( const Location & pos_, ax_Obj< FuncOverload > fo_, ax_Obj<
 {
 }
 
-TypeAST::TypeAST( Location &pos_, ax_Obj< TypeNode > node_ )
-: base( pos_, RType::MakeTypename( node_ )  )
+TypeAST::TypeAST( Location &pos_, ax_Obj< TypeSpec > node_ )
+: base( pos_, Type::MakeTypename( node_ )  )
 , node( node_ ) {
 }
 
@@ -292,7 +292,7 @@ PropAST::PropAST( Location &pos_, ax_Obj< Prop > node_ )
 }
 
 FuncParamAST::FuncParamAST( const Location &_pos )
-: base(_pos, RType() ) {
+: base(_pos, Type() ) {
 }
 
 

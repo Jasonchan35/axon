@@ -42,8 +42,8 @@ private:
 	void	genHdr_namespace	( ax_Obj< Namespace > node );
 	void	genCpp_namespace	( ax_Obj< Namespace > node );
 
-	void	genHdr_struct		( ax_Obj< CompositeType > node );
-	void	genCpp_struct		( ax_Obj< CompositeType > node );
+	void	genHdr_struct		( ax_Obj< CompositeTypeSpec > node );
+	void	genCpp_struct		( ax_Obj< CompositeTypeSpec > node );
 
 	void	genHdr_prop			( ax_Obj< Prop >	node );
 	void	genCpp_prop			( ax_Obj< Prop >	node );
@@ -110,7 +110,7 @@ private:
 
 
 		OutBuf & operator<< ( const TokenType 	& t  );
-		OutBuf & operator<< ( const RType 		& t  );
+		OutBuf & operator<< ( const Type 		& t  );
 		
 		OutBuf & operator<< ( ax_Obj< AST >  expr );
 		OutBuf & operator<< ( ax_NullableObj< AST > expr );

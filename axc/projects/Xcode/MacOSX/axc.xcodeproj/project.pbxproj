@@ -22,7 +22,7 @@
 		5E9044C41AC02ED1002F7C82 /* Token.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5E9044B61AC02ED1002F7C82 /* Token.cpp */; };
 		968D55C91AC99F49006C7CAF /* GenCppPass.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 968D55C71AC99F49006C7CAF /* GenCppPass.cpp */; };
 		96A10BA11AC833FF005E3CFF /* AST.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 96A10B9F1AC833FF005E3CFF /* AST.cpp */; };
-		96A10BA51AC83B00005E3CFF /* RType.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 96A10BA31AC83B00005E3CFF /* RType.cpp */; };
+		96A10BA51AC83B00005E3CFF /* Type.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 96A10BA31AC83B00005E3CFF /* Type.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -80,8 +80,8 @@
 		968D55C81AC99F49006C7CAF /* GenCppPass.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GenCppPass.h; sourceTree = "<group>"; };
 		96A10B9F1AC833FF005E3CFF /* AST.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AST.cpp; sourceTree = "<group>"; };
 		96A10BA01AC833FF005E3CFF /* AST.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AST.h; sourceTree = "<group>"; };
-		96A10BA31AC83B00005E3CFF /* RType.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RType.cpp; sourceTree = "<group>"; };
-		96A10BA41AC83B00005E3CFF /* RType.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RType.h; sourceTree = "<group>"; };
+		96A10BA31AC83B00005E3CFF /* Type.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Type.cpp; sourceTree = "<group>"; };
+		96A10BA41AC83B00005E3CFF /* Type.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Type.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -147,8 +147,8 @@
 				5E9044B01AC02ED1002F7C82 /* Parser.cpp */,
 				5E9044B11AC02ED1002F7C82 /* Parser.h */,
 				5E9044B21AC02ED1002F7C82 /* pch */,
-				96A10BA31AC83B00005E3CFF /* RType.cpp */,
-				96A10BA41AC83B00005E3CFF /* RType.h */,
+				96A10BA31AC83B00005E3CFF /* Type.cpp */,
+				96A10BA41AC83B00005E3CFF /* Type.h */,
 				5E9044B41AC02ED1002F7C82 /* SourceFile.cpp */,
 				5E9044B51AC02ED1002F7C82 /* SourceFile.h */,
 				5E9044B61AC02ED1002F7C82 /* Token.cpp */,
@@ -262,7 +262,7 @@
 				5E9044C01AC02ED1002F7C82 /* Metadata.cpp in Sources */,
 				5E9044BC1AC02ED1002F7C82 /* Lexer.cpp in Sources */,
 				96A10BA11AC833FF005E3CFF /* AST.cpp in Sources */,
-				96A10BA51AC83B00005E3CFF /* RType.cpp in Sources */,
+				96A10BA51AC83B00005E3CFF /* Type.cpp in Sources */,
 				968D55C91AC99F49006C7CAF /* GenCppPass.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

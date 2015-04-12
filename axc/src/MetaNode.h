@@ -113,7 +113,7 @@ public:
 
 	virtual void 	OnStringReq		( ax_ToStringReq & req ) const;
 	
-	ax_string 		getTemplateInstanceName		( const ax_Array< RType > & templateParams );
+	ax_string 		getTemplateInstanceName		( const ax_Array< Type > & templateParams );
 	
 	template< typename REQ >
 	void	onDeepVisit( REQ & req ) {
@@ -142,8 +142,8 @@ class Namespace : public MetaNode {
 
 };
 
-class TypeNode : public MetaNode {
-	DefMetaNode( TypeNode, MetaNode );
+class TypeSpec : public MetaNode {
+	DefMetaNode( TypeSpec, MetaNode );
 	
 	DeclarationModifier						modifier;
 	
@@ -151,69 +151,69 @@ class TypeNode : public MetaNode {
 	
 	ax_Array_< ax_Obj< TemplateParam > >	_templateParams;
 	
-	ax_Dict< ax_string, ax_Obj<TypeNode> >	templateInstance;
+	ax_Dict< ax_string, ax_Obj<TypeSpec> >	templateInstance;
 	
-	virtual	bool canAssignFrom( ax_Obj< TypeNode > rhs ) const {
+	virtual	bool canAssignFrom( ax_Obj< TypeSpec > rhs ) const {
 		return true;
 	}
 		
-	ax_Obj< TypeNode >		getOrAddTemplateInstance( const ax_Array< RType > & params, const Location & pos );
+	ax_Obj< TypeSpec >		getOrAddTemplateInstance( const ax_Array< Type > & params, const Location & pos );
 	
 	virtual	void onVisit( TemplateReplaceReq & req );
 	
 	void	OnStringReq( ax_ToStringReq & req ) const;
 };
 
-class TemplateParam : public TypeNode {
-	DefMetaNode( TemplateParam, TypeNode )
+class TemplateParam : public TypeSpec {
+	DefMetaNode( TemplateParam, TypeSpec )
 	
 	virtual void OnStringReq( ax_ToStringReq & req ) const;
 	
-	RType	type;
+	Type	type;
 };
 
 class TemplateReplaceReq : public System::NonCopyable {
 public:
-	ax_Dict< ax_Obj<MetaNode>, RType > dict;
+	ax_Dict< ax_Obj<MetaNode>, Type > dict;
 	
-	TemplateReplaceReq &	operator << ( RType & rhs );
+	TemplateReplaceReq &	operator << ( Type & rhs );
 	TemplateReplaceReq &	operator << ( ax_Obj< TemplateParam > rhs );
 };
 
 
-class PrimitiveType : public TypeNode {
-	DefMetaNode( PrimitiveType, TypeNode );	
+class PrimitiveTypeSpec : public TypeSpec {
+	DefMetaNode( PrimitiveTypeSpec, TypeSpec );	
 };
 
-class Typename : public TypeNode {
-	DefMetaNode( Typename, TypeNode )
+class TypenameSpec : public TypeSpec {
+	DefMetaNode( TypenameSpec, TypeSpec )
 	
 	void onInit_Typename();
 };
 
-class CompositeType : public TypeNode {
-	DefMetaNode( CompositeType, TypeNode )
+class CompositeTypeSpec : public TypeSpec {
+	DefMetaNode( CompositeTypeSpec, TypeSpec )
 	
 	ax_Array_< Location >				baseOrInterfacePos;
 
 	Location							bodyPos;
 	
-	ax_NullableObj< CompositeType >		baseType;
-	ax_Array_< ax_Obj< CompositeType > >	interfaces;
+	ax_NullableObj< CompositeTypeSpec >		baseType;
+	ax_Array_< ax_Obj< CompositeTypeSpec > >	interfaces;
 			
 	bool			isNestedType;
 };
 
-class Interface : public CompositeType {
-	DefMetaNode( Interface, CompositeType );	
+class Interface : public CompositeTypeSpec {
+	DefMetaNode( Interface, CompositeTypeSpec );	
 };
 
-class Struct : public CompositeType {
-	DefMetaNode( Struct, CompositeType );
+class Struct : public CompositeTypeSpec {
+	DefMetaNode( Struct, CompositeTypeSpec );
 };
 
-class Class : public CompositeType {
-	DefMetaNode( Class, CompositeType );
+class Class : public CompositeTypeSpec {
+	DefMetaNode( Class, CompositeTypeSpec );
 };
 
 class Prop : public MetaNode {
@@ -224,7 +224,7 @@ class Prop : public MetaNode {
 	
 	bool		is_let;
 	Location	typePos;
-	RType		type;
+	Type		type;
 	
 	void OnStringReq( ax_ToStringReq & req ) const {
 		base::OnStringReq( req );
@@ -241,7 +241,7 @@ struct FuncParam {
 	ax_string	name;
 	
 	Location	typePos;
-	RType		type;
+	Type		type;
 	
 	ax_NullableObj< AST >	defaultValueExpr;
 		
@@ -252,20 +252,20 @@ struct FuncParam {
 	}
 };
 
-class FuncType : public TypeNode {
-	DefMetaNode( FuncType, TypeNode );
+class FuncType : public TypeSpec {
+	DefMetaNode( FuncType, TypeSpec );
 	
 	ax_Obj< Func >	func;
 };
 
-class FuncOverload : public TypeNode {
-	DefMetaNode( FuncOverload, TypeNode )
+class FuncOverload : public TypeSpec {
+	DefMetaNode( FuncOverload, TypeSpec )
 
 	virtual void OnStringReq( ax_ToStringReq & req ) const;
 
 	bool	isMatch		( const ax_Array<FuncParam> & callParams );
 
-	FuncParam &	addParam( const ax_string & name, const Location & namePos, const RType & type, const Location & typePos );
+	FuncParam &	addParam( const ax_string & name, const Location & namePos, const Type & type, const Location & typePos );
 
 	ax_Array_< FuncParam, 8 >	params;
 	
@@ -273,15 +273,15 @@ class FuncOverload : public TypeNode {
 	Location		paramPos;
 	Location		bodyPos;
 	
-	RType			returnType;
+	Type			returnType;
 	
 	ax_Obj<Func>	func;
 
 	void		onVisit( TemplateReplaceReq & req );
 };
 
-class Func : public TypeNode {
-	DefMetaNode( Func, TypeNode );
+class Func : public TypeSpec {
+	DefMetaNode( Func, TypeSpec );
 
 	ax_NullableObj< FuncOverload >		getOverload	( ax_Array< ax_Obj< FuncOverload > > & candidate, const ax_Array< FuncParam > & params );
 	

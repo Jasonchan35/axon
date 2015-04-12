@@ -1,18 +1,18 @@
 //
-//  RType.cpp
+//  Type.cpp
 //  axc
 //
 //  Created by Jason on 2015-03-29.
 //  Copyright (c) 2015 Jason Chan. All rights reserved.
 //
 
-#include "RType.h"
+#include "Type.h"
 #include "MetaData.h"
 
 namespace ax {
 namespace Compile {
 
-void	RType::appendFullname	( ax_MutString & fullname, const ax_string & seperator ) const {
+void	Type::appendFullname	( ax_MutString & fullname, const ax_string & seperator ) const {
 	ax_if_not_let( t, type ) {
 		fullname << ax_txt("<NULL>");
 		return;
@@ -21,33 +21,33 @@ void	RType::appendFullname	( ax_MutString & fullname, const ax_string & seperato
 	t->appendFullname( fullname, seperator );
 }
 
-bool RType::operator==( const RType & rhs ) const {
+bool Type::operator==( const Type & rhs ) const {
 	ax_if_not_let( t, type 		) { return false; }
 	ax_if_not_let( r, rhs.type 	) { return false; }
 	return t == r;
 }
 
-bool RType::canAssignFrom( const RType & rhs ) const {
+bool Type::canAssignFrom( const Type & rhs ) const {
 	ax_if_not_let( t, type 		) { return false; }
 	ax_if_not_let( r, rhs.type 	) { return false; }
 	
 	return t->canAssignFrom( r );
 }
 
-void	RType::OnStringReq( ax_ToStringReq & req ) const {
+void	Type::OnStringReq( ax_ToStringReq & req ) const {
 	ax_if_let( t, type ) {
 		req << t->name();
 	}else{
-		req << ax_txt("RType<NULL>");
+		req << ax_txt("Type<NULL>");
 	}
 }
 
-ax_NullableObj< Func >	RType::getFunc ( const ax_string & name ) {
+ax_NullableObj< Func >	Type::getFunc ( const ax_string & name ) {
 	ax_if_not_let( t, type ) return nullptr;
 	return t->getFunc(name);
 }
 
-ax_NullableObj< Func >	RType::getOperatorFunc	( TokenType op, const Location & pos ) {
+ax_NullableObj< Func >	Type::getOperatorFunc	( TokenType op, const Location & pos ) {
 	ax_if_not_let( t, type ) return nullptr;
 
 	if( isTypename ) {
@@ -58,7 +58,7 @@ ax_NullableObj< Func >	RType::getOperatorFunc	( TokenType op, const Location & p
 		if( op == TokenType::t_op_subscript ) {
 			auto a = g_metadata->type_array;
 			
-			ax_Array_< RType, 32 > templateParam;
+			ax_Array_< Type, 32 > templateParam;
 			templateParam.add( *this );
 			
 			auto ai = a->getOrAddTemplateInstance( templateParam, pos );
@@ -78,7 +78,7 @@ ax_NullableObj< Func >	RType::getOperatorFunc	( TokenType op, const Location & p
 	}
 }
 
-ax_NullableObj< Func >	RType::getPrefixOperatorFunc	( TokenType op, const Location & pos ) {
+ax_NullableObj< Func >	Type::getPrefixOperatorFunc	( TokenType op, const Location & pos ) {
 	ax_if_not_let( t, type ) return nullptr;
 	return t->getPrefixOperatorFunc(op);
 }

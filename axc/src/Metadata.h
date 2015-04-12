@@ -24,30 +24,30 @@ public:
 	
 	ax_Obj< Func >		func_new_array;
 	
-	ax_Array_< ax_Obj<CompositeType> >		structList;
+	ax_Array_< ax_Obj<CompositeTypeSpec> >		structList;
 	ax_Array_< ax_Obj<Prop> >			propList;
 	ax_Array_< ax_Obj<FuncOverload> >	funcOverloadList;
 
-	ax_Obj< TypeNode >				type_any;
+	ax_Obj< TypeSpec >				type_any;
 
-	ax_Obj< PrimitiveType >			type_void;
-	ax_Obj< PrimitiveType >			type_bool;
-	ax_Obj< PrimitiveType >			type_string;
+	ax_Obj< PrimitiveTypeSpec >			type_void;
+	ax_Obj< PrimitiveTypeSpec >			type_bool;
+	ax_Obj< PrimitiveTypeSpec >			type_string;
 	
-	ax_Obj< PrimitiveType >			type_int;
-	ax_Obj< PrimitiveType >			type_int8;
-	ax_Obj< PrimitiveType >			type_int16;
-	ax_Obj< PrimitiveType >			type_int32;
-	ax_Obj< PrimitiveType >			type_int64;
+	ax_Obj< PrimitiveTypeSpec >			type_int;
+	ax_Obj< PrimitiveTypeSpec >			type_int8;
+	ax_Obj< PrimitiveTypeSpec >			type_int16;
+	ax_Obj< PrimitiveTypeSpec >			type_int32;
+	ax_Obj< PrimitiveTypeSpec >			type_int64;
 	
-	ax_Obj< PrimitiveType >			type_uint;
-	ax_Obj< PrimitiveType >			type_uint8;
-	ax_Obj< PrimitiveType >			type_uint16;
-	ax_Obj< PrimitiveType >			type_uint32;
-	ax_Obj< PrimitiveType >			type_uint64;
+	ax_Obj< PrimitiveTypeSpec >			type_uint;
+	ax_Obj< PrimitiveTypeSpec >			type_uint8;
+	ax_Obj< PrimitiveTypeSpec >			type_uint16;
+	ax_Obj< PrimitiveTypeSpec >			type_uint32;
+	ax_Obj< PrimitiveTypeSpec >			type_uint64;
 
-	ax_Obj< PrimitiveType >			type_float;
-	ax_Obj< PrimitiveType >			type_double;
+	ax_Obj< PrimitiveTypeSpec >			type_float;
+	ax_Obj< PrimitiveTypeSpec >			type_double;
 
 	ax_Obj< Class >					type_object;
 	ax_Obj< Class >					type_array;
@@ -55,16 +55,16 @@ public:
 	
 	ax_NullableObj< Class >			type_app;
 	
-	ax_Array_< ax_Obj< PrimitiveType > >	type_all_number;
-	ax_Array_< ax_Obj< PrimitiveType > >	type_all_int;
-	ax_Array_< ax_Obj< PrimitiveType > >	type_all_uint;
-	ax_Array_< ax_Obj< PrimitiveType > >	type_all_float;
+	ax_Array_< ax_Obj< PrimitiveTypeSpec > >	type_all_number;
+	ax_Array_< ax_Obj< PrimitiveTypeSpec > >	type_all_int;
+	ax_Array_< ax_Obj< PrimitiveTypeSpec > >	type_all_uint;
+	ax_Array_< ax_Obj< PrimitiveTypeSpec > >	type_all_float;
 	
 	
-	void	addOperatorFunc			( ax_Obj< TypeNode > returnType, ax_Obj< TypeNode > type, TokenType op );
+	void	addOperatorFunc			( ax_Obj< TypeSpec > returnType, ax_Obj< TypeSpec > type, TokenType op );
 	
-	void	addPrefixOperatorFunc	( ax_Obj< TypeNode > returnType, ax_Obj< TypeNode > type, TokenType op );
-	void	addPostfixOperatorFunc	( ax_Obj< TypeNode > returnType, ax_Obj< TypeNode > type, TokenType op );
+	void	addPrefixOperatorFunc	( ax_Obj< TypeSpec > returnType, ax_Obj< TypeSpec > type, TokenType op );
+	void	addPostfixOperatorFunc	( ax_Obj< TypeSpec > returnType, ax_Obj< TypeSpec > type, TokenType op );
 	
 	
 	void 	OnStringReq( ax_ToStringReq & req ) const;

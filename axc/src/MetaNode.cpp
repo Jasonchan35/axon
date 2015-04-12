@@ -16,13 +16,13 @@ namespace Compile {
 ax_ImplObject( MetaNode );
 
 ax_ImplObject( Namespace );
-ax_ImplObject( TypeNode );
-ax_ImplObject( PrimitiveType );
-ax_ImplObject( Typename );
+ax_ImplObject( TypeSpec );
+ax_ImplObject( PrimitiveTypeSpec );
+ax_ImplObject( TypenameSpec );
 
 ax_ImplObject( TemplateParam );
 
-ax_ImplObject( CompositeType );
+ax_ImplObject( CompositeTypeSpec );
 ax_ImplObject( Interface );
 ax_ImplObject( Struct );
 ax_ImplObject( Class );
@@ -143,7 +143,7 @@ ax_Obj< Func >	MetaNode::addFunc	( const ax_string & name ) {
 	return ax_new_obj( Func, ax_ThisObj, name, Location() );
 }
 
-ax_string MetaNode::getTemplateInstanceName( const ax_Array< RType > & elementTypes ) {
+ax_string MetaNode::getTemplateInstanceName( const ax_Array< Type > & elementTypes ) {
 	ax_TempString	o;
 
 	o.append( this->name() );
@@ -178,14 +178,14 @@ void TemplateParam::OnStringReq( ax_ToStringReq & req ) const {
 }
 
 TemplateReplaceReq &	TemplateReplaceReq::operator<<( ax_Obj< TemplateParam > rhs ) {
-	RType	new_value;
+	Type	new_value;
 	if( dict.tryGetValue( rhs, new_value ) ) {
 		rhs->type = new_value;
 	}
 	return *this;
 }
 
-TemplateReplaceReq &	TemplateReplaceReq::operator<<( RType & rhs ) {
+TemplateReplaceReq &	TemplateReplaceReq::operator<<( Type & rhs ) {
 	ax_if_let( t, rhs.type ) {
 		if( dict.tryGetValue( t, rhs ) ) {
 			ax_log( ax_txt("template replace {?} -> {?}"), t, rhs );
@@ -199,15 +199,15 @@ TemplateReplaceReq &	TemplateReplaceReq::operator<<( RType & rhs ) {
 #pragma mark =========================
 #endif
 
-void TypeNode::onInit() {
+void TypeSpec::onInit() {
 }
 
-void TypeNode::onCopy( ax_Obj< TypeNode > src ) {
+void TypeSpec::onCopy( ax_Obj< TypeSpec > src ) {
 	modifier 		= src->modifier;
 	_templateParams	= src->_templateParams;
 }
 
-ax_Obj< TemplateParam > TypeNode::addTemplateParam( const ax_string & name, const Location & pos ) {
+ax_Obj< TemplateParam > TypeSpec::addTemplateParam( const ax_string & name, const Location & pos ) {
 	auto p = ax_new_obj( TemplateParam, ax_ThisObj, name, pos );
 
 	_templateParams.add( p );
@@ -215,13 +215,13 @@ ax_Obj< TemplateParam > TypeNode::addTemplateParam( const ax_string & name, cons
 	return p;
 }
 
-void TypeNode::onVisit( TemplateReplaceReq & req ) {
+void TypeSpec::onVisit( TemplateReplaceReq & req ) {
 //	ax_foreach( &p, _templateParams ) {
 //		req << p;
 //	}
 }
 
-ax_Obj< TypeNode > TypeNode::getOrAddTemplateInstance( const ax_Array< RType > & params, const Location & pos ) {
+ax_Obj< TypeSpec > TypeSpec::getOrAddTemplateInstance( const ax_Array< Type > & params, const Location & pos ) {
 	if( _templateParams.size() != params.size() ) {
 		Log::Error( pos, ax_txt("invalid number of template parameters") );
 	}
@@ -232,7 +232,7 @@ ax_Obj< TypeNode > TypeNode::getOrAddTemplateInstance( const ax_Array< RType > &
 		return p;
 	}
 	
-	auto new_inst = this->clone( new_name )->ax_cast<TypeNode>();
+	auto new_inst = this->clone( new_name )->ax_cast<TypeSpec>();
 		
 	templateInstance.add( new_name, new_inst );
 
@@ -250,7 +250,7 @@ ax_Obj< TypeNode > TypeNode::getOrAddTemplateInstance( const ax_Array< RType > &
 	return new_inst;
 }
 
-void TypeNode::OnStringReq( ax_ToStringReq & req ) const {
+void TypeSpec::OnStringReq( ax_ToStringReq & req ) const {
 	base::OnStringReq( req );
 		
 	if( _templateParams.size() > 0 ) {
@@ -297,13 +297,13 @@ ax_Obj< Namespace >	Namespace::getOrAddNamespace	( const ax_string & name, Locat
 #pragma mark =========================
 #endif
 
-void CompositeType::onInit() {
+void CompositeTypeSpec::onInit() {
 	isNestedType = false;
 	
 	g_metadata->structList.add( ax_ThisObj );
 }
 
-void CompositeType::onCopy( ax_Obj< CompositeType > p ) {
+void CompositeTypeSpec::onCopy( ax_Obj< CompositeTypeSpec > p ) {
 	isNestedType = p->isNestedType;
 }
 
@@ -311,11 +311,11 @@ void CompositeType::onCopy( ax_Obj< CompositeType > p ) {
 #pragma mark =========================
 #endif
 
-void PrimitiveType::onInit() {
+void PrimitiveTypeSpec::onInit() {
 	buildin=true;
 }
 
-void PrimitiveType::onCopy( ax_Obj< PrimitiveType > p ) {
+void PrimitiveTypeSpec::onCopy( ax_Obj< PrimitiveTypeSpec > p ) {
 
 }
 
@@ -323,10 +323,10 @@ void PrimitiveType::onCopy( ax_Obj< PrimitiveType > p ) {
 #pragma mark =========================
 #endif
 
-void Typename::onInit() {
+void TypenameSpec::onInit() {
 }
 
-void Typename::onCopy( ax_Obj< Typename > p ) {
+void TypenameSpec::onCopy( ax_Obj< TypenameSpec > p ) {
 
 }
 
@@ -416,7 +416,7 @@ ax_NullableObj< FuncOverload > Func::getOverload( ax_Array< ax_Obj< FuncOverload
 #pragma mark =========================
 #endif
 
-FuncParam &	FuncOverload::addParam( const ax_string & name, const Location & namePos, const RType & type, const Location & typePos ) {
+FuncParam &	FuncOverload::addParam( const ax_string & name, const Location & namePos, const Type & type, const Location & typePos ) {
 	auto & o = params.addNew();
 	
 	o.name		= name;

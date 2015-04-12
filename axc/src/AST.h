@@ -9,7 +9,7 @@
 #ifndef __axc__ExprAST__
 #define __axc__ExprAST__
 
-#include "RType.h"
+#include "Type.h"
 
 namespace ax {
 namespace Compile {
@@ -28,7 +28,7 @@ class FuncParamAST;
 
 class FuncOverload;
 class Prop;
-class TypeNode;
+class TypeSpec;
 
 class IASTDispatcher {
 public:
@@ -66,13 +66,13 @@ class AST : public ax_Object {
 public:
 	struct	ax_type_on_gc_trace : public std::true_type {};
 
-	AST	( const Location & pos_, const RType & returnType_ );
+	AST	( const Location & pos_, const Type & returnType_ );
 	
 			void	dispatch		( IASTDispatcher & p ) { onDispatch(p); }
 	virtual	void	onDispatch		( IASTDispatcher & p ) = 0;
 	
 	Location	pos;
-	RType		returnType;
+	Type		returnType;
 };
 
 
@@ -147,9 +147,9 @@ public:
 class TypeAST : public AST {
 	ax_DefObject( TypeAST, AST )
 public:
-	ax_NullableObj< TypeNode >		node;
+	ax_NullableObj< TypeSpec >		node;
 
-	TypeAST( Location &pos_, ax_Obj< TypeNode > node_ );
+	TypeAST( Location &pos_, ax_Obj< TypeSpec > node_ );
 
 	virtual	void	onDispatch		( IASTDispatcher & p ) { p.onAST(*this); }
 };

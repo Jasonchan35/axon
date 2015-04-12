@@ -67,7 +67,7 @@ void DeclarePass::resolveFuncParam( ax_Obj< FuncOverload > fo ) {
 	
 		nextToken();
 
-		RType		paramType;
+		Type		paramType;
 		Location	typePos;
 		
 		ax_NullableObj< AST >	defaultValueExpr;
@@ -108,7 +108,7 @@ void DeclarePass::resolveFuncParam( ax_Obj< FuncOverload > fo ) {
 	if( token.is_identifier() ) {
 		fo->returnType = parseTypename();
 	}else{
-		fo->returnType = RType::MakeValue( g_metadata->type_void, false );
+		fo->returnType = Type::MakeValue( g_metadata->type_void, false );
 	}
 	
 	if( ! token.is_curlyBracketOpen() ) {
@@ -150,7 +150,7 @@ void DeclarePass::resolvePropPass() {
 }
 
 void DeclarePass::resolveStructTypePass() {
-	ax_Array_< ax_Obj< CompositeType > >	list[2];
+	ax_Array_< ax_Obj< CompositeTypeSpec > >	list[2];
 	list[0].reserve( 64 * 1024 );
 	list[1].reserve( 64 * 1024 );
 
@@ -214,7 +214,7 @@ bool DeclarePass::resolveProp( ax_Obj< Prop >	node ) {
 	return true;
 }
 
-bool DeclarePass::resolveStructType( ax_Obj< CompositeType > node ) {
+bool DeclarePass::resolveStructType( ax_Obj< CompositeTypeSpec > node ) {
 
 	auto n = node->baseOrInterfacePos.size();
 	ax_int c = 0;
@@ -232,7 +232,7 @@ bool DeclarePass::resolveStructType( ax_Obj< CompositeType > node ) {
 			return false;
 		}
 		
-		ax_if_not_let( s, t->ax_as< CompositeType >() ) {
+		ax_if_not_let( s, t->ax_as< CompositeTypeSpec >() ) {
 			Log::Error( pos, ax_txt("interface / class / struct expected") );
 		}
 
@@ -257,7 +257,7 @@ bool DeclarePass::resolveStructType( ax_Obj< CompositeType > node ) {
 			auto fo = fn->addOverload( node->pos );
 			fo->pos		= node->pos;
 			fo->buildin = true;
-			fo->returnType = RType::MakeValue( node, false );
+			fo->returnType = Type::MakeValue( node, false );
 		}
 	}
 	
@@ -362,7 +362,7 @@ void DeclarePass::parseStructType( DeclarationModifier & modifier ) {
 	nextToken();
 	if( ! token.is_identifier() ) Log::Error( token, ax_txt("type name expected") );
 				
-	ax_Obj< CompositeType >	new_node;
+	ax_Obj< CompositeTypeSpec >	new_node;
 	switch( nodeType ) {
 		case TokenType::t_interface: 	new_node = ax_new_obj( Interface,	inNode, token.str, token.pos );	break;
 		case TokenType::t_struct: 		new_node = ax_new_obj( Struct,		inNode, token.str, token.pos );	break;
@@ -373,7 +373,7 @@ void DeclarePass::parseStructType( DeclarationModifier & modifier ) {
 	}	
 
 	if( inNode->ax_is< Namespace >() ) {
-	}else if( inNode->ax_is< CompositeType >() ) {
+	}else if( inNode->ax_is< CompositeTypeSpec >() ) {
 		new_node->isNestedType = true;
 	}else{
 		Log::Error( token, ax_txt("cannot delcare sturcture type here") );
@@ -412,7 +412,7 @@ void DeclarePass::parseStructType( DeclarationModifier & modifier ) {
 	
 }
 
-void DeclarePass::parseStructTypeBody( ax_Obj< CompositeType > node ) {
+void DeclarePass::parseStructTypeBody( ax_Obj< CompositeTypeSpec > node ) {
 	setPos( node->bodyPos );
 
 	auto scope_inNode = ax_scope_value( pos.inNode, node );

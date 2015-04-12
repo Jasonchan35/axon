@@ -218,11 +218,11 @@ ax_NullableObj< MetaNode >	Parser::parseNode	() {
 	return nullptr;
 }
 
-RType Parser::parseTypename () {
+Type Parser::parseTypename () {
 	if( token.is_roundBracketOpen() ) {	//tuple
 		nextToken();
 		
-		ax_Array_< RType, 16 >	elements;
+		ax_Array_< Type, 16 >	elements;
 		
 		for(;;) {
 			auto t = parseTypename();
@@ -243,17 +243,17 @@ RType Parser::parseTypename () {
 		
 		throw System::Err_Undefined(); //TODO !!
 //		auto tuple = g_metadata->tupleTable.getOrAddTuple( token.pos, elements );
-//		return RType::MakeTypename( tuple );
+//		return Type::MakeTypename( tuple );
 	}
 
 	ax_if_not_let( o, parseNode() ) {
-		return RType();
+		return Type();
 	}
 	
-	ax_if_not_let( t, o->ax_as< TypeNode >() ) {
+	ax_if_not_let( t, o->ax_as< TypeSpec >() ) {
 		Log::Error( token, ax_txt("type expected") );
 	}
-	return RType::MakeTypename( t );
+	return Type::MakeTypename( t );
 }
 
 
@@ -308,7 +308,7 @@ ax_NullableObj< AST > Parser::parseExpr_Identifier() {
 	
 	for(;;) {
 		if( token.is_dot() ) {
-			if( p->ax_is< Namespace >() || p->ax_is< TypeNode >() ) {
+			if( p->ax_is< Namespace >() || p->ax_is< TypeSpec >() ) {
 				nextToken();
 				ax_if_not_let( p0, p->getNode( token.str ) ) {
 					Log::Error( token, ax_txt("unknown identifier '{0}'"), token.str );
@@ -319,7 +319,7 @@ ax_NullableObj< AST > Parser::parseExpr_Identifier() {
 				continue;
 			}
 		}else if( token.is_less() ) {
-			if( p->ax_is< TypeNode >() ) {
+			if( p->ax_is< TypeSpec >() ) {
 				nextToken();
 				
 			//template
@@ -336,7 +336,7 @@ ax_NullableObj< AST > Parser::parseExpr_Identifier() {
 		return ax_new_obj( PropAST, token.pos, prop );
 	}
 	
-	ax_if_let( type, p->ax_as< TypeNode >() ) {
+	ax_if_let( type, p->ax_as< TypeSpec >() ) {
 		return ax_new_obj( TypeAST, token.pos, type );
 	}
 
