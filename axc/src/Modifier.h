@@ -1,5 +1,5 @@
 //
-//  DeclarationModifier.h
+//  Modifier.h
 //  axc
 //
 //  Created by Jason Chan on 12/10/14.
@@ -13,10 +13,10 @@ namespace ax {
 namespace Compile {
 
 
-class DeclarationModifier {
+class Modifier {
 public:
 
-	DeclarationModifier() {
+	Modifier() {
 		reset();
 	}
 	

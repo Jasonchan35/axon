@@ -10,7 +10,7 @@
 #define __axc__Parser__
 
 #include "Lexer.h"
-#include "DeclarationModifier.h"
+#include "Modifier.h"
 #include "AST.h"
 
 namespace ax {
@@ -41,7 +41,7 @@ public:
 	void	skipTypeName		();
 	void	_skipTypeName		();
 	
-	DeclarationModifier	parseDeclarationModifier();
+	Modifier	parseDeclarationModifier();
 	
 	ax_NullableObj< AST >		parseExpression();
 	
@@ -64,7 +64,7 @@ public:
 //	ax_NullableObj< AST >		parseExpr_Break				();
 //	ax_NullableObj< AST >		parseExpr_Continue			();
 //
-//	ax_NullableObj< AST >		parseExpr_LocalVar			( DeclarationModifier & modifier );
+//	ax_NullableObj< AST >		parseExpr_LocalVar			( Modifier & modifier );
 
 
 						Type 		parseTypename	();

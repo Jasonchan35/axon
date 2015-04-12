@@ -10,7 +10,7 @@
 #define __axc__MetaNode__
 
 #include "Log.h"
-#include "DeclarationModifier.h"
+#include "Modifier.h"
 #include "AST.h"
 
 namespace ax {
@@ -26,16 +26,16 @@ public:	\
 	void onInit(); \
 	virtual	ax_Obj<MetaNode> clone ( ax_Obj< MetaNode > new_parent ) { \
 		auto p = ax_new_obj( T, new_parent, name(), pos ); \
-		p->onDeepCopy( ax_ThisObj ); \
+		p->onCopyInDeep( ax_ThisObj ); \
 		return p; \
 	} \
 	virtual	ax_Obj<MetaNode> clone ( const ax_string & new_name ) { \
 		auto p = ax_new_obj( T, parent, new_name, pos ); \
-		p->onDeepCopy( ax_ThisObj ); \
+		p->onCopyInDeep( ax_ThisObj ); \
 		return p; \
 	} \
-	virtual void onDeepCopy( ax_Obj<MetaNode> p ) { \
-		B::onDeepCopy( p ); \
+	virtual void onCopyInDeep( ax_Obj<MetaNode> p ) { \
+		B::onCopyInDeep( p ); \
 		T::onCopy( p->ax_cast<T>() ); \
 	} \
 	void onCopy( ax_Obj<T> p ); \
@@ -47,7 +47,7 @@ class Func;
 class AST;
 
 class TemplateParam;
-class TemplateReplaceReq;
+class TemplateInstantiateRequest;
 
 class Location;
 class MetaNode : public System::Object {
@@ -116,22 +116,22 @@ public:
 	ax_string 		getTemplateInstanceName		( const ax_Array< Type > & templateParams );
 	
 	template< typename REQ >
-	void	onDeepVisit( REQ & req ) {
+	void	onVisitInDeep( REQ & req ) {
 		onVisit( req );
 		ax_foreach( &c, children ) {
-			c->onDeepVisit( req );
+			c->onVisitInDeep( req );
 		}
 	}
 	
-	virtual	void onVisit( TemplateReplaceReq & req ) {}
+	virtual	void onVisit( TemplateInstantiateRequest & req ) {}
 	
 	virtual	ax_Obj<MetaNode> clone ( ax_Obj< MetaNode > new_parent ) = 0;
 	virtual	ax_Obj<MetaNode> clone ( const ax_string & new_name ) = 0;
 				
-			void	onDeepInit() { onInit(); }
+			void	onInitInDeep() { onInit(); }
 			void	onInit();
 	
-	virtual	void 	onDeepCopy	( ax_Obj<MetaNode> p ) { onCopy(p); }
+	virtual	void 	onCopyInDeep	( ax_Obj<MetaNode> p ) { onCopy(p); }
 			void 	onCopy		( ax_Obj<MetaNode> p );
 };
 
@@ -145,7 +145,7 @@ class Namespace : public MetaNode {
 class TypeSpec : public MetaNode {
 	DefMetaNode( TypeSpec, MetaNode );
 	
-	DeclarationModifier						modifier;
+	Modifier						modifier;
 	
 	 ax_Obj< TemplateParam >				 addTemplateParam( const ax_string & name, const Location & pos );
 	
@@ -159,7 +159,7 @@ class TypeSpec : public MetaNode {
 		
 	ax_Obj< TypeSpec >		getOrAddTemplateInstance( const ax_Array< Type > & params, const Location & pos );
 	
-	virtual	void onVisit( TemplateReplaceReq & req );
+	virtual	void onVisit( TemplateInstantiateRequest & req );
 	
 	void	OnStringReq( ax_ToStringReq & req ) const;
 };
@@ -172,12 +172,12 @@ class TemplateParam : public TypeSpec {
 	Type	type;
 };
 
-class TemplateReplaceReq : public System::NonCopyable {
+class TemplateInstantiateRequest : public System::NonCopyable {
 public:
 	ax_Dict< ax_Obj<MetaNode>, Type > dict;
 	
-	TemplateReplaceReq &	operator << ( Type & rhs );
-	TemplateReplaceReq &	operator << ( ax_Obj< TemplateParam > rhs );
+	TemplateInstantiateRequest &	operator << ( Type & rhs );
+	TemplateInstantiateRequest &	operator << ( ax_Obj< TemplateParam > rhs );
 };
 
 
@@ -194,11 +194,10 @@ class TypenameSpec : public TypeSpec {
 class CompositeTypeSpec : public TypeSpec {
 	DefMetaNode( CompositeTypeSpec, TypeSpec )
 	
-	ax_Array_< Location >				baseOrInterfacePos;
-
-	Location							bodyPos;
+	ax_Array_< Location >		baseOrInterfacePos;
+	Location					bodyPos;
 	
-	ax_NullableObj< CompositeTypeSpec >		baseType;
+	ax_NullableObj< CompositeTypeSpec >			baseType;
 	ax_Array_< ax_Obj< CompositeTypeSpec > >	interfaces;
 			
 	bool			isNestedType;
@@ -277,15 +276,14 @@ class FuncOverload : public TypeSpec {
 	
 	ax_Obj<Func>	func;
 
-	void		onVisit( TemplateReplaceReq & req );
+	void		onVisit( TemplateInstantiateRequest & req );
 };
 
 class Func : public TypeSpec {
 	DefMetaNode( Func, TypeSpec );
 
 	ax_NullableObj< FuncOverload >		getOverload	( ax_Array< ax_Obj< FuncOverload > > & candidate, const ax_Array< FuncParam > & params );
-	
-	ax_Obj< FuncOverload >	addOverload( const Location & pos );
+	ax_Obj< FuncOverload >				addOverload	( const Location & pos );
 	
 	ax_Array_< ax_Obj< FuncOverload > >		overloads;	
 };

@@ -125,8 +125,8 @@ void Parser::skipSquareBracket() { _skipBracket( TokenType::t_squareBracketOpen,
 void Parser::skipAngleBracket () { _skipBracket( TokenType::t_less,  			 TokenType::t_greater ); }
 
 
-DeclarationModifier Parser::parseDeclarationModifier() {
-	DeclarationModifier	m;
+Modifier Parser::parseDeclarationModifier() {
+	Modifier	m;
 
 	for(;;) {
 		if( token.type == TokenType::t_mutating ) {

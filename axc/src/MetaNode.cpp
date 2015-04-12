@@ -177,7 +177,7 @@ void TemplateParam::OnStringReq( ax_ToStringReq & req ) const {
 	req << type;
 }
 
-TemplateReplaceReq &	TemplateReplaceReq::operator<<( ax_Obj< TemplateParam > rhs ) {
+TemplateInstantiateRequest &	TemplateInstantiateRequest::operator<<( ax_Obj< TemplateParam > rhs ) {
 	Type	new_value;
 	if( dict.tryGetValue( rhs, new_value ) ) {
 		rhs->type = new_value;
@@ -185,7 +185,7 @@ TemplateReplaceReq &	TemplateReplaceReq::operator<<( ax_Obj< TemplateParam > rhs
 	return *this;
 }
 
-TemplateReplaceReq &	TemplateReplaceReq::operator<<( Type & rhs ) {
+TemplateInstantiateRequest &	TemplateInstantiateRequest::operator<<( Type & rhs ) {
 	ax_if_let( t, rhs.type ) {
 		if( dict.tryGetValue( t, rhs ) ) {
 			ax_log( ax_txt("template replace {?} -> {?}"), t, rhs );
@@ -215,7 +215,7 @@ ax_Obj< TemplateParam > TypeSpec::addTemplateParam( const ax_string & name, cons
 	return p;
 }
 
-void TypeSpec::onVisit( TemplateReplaceReq & req ) {
+void TypeSpec::onVisit( TemplateInstantiateRequest & req ) {
 //	ax_foreach( &p, _templateParams ) {
 //		req << p;
 //	}
@@ -236,14 +236,14 @@ ax_Obj< TypeSpec > TypeSpec::getOrAddTemplateInstance( const ax_Array< Type > & 
 		
 	templateInstance.add( new_name, new_inst );
 
-	TemplateReplaceReq	req;
+	TemplateInstantiateRequest	req;
 	
 	ax_int n = params.size();
 	for( ax_int i=0; i<n; i++ ) {
 		req.dict.add( _templateParams[i], params[i] );
 	}
 	
-	new_inst->onDeepVisit( req );
+	new_inst->onVisitInDeep( req );
 
 	g_compiler->dumpMetadata();
 	
@@ -427,7 +427,7 @@ FuncParam &	FuncOverload::addParam( const ax_string & name, const Location & nam
 	return o;
 }
 
-void	FuncOverload::onVisit( TemplateReplaceReq & req ) {
+void	FuncOverload::onVisit( TemplateInstantiateRequest & req ) {
 	ax_dump( this->fullname() );
 
 	ax_foreach( &p, params ) {

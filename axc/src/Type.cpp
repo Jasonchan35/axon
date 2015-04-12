@@ -83,9 +83,5 @@ ax_NullableObj< Func >	Type::getPrefixOperatorFunc	( TokenType op, const Locatio
 	return t->getPrefixOperatorFunc(op);
 }
 
-void RValue::OnStringReq( ax_ToStringReq & req ) const {
-	req << name << ax_txt(":") << type;
-}
-
 }} //namespace
 

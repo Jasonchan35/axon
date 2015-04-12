@@ -10,7 +10,7 @@
 		5E9044961AC02E67002F7C82 /* libax_core.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5E9044951AC02E5C002F7C82 /* libax_core.a */; };
 		5E9044B91AC02ED1002F7C82 /* DeclarePass.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5E90449E1AC02ED1002F7C82 /* DeclarePass.cpp */; };
 		5E9044BA1AC02ED1002F7C82 /* Compiler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5E9044A01AC02ED1002F7C82 /* Compiler.cpp */; };
-		5E9044BB1AC02ED1002F7C82 /* DeclarationModifier.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5E9044A21AC02ED1002F7C82 /* DeclarationModifier.cpp */; };
+		5E9044BB1AC02ED1002F7C82 /* Modifier.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5E9044A21AC02ED1002F7C82 /* Modifier.cpp */; };
 		5E9044BC1AC02ED1002F7C82 /* Lexer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5E9044A51AC02ED1002F7C82 /* Lexer.cpp */; };
 		5E9044BD1AC02ED1002F7C82 /* Location.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5E9044A71AC02ED1002F7C82 /* Location.cpp */; };
 		5E9044BE1AC02ED1002F7C82 /* Log.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5E9044A91AC02ED1002F7C82 /* Log.cpp */; };
@@ -55,8 +55,8 @@
 		5E90449F1AC02ED1002F7C82 /* DeclarePass.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DeclarePass.h; sourceTree = "<group>"; };
 		5E9044A01AC02ED1002F7C82 /* Compiler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Compiler.cpp; sourceTree = "<group>"; };
 		5E9044A11AC02ED1002F7C82 /* Compiler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Compiler.h; sourceTree = "<group>"; };
-		5E9044A21AC02ED1002F7C82 /* DeclarationModifier.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DeclarationModifier.cpp; sourceTree = "<group>"; };
-		5E9044A31AC02ED1002F7C82 /* DeclarationModifier.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DeclarationModifier.h; sourceTree = "<group>"; };
+		5E9044A21AC02ED1002F7C82 /* Modifier.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Modifier.cpp; sourceTree = "<group>"; };
+		5E9044A31AC02ED1002F7C82 /* Modifier.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Modifier.h; sourceTree = "<group>"; };
 		5E9044A41AC02ED1002F7C82 /* define.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = define.h; sourceTree = "<group>"; };
 		5E9044A51AC02ED1002F7C82 /* Lexer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Lexer.cpp; sourceTree = "<group>"; };
 		5E9044A61AC02ED1002F7C82 /* Lexer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Lexer.h; sourceTree = "<group>"; };
@@ -128,8 +128,8 @@
 				5E90449B1AC02ED1002F7C82 /* CompilePass */,
 				5E9044A01AC02ED1002F7C82 /* Compiler.cpp */,
 				5E9044A11AC02ED1002F7C82 /* Compiler.h */,
-				5E9044A21AC02ED1002F7C82 /* DeclarationModifier.cpp */,
-				5E9044A31AC02ED1002F7C82 /* DeclarationModifier.h */,
+				5E9044A21AC02ED1002F7C82 /* Modifier.cpp */,
+				5E9044A31AC02ED1002F7C82 /* Modifier.h */,
 				5E9044A41AC02ED1002F7C82 /* define.h */,
 				96A10B9F1AC833FF005E3CFF /* AST.cpp */,
 				96A10BA01AC833FF005E3CFF /* AST.h */,
@@ -253,7 +253,7 @@
 				5E9044C41AC02ED1002F7C82 /* Token.cpp in Sources */,
 				5E9044BD1AC02ED1002F7C82 /* Location.cpp in Sources */,
 				5E9044C11AC02ED1002F7C82 /* MetaNode.cpp in Sources */,
-				5E9044BB1AC02ED1002F7C82 /* DeclarationModifier.cpp in Sources */,
+				5E9044BB1AC02ED1002F7C82 /* Modifier.cpp in Sources */,
 				5E9044BA1AC02ED1002F7C82 /* Compiler.cpp in Sources */,
 				5E9044C21AC02ED1002F7C82 /* Parser.cpp in Sources */,
 				5E9044BE1AC02ED1002F7C82 /* Log.cpp in Sources */,

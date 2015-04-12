@@ -340,7 +340,7 @@ void DeclarePass::parseNamespace() {
 	}
 }
 
-void DeclarePass::parseStructType( DeclarationModifier & modifier ) {
+void DeclarePass::parseStructType( Modifier & modifier ) {
 	
 	if( ! token.is_class() && ! token.is_struct() && ! token.is_interface() ) {
 		Log::Error( token, ax_txt("class / struct / interface expected") );
@@ -440,7 +440,7 @@ void DeclarePass::parseStructTypeBody( ax_Obj< CompositeTypeSpec > node ) {
 	}
 }
 
-void DeclarePass::parseFunc( DeclarationModifier & modifier ) {
+void DeclarePass::parseFunc( Modifier & modifier ) {
 	if( ! token.is_fn() ) Log::Error( token, ax_txt("fn expected") );
 
 	if( inPropPass ) {
@@ -494,7 +494,7 @@ void DeclarePass::parseFunc( DeclarationModifier & modifier ) {
 	}
 }
 
-void DeclarePass::parseProp( DeclarationModifier & modifier ) {
+void DeclarePass::parseProp( Modifier & modifier ) {
 	if( ! token.is_var() && ! token.is_let() ) {
 		Log::Error( token, ax_txt("let / var expected") );
 	}

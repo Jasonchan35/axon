@@ -33,14 +33,14 @@ private:
 	void	parseNamespace			();
 	void	parseNamespaceBody		();
 	
-	void	parseStructType			( DeclarationModifier & modifier );
+	void	parseStructType			( Modifier & modifier );
 	void	parseStructTypeBody		( ax_Obj< CompositeTypeSpec >	node );
 	
 	bool	resolveStructType		( ax_Obj< CompositeTypeSpec > 	node );
 	bool	resolveProp				( ax_Obj< Prop >		Prop );
 		
-	void	parseProp				( DeclarationModifier & modifier );
-	void	parseFunc				( DeclarationModifier & modifier );
+	void	parseProp				( Modifier & modifier );
+	void	parseFunc				( Modifier & modifier );
 	
 	void	resolveFuncParam		( ax_Obj< FuncOverload > fo );
 };

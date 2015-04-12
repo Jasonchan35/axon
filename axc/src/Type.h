@@ -71,18 +71,6 @@ public:
 	bool	isTypename	:1;
 };
 
-class RValue {
-public:
-	struct	ax_type_on_gc_trace : public std::true_type {};
-
-	Type		type;
-	ax_string	name;
-	Location	pos;
-	
-	void	OnStringReq( ax_ToStringReq & req ) const;
-	
-};
-
 }} //namespace
 
 #endif /* defined(__axc__RType__) */
