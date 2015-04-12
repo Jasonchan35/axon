@@ -10,7 +10,7 @@
 #define __axc__Token__
 
 #include "define.h"
-#include "LexerPos.h"
+#include "Location.h"
 
 namespace ax {
 namespace Compile {
@@ -184,7 +184,7 @@ public:
 
 	TokenType	type;
 	ax_string	str;
-	LexerPos	pos;
+	Location	pos;
 	int			opPrec()	{ return Token_opPrec(type); }
 	
 	bool		checkKeyword();

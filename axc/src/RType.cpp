@@ -47,7 +47,7 @@ ax_NullableObj< Func >	RType::getFunc ( const ax_string & name ) {
 	return t->getFunc(name);
 }
 
-ax_NullableObj< Func >	RType::getOperatorFunc	( TokenType op, const LexerPos & pos ) {
+ax_NullableObj< Func >	RType::getOperatorFunc	( TokenType op, const Location & pos ) {
 	ax_if_not_let( t, type ) return nullptr;
 
 	if( isTypename ) {
@@ -78,7 +78,7 @@ ax_NullableObj< Func >	RType::getOperatorFunc	( TokenType op, const LexerPos & p
 	}
 }
 
-ax_NullableObj< Func >	RType::getPrefixOperatorFunc	( TokenType op, const LexerPos & pos ) {
+ax_NullableObj< Func >	RType::getPrefixOperatorFunc	( TokenType op, const Location & pos ) {
 	ax_if_not_let( t, type ) return nullptr;
 	return t->getPrefixOperatorFunc(op);
 }

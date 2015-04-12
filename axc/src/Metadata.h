@@ -24,7 +24,7 @@ public:
 	
 	ax_Obj< Func >		func_new_array;
 	
-	ax_Array_< ax_Obj<StructType> >		structList;
+	ax_Array_< ax_Obj<CompositeType> >		structList;
 	ax_Array_< ax_Obj<Prop> >			propList;
 	ax_Array_< ax_Obj<FuncOverload> >	funcOverloadList;
 

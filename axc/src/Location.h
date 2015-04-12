@@ -1,5 +1,5 @@
 //
-//  LexerPos.h
+//  Location.h
 //  Compile
 //
 //  Created by Jason on 2014-11-10.
@@ -17,11 +17,11 @@ namespace Compile {
 class	SourceFile;
 class	MetaNode;
 
-class LexerPos {
+class Location {
 public:
 	struct	ax_type_on_gc_trace : public std::false_type {};
 
-	LexerPos() {
+	Location() {
 		valid = false;
 		filePos = 0;
 		line = 0;

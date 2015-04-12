@@ -20,12 +20,12 @@ public:
 	static void Error( Token & token, Args &&... args ) { Error( &token, &token.pos, args... ); }
 
 	template< typename... Args >
-	static void Error( const LexerPos & pos, Args &&... args ) { Error( nullptr, &pos, args... ); }
+	static void Error( const Location & pos, Args &&... args ) { Error( nullptr, &pos, args... ); }
 
 	static void dumpMetadata();
 
 	template< typename... Args >
-	static void Error( Token* token, const LexerPos* pos, const ax_string & fmt ) {
+	static void Error( Token* token, const Location* pos, const ax_string & fmt ) {
 		dumpMetadata();
 		
 		ax_log( ax_txt("!! ERROR:") );
@@ -36,7 +36,7 @@ public:
 	}
 	
 	template< typename... Args >
-	static void Error( Token* token, const LexerPos* pos, Args &&... args ) {
+	static void Error( Token* token, const Location* pos, Args &&... args ) {
 		dumpMetadata();
 		
 		ax_log( ax_txt("!! ERROR:") );

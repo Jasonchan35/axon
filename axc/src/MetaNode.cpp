@@ -22,7 +22,7 @@ ax_ImplObject( Typename );
 
 ax_ImplObject( TemplateParam );
 
-ax_ImplObject( StructType );
+ax_ImplObject( CompositeType );
 ax_ImplObject( Interface );
 ax_ImplObject( Struct );
 ax_ImplObject( Class );
@@ -39,7 +39,7 @@ ax_string	k_ctor_name = ax_txt("ctor");
 #endif
 
 
-MetaNode::MetaNode( ax_NullableObj< MetaNode > parent_, const ax_string & name_, const LexerPos & pos_ )
+MetaNode::MetaNode( ax_NullableObj< MetaNode > parent_, const ax_string & name_, const Location & pos_ )
 : parent( parent_ )
 , _name( name_ )
 , macro_cppName( false )
@@ -140,7 +140,7 @@ ax_Obj< Func >	MetaNode::getOrAddFunc	( const ax_string & name ) {
 }
 
 ax_Obj< Func >	MetaNode::addFunc	( const ax_string & name ) {
-	return ax_new_obj( Func, ax_ThisObj, name, LexerPos() );
+	return ax_new_obj( Func, ax_ThisObj, name, Location() );
 }
 
 ax_string MetaNode::getTemplateInstanceName( const ax_Array< RType > & elementTypes ) {
@@ -207,7 +207,7 @@ void TypeNode::onCopy( ax_Obj< TypeNode > src ) {
 	_templateParams	= src->_templateParams;
 }
 
-ax_Obj< TemplateParam > TypeNode::addTemplateParam( const ax_string & name, const LexerPos & pos ) {
+ax_Obj< TemplateParam > TypeNode::addTemplateParam( const ax_string & name, const Location & pos ) {
 	auto p = ax_new_obj( TemplateParam, ax_ThisObj, name, pos );
 
 	_templateParams.add( p );
@@ -221,7 +221,7 @@ void TypeNode::onVisit( TemplateReplaceReq & req ) {
 //	}
 }
 
-ax_Obj< TypeNode > TypeNode::getOrAddTemplateInstance( const ax_Array< RType > & params, const LexerPos & pos ) {
+ax_Obj< TypeNode > TypeNode::getOrAddTemplateInstance( const ax_Array< RType > & params, const Location & pos ) {
 	if( _templateParams.size() != params.size() ) {
 		Log::Error( pos, ax_txt("invalid number of template parameters") );
 	}
@@ -279,7 +279,7 @@ void Namespace::onCopy( ax_Obj< Namespace > p ) {
 
 }
 
-ax_Obj< Namespace >	Namespace::getOrAddNamespace	( const ax_string & name, LexerPos & pos ) {
+ax_Obj< Namespace >	Namespace::getOrAddNamespace	( const ax_string & name, Location & pos ) {
 
 	ax_if_not_let( p, children.tryGetValue( name ) ) {
 		auto new_node = ax_new_obj( Namespace, ax_ThisObj, name, pos );
@@ -297,13 +297,13 @@ ax_Obj< Namespace >	Namespace::getOrAddNamespace	( const ax_string & name, Lexer
 #pragma mark =========================
 #endif
 
-void StructType::onInit() {
+void CompositeType::onInit() {
 	isNestedType = false;
 	
 	g_metadata->structList.add( ax_ThisObj );
 }
 
-void StructType::onCopy( ax_Obj< StructType > p ) {
+void CompositeType::onCopy( ax_Obj< CompositeType > p ) {
 	isNestedType = p->isNestedType;
 }
 
@@ -389,7 +389,7 @@ void Func::onCopy( ax_Obj<Func> p ) {
 	}
 }
 
-ax_Obj< FuncOverload > Func::addOverload( const LexerPos & pos ) {
+ax_Obj< FuncOverload > Func::addOverload( const Location & pos ) {
 	auto fo_name = ax_format( ax_txt("fo{?}"), overloads.size() );
 
 	auto fo = ax_new_obj( FuncOverload, ax_ThisObj, fo_name, pos );
@@ -416,7 +416,7 @@ ax_NullableObj< FuncOverload > Func::getOverload( ax_Array< ax_Obj< FuncOverload
 #pragma mark =========================
 #endif
 
-FuncParam &	FuncOverload::addParam( const ax_string & name, const LexerPos & namePos, const RType & type, const LexerPos & typePos ) {
+FuncParam &	FuncOverload::addParam( const ax_string & name, const Location & namePos, const RType & type, const Location & typePos ) {
 	auto & o = params.addNew();
 	
 	o.name		= name;

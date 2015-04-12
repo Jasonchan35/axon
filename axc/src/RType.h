@@ -58,8 +58,8 @@ public:
 	
 	ax_NullableObj< Func >	getFunc					( const ax_string & name );
 	
-	ax_NullableObj< Func >	getOperatorFunc			( TokenType op, const LexerPos & pos );
-	ax_NullableObj< Func >	getPrefixOperatorFunc	( TokenType op, const LexerPos & pos );
+	ax_NullableObj< Func >	getOperatorFunc			( TokenType op, const Location & pos );
+	ax_NullableObj< Func >	getPrefixOperatorFunc	( TokenType op, const Location & pos );
 
 	void	OnStringReq( ax_ToStringReq & req ) const;
 
@@ -77,7 +77,7 @@ public:
 
 	RType		type;
 	ax_string	name;
-	LexerPos	pos;
+	Location	pos;
 	
 	void	OnStringReq( ax_ToStringReq & req ) const;
 	

@@ -17,7 +17,7 @@ void DeclarePass::parseFile( ax_Obj< SourceFile > sourceFile ) {
 	
 	ax_log( ax_txt("compiling... [{?}]"), sourceFile->filename );
 
-	LexerPos pos;
+	Location pos;
 	pos.reset( sourceFile );
 	pos.inNode = g_metadata->root;
 	
@@ -68,9 +68,9 @@ void DeclarePass::resolveFuncParam( ax_Obj< FuncOverload > fo ) {
 		nextToken();
 
 		RType		paramType;
-		LexerPos	typePos;
+		Location	typePos;
 		
-		ax_NullableObj< ExprAST >	defaultValueExpr;
+		ax_NullableObj< AST >	defaultValueExpr;
 		
 		if( token.is_identifier() ) {
 			paramType = parseTypename();
@@ -150,7 +150,7 @@ void DeclarePass::resolvePropPass() {
 }
 
 void DeclarePass::resolveStructTypePass() {
-	ax_Array_< ax_Obj< StructType > >	list[2];
+	ax_Array_< ax_Obj< CompositeType > >	list[2];
 	list[0].reserve( 64 * 1024 );
 	list[1].reserve( 64 * 1024 );
 
@@ -214,7 +214,7 @@ bool DeclarePass::resolveProp( ax_Obj< Prop >	node ) {
 	return true;
 }
 
-bool DeclarePass::resolveStructType( ax_Obj< StructType > node ) {
+bool DeclarePass::resolveStructType( ax_Obj< CompositeType > node ) {
 
 	auto n = node->baseOrInterfacePos.size();
 	ax_int c = 0;
@@ -232,7 +232,7 @@ bool DeclarePass::resolveStructType( ax_Obj< StructType > node ) {
 			return false;
 		}
 		
-		ax_if_not_let( s, t->ax_as< StructType >() ) {
+		ax_if_not_let( s, t->ax_as< CompositeType >() ) {
 			Log::Error( pos, ax_txt("interface / class / struct expected") );
 		}
 
@@ -362,7 +362,7 @@ void DeclarePass::parseStructType( DeclarationModifier & modifier ) {
 	nextToken();
 	if( ! token.is_identifier() ) Log::Error( token, ax_txt("type name expected") );
 				
-	ax_Obj< StructType >	new_node;
+	ax_Obj< CompositeType >	new_node;
 	switch( nodeType ) {
 		case TokenType::t_interface: 	new_node = ax_new_obj( Interface,	inNode, token.str, token.pos );	break;
 		case TokenType::t_struct: 		new_node = ax_new_obj( Struct,		inNode, token.str, token.pos );	break;
@@ -373,7 +373,7 @@ void DeclarePass::parseStructType( DeclarationModifier & modifier ) {
 	}	
 
 	if( inNode->ax_is< Namespace >() ) {
-	}else if( inNode->ax_is< StructType >() ) {
+	}else if( inNode->ax_is< CompositeType >() ) {
 		new_node->isNestedType = true;
 	}else{
 		Log::Error( token, ax_txt("cannot delcare sturcture type here") );
@@ -412,7 +412,7 @@ void DeclarePass::parseStructType( DeclarationModifier & modifier ) {
 	
 }
 
-void DeclarePass::parseStructTypeBody( ax_Obj< StructType > node ) {
+void DeclarePass::parseStructTypeBody( ax_Obj< CompositeType > node ) {
 	setPos( node->bodyPos );
 
 	auto scope_inNode = ax_scope_value( pos.inNode, node );

@@ -10,7 +10,7 @@
 #define __axc__Lexer__
 
 #include "define.h"
-#include "LexerPos.h"
+#include "Location.h"
 #include "Token.h"
 #include "Log.h"
 #include "SourceFile.h"
@@ -20,9 +20,9 @@ namespace Compile {
 
 class Lexer {
 public:
-	Lexer( LexerPos & pos ) : c(pos) {}
+	Lexer( Location & pos ) : c(pos) {}
 
-	void	setPos	( const LexerPos & pos );
+	void	setPos	( const Location & pos );
 
 	bool	getToken		( Token & token );
 	void	_getToken		( Token & token );
@@ -32,9 +32,9 @@ public:
 	
 	class	Cursor {
 	public:
-		Cursor( LexerPos & pos_ );
+		Cursor( Location & pos_ );
 		
-		void setPos( const LexerPos & pos );
+		void setPos( const Location & pos );
 		
 		void operator++		(int) 	{ next(); }
 		void operator++		() 		{ next(); }
@@ -50,7 +50,7 @@ public:
 		bool	isDigit();
 		bool	isHex();
 		
-		LexerPos & pos;
+		Location & pos;
 		
 	private:
 		const ax_char*	p;

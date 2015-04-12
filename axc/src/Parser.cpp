@@ -14,7 +14,7 @@
 namespace ax {
 namespace Compile {
 
-void Parser::setPos	( const LexerPos & pos ) {
+void Parser::setPos	( const Location & pos ) {
 	lexer.setPos( pos );
 	lexer.getToken( token );
 }
@@ -258,8 +258,8 @@ RType Parser::parseTypename () {
 
 
 
-ax_NullableObj< ExprAST >	Parser::parseExpression() {
-	ax_NullableObj<ExprAST>	expr;
+ax_NullableObj< AST >	Parser::parseExpression() {
+	ax_NullableObj<AST>	expr;
 	
 	auto modifier = parseDeclarationModifier();
 	
@@ -294,7 +294,7 @@ ax_NullableObj< ExprAST >	Parser::parseExpression() {
 	}
 }
 
-ax_NullableObj< ExprAST > Parser::parseExpr_Identifier() {
+ax_NullableObj< AST > Parser::parseExpr_Identifier() {
 	if( ! token.is_identifier() ) Log::Error( token, ax_txt("identifier expected") );
 	
 	ax_if_not_let( inNode, token.pos.inNode ) {
@@ -344,7 +344,7 @@ ax_NullableObj< ExprAST > Parser::parseExpr_Identifier() {
 	return nullptr;
 }
 
-ax_NullableObj< ExprAST > Parser::parseExpr_NumberLiteral() {
+ax_NullableObj< AST > Parser::parseExpr_NumberLiteral() {
 	assert( token.is_number() );
 
 	auto expr = ax_new_obj( NumberLiteralAST, token.pos, token.str );
@@ -353,13 +353,13 @@ ax_NullableObj< ExprAST > Parser::parseExpr_NumberLiteral() {
 	return expr;
 }
 
-ax_NullableObj< ExprAST > Parser::parseExpr_StringLiteral() {
+ax_NullableObj< AST > Parser::parseExpr_StringLiteral() {
 	auto expr = ax_new_obj( StringLiteralAST, token.pos, token.str );
 	nextToken();
 	return expr;
 }
 
-ax_NullableObj< ExprAST > Parser::parseExpr_BinaryOp( ax_int exprPrec, ax_Obj<ExprAST>& lhs ) {
+ax_NullableObj< AST > Parser::parseExpr_BinaryOp( ax_int exprPrec, ax_Obj<AST>& lhs ) {
 	
 	for(;;) {
 		int tokenPrec = token.opPrec();
@@ -380,7 +380,7 @@ ax_NullableObj< ExprAST > Parser::parseExpr_BinaryOp( ax_int exprPrec, ax_Obj<Ex
 				
 		ax_Array_< FuncParam, 32 >	params;
 		
-		ax_NullableObj<ExprAST>	rhs;
+		ax_NullableObj<AST>	rhs;
 		
 		auto closeBracket = TokenType::t_unknown;
 		
@@ -394,7 +394,7 @@ ax_NullableObj< ExprAST > Parser::parseExpr_BinaryOp( ax_int exprPrec, ax_Obj<Ex
 		}
 		
 		if( op == TokenType::t_op_call || op == TokenType::t_op_subscript ) {
-			auto e = ax_new_obj( FuncArgAST, token.pos );
+			auto e = ax_new_obj( FuncParamAST, token.pos );
 			rhs = e;
 			
 			if( token.type == closeBracket ) {
@@ -465,10 +465,10 @@ ax_NullableObj< ExprAST > Parser::parseExpr_BinaryOp( ax_int exprPrec, ax_Obj<Ex
 	
 }
 
-ax_NullableObj< ExprAST >	Parser::parseExpr_Primary() {
-	ax_NullableObj< ExprAST >		expr;
+ax_NullableObj< AST >	Parser::parseExpr_Primary() {
+	ax_NullableObj< AST >		expr;
 	TokenType	prefixOp = TokenType::t_unknown;
-	LexerPos	prefixPos;
+	Location	prefixPos;
 	
 //----- prefix -----
 	switch( token.type ) {

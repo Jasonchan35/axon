@@ -16,34 +16,34 @@ Metadata* g_metadata;
 Metadata::Metadata() {
 	g_metadata = this;
 
-	namespace_ax	= ax_new_obj( Namespace, nullptr, ax_txt("ax"), LexerPos() );
-	root			= ax_new_obj( Namespace, namespace_ax, ax_txt("ax_build"), LexerPos() );
+	namespace_ax	= ax_new_obj( Namespace, nullptr, ax_txt("ax"), Location() );
+	root			= ax_new_obj( Namespace, namespace_ax, ax_txt("ax_build"), Location() );
 	
-	type_dict		= ax_new_obj(  Class, root, ax_txt("Dict"), LexerPos() );
+	type_dict		= ax_new_obj(  Class, root, ax_txt("Dict"), Location() );
 	type_dict->buildin	 = true;
 	type_dict->setCppName( ax_txt("ax_Dict"), true );
 
-	type_any		= ax_new_obj(  PrimitiveType, root, ax_txt("any"	), LexerPos() );	type_any->setCppName	( ax_txt("any"		), true );
+	type_any		= ax_new_obj(  PrimitiveType, root, ax_txt("any"	), Location() );	type_any->setCppName	( ax_txt("any"		), true );
 	
-	type_void		= ax_new_obj(  PrimitiveType, root, ax_txt("void"	), LexerPos() );	type_void->setCppName	( ax_txt("void"		), true );
-	type_bool		= ax_new_obj(  PrimitiveType, root, ax_txt("bool"	), LexerPos() );	type_bool->setCppName	( ax_txt("bool"		), true );
-	type_string		= ax_new_obj(  PrimitiveType, root, ax_txt("string" ), LexerPos() );	type_string->setCppName	( ax_txt("ax_string"), true );
+	type_void		= ax_new_obj(  PrimitiveType, root, ax_txt("void"	), Location() );	type_void->setCppName	( ax_txt("void"		), true );
+	type_bool		= ax_new_obj(  PrimitiveType, root, ax_txt("bool"	), Location() );	type_bool->setCppName	( ax_txt("bool"		), true );
+	type_string		= ax_new_obj(  PrimitiveType, root, ax_txt("string" ), Location() );	type_string->setCppName	( ax_txt("ax_string"), true );
 
-	type_int8		= ax_new_obj(  PrimitiveType, root, ax_txt("int8"	), LexerPos() );	type_int8->setCppName  	( ax_txt("ax_int8"	), true );
-	type_int16		= ax_new_obj(  PrimitiveType, root, ax_txt("int16"	), LexerPos() );	type_int16->setCppName 	( ax_txt("ax_int16"	), true );
-	type_int32		= ax_new_obj(  PrimitiveType, root, ax_txt("int32"	), LexerPos() );	type_int32->setCppName 	( ax_txt("ax_int32"	), true );
-	type_int64		= ax_new_obj(  PrimitiveType, root, ax_txt("int64"	), LexerPos() );	type_int64->setCppName 	( ax_txt("ax_int64"	), true );
+	type_int8		= ax_new_obj(  PrimitiveType, root, ax_txt("int8"	), Location() );	type_int8->setCppName  	( ax_txt("ax_int8"	), true );
+	type_int16		= ax_new_obj(  PrimitiveType, root, ax_txt("int16"	), Location() );	type_int16->setCppName 	( ax_txt("ax_int16"	), true );
+	type_int32		= ax_new_obj(  PrimitiveType, root, ax_txt("int32"	), Location() );	type_int32->setCppName 	( ax_txt("ax_int32"	), true );
+	type_int64		= ax_new_obj(  PrimitiveType, root, ax_txt("int64"	), Location() );	type_int64->setCppName 	( ax_txt("ax_int64"	), true );
 
-	type_uint8		= ax_new_obj(  PrimitiveType, root, ax_txt("uint8"	), LexerPos() );	type_uint8->setCppName 	( ax_txt("ax_uint8"	), true );
-	type_uint16		= ax_new_obj(  PrimitiveType, root, ax_txt("uint16" ), LexerPos() );	type_uint16->setCppName	( ax_txt("ax_uint16"), true );
-	type_uint32		= ax_new_obj(  PrimitiveType, root, ax_txt("uint32" ), LexerPos() );	type_uint32->setCppName	( ax_txt("ax_uint32"), true );
-	type_uint64		= ax_new_obj(  PrimitiveType, root, ax_txt("uint64" ), LexerPos() );	type_uint64->setCppName	( ax_txt("ax_uint64"), true );
+	type_uint8		= ax_new_obj(  PrimitiveType, root, ax_txt("uint8"	), Location() );	type_uint8->setCppName 	( ax_txt("ax_uint8"	), true );
+	type_uint16		= ax_new_obj(  PrimitiveType, root, ax_txt("uint16" ), Location() );	type_uint16->setCppName	( ax_txt("ax_uint16"), true );
+	type_uint32		= ax_new_obj(  PrimitiveType, root, ax_txt("uint32" ), Location() );	type_uint32->setCppName	( ax_txt("ax_uint32"), true );
+	type_uint64		= ax_new_obj(  PrimitiveType, root, ax_txt("uint64" ), Location() );	type_uint64->setCppName	( ax_txt("ax_uint64"), true );
 	
-	type_int		= ax_new_obj(  PrimitiveType, root, ax_txt("int"	), LexerPos() );	type_int->setCppName 	( ax_txt("ax_int"	), true );
-	type_uint		= ax_new_obj(  PrimitiveType, root, ax_txt("uint"	), LexerPos() );	type_uint->setCppName	( ax_txt("ax_uint"	), true );
+	type_int		= ax_new_obj(  PrimitiveType, root, ax_txt("int"	), Location() );	type_int->setCppName 	( ax_txt("ax_int"	), true );
+	type_uint		= ax_new_obj(  PrimitiveType, root, ax_txt("uint"	), Location() );	type_uint->setCppName	( ax_txt("ax_uint"	), true );
 
-	type_float		= ax_new_obj(  PrimitiveType, root, ax_txt("float"	), LexerPos() );	type_float->setCppName	( ax_txt("float"	), true );
-	type_double		= ax_new_obj(  PrimitiveType, root, ax_txt("double" ), LexerPos() );	type_double->setCppName	( ax_txt("double"	), true );
+	type_float		= ax_new_obj(  PrimitiveType, root, ax_txt("float"	), Location() );	type_float->setCppName	( ax_txt("float"	), true );
+	type_double		= ax_new_obj(  PrimitiveType, root, ax_txt("double" ), Location() );	type_double->setCppName	( ax_txt("double"	), true );
 	
 	type_all_int.add( type_int );
 	type_all_int.add( type_int8 );
@@ -106,30 +106,30 @@ Metadata::Metadata() {
 	addOperatorFunc( type_bool, type_string, TokenType::t_greater );
 	addOperatorFunc( type_bool, type_string, TokenType::t_greaterEqual );
 	
-	type_object		= ax_new_obj(  Class, root, ax_txt("Object" ), LexerPos() );
+	type_object		= ax_new_obj(  Class, root, ax_txt("Object" ), Location() );
 	type_object->buildin = true;
 	type_object->setCppName( ax_txt("ax_Object"), true );
 	
 	{
-		type_array		= ax_new_obj(  Class, root, ax_txt("Array"), LexerPos() );
+		type_array		= ax_new_obj(  Class, root, ax_txt("Array"), Location() );
 		type_array->buildin	 = true;
 		type_array->setCppName( ax_txt("ax_Array"), true );
 		
-		auto p1 = type_array->addTemplateParam( ax_txt("T"), LexerPos() );
+		auto p1 = type_array->addTemplateParam( ax_txt("T"), Location() );
 		
 		{
 			auto fn = type_array->addFunc( ax_txt("New") );
-			auto fo = fn->addOverload( LexerPos() );
+			auto fo = fn->addOverload( Location() );
 			fo->buildin = true;
-			fo->addParam( ax_txt("size"), LexerPos(), RType::MakeValue( type_int, false ), LexerPos() );
+			fo->addParam( ax_txt("size"), Location(), RType::MakeValue( type_int, false ), Location() );
 			fo->returnType = RType::MakeTypename( type_array );
 		}
 		
 		{
 			auto fn = type_array->addFunc( ax_txt("add") );
-			auto fo = fn->addOverload( LexerPos() );
+			auto fo = fn->addOverload( Location() );
 			fo->buildin = true;
-			fo->addParam( ax_txt("value"), LexerPos(), RType::MakeValue( p1, false ), LexerPos() );
+			fo->addParam( ax_txt("value"), Location(), RType::MakeValue( p1, false ), Location() );
 			fo->returnType = RType::MakeTypename( type_void );
 		}
 	}
@@ -137,17 +137,17 @@ Metadata::Metadata() {
 
 void Metadata::addOperatorFunc( ax_Obj< TypeNode > returnType, ax_Obj< TypeNode > type, TokenType op ) {
 	auto fn = type->getOrAddOperatorFunc( op );
-	auto fo = fn->addOverload( LexerPos() );
+	auto fo = fn->addOverload( Location() );
 	
 	fo->buildin = true;
 	fo->returnType = RType::MakeValue( returnType, false );
 		
-	fo->addParam( ax_txt("rhs"), LexerPos(), RType::MakeValue( type, false ), LexerPos() );
+	fo->addParam( ax_txt("rhs"), Location(), RType::MakeValue( type, false ), Location() );
 }
 
 void Metadata::addPrefixOperatorFunc( ax_Obj< TypeNode > returnType, ax_Obj< TypeNode > type, TokenType op ) {
 	auto fn = type->getOrAddPrefixOperatorFunc( op );
-	auto fo = fn->addOverload( LexerPos() );
+	auto fo = fn->addOverload( Location() );
 	
 	fo->buildin = true;
 	fo->returnType = RType::MakeValue( returnType, false );
@@ -155,7 +155,7 @@ void Metadata::addPrefixOperatorFunc( ax_Obj< TypeNode > returnType, ax_Obj< Typ
 
 void Metadata::addPostfixOperatorFunc( ax_Obj< TypeNode > returnType, ax_Obj< TypeNode > type, TokenType op ) {
 	auto fn = type->getOrAddOperatorFunc( op );
-	auto fo = fn->addOverload( LexerPos() );
+	auto fo = fn->addOverload( Location() );
 	
 	fo->buildin = true;
 	fo->returnType = RType::MakeValue( returnType, false );

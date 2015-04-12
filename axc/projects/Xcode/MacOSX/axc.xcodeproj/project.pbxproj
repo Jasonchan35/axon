@@ -12,7 +12,7 @@
 		5E9044BA1AC02ED1002F7C82 /* Compiler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5E9044A01AC02ED1002F7C82 /* Compiler.cpp */; };
 		5E9044BB1AC02ED1002F7C82 /* DeclarationModifier.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5E9044A21AC02ED1002F7C82 /* DeclarationModifier.cpp */; };
 		5E9044BC1AC02ED1002F7C82 /* Lexer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5E9044A51AC02ED1002F7C82 /* Lexer.cpp */; };
-		5E9044BD1AC02ED1002F7C82 /* LexerPos.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5E9044A71AC02ED1002F7C82 /* LexerPos.cpp */; };
+		5E9044BD1AC02ED1002F7C82 /* Location.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5E9044A71AC02ED1002F7C82 /* Location.cpp */; };
 		5E9044BE1AC02ED1002F7C82 /* Log.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5E9044A91AC02ED1002F7C82 /* Log.cpp */; };
 		5E9044BF1AC02ED1002F7C82 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5E9044AB1AC02ED1002F7C82 /* main.cpp */; };
 		5E9044C01AC02ED1002F7C82 /* Metadata.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5E9044AC1AC02ED1002F7C82 /* Metadata.cpp */; };
@@ -21,7 +21,7 @@
 		5E9044C31AC02ED1002F7C82 /* SourceFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5E9044B41AC02ED1002F7C82 /* SourceFile.cpp */; };
 		5E9044C41AC02ED1002F7C82 /* Token.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5E9044B61AC02ED1002F7C82 /* Token.cpp */; };
 		968D55C91AC99F49006C7CAF /* GenCppPass.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 968D55C71AC99F49006C7CAF /* GenCppPass.cpp */; };
-		96A10BA11AC833FF005E3CFF /* ExprAST.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 96A10B9F1AC833FF005E3CFF /* ExprAST.cpp */; };
+		96A10BA11AC833FF005E3CFF /* AST.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 96A10B9F1AC833FF005E3CFF /* AST.cpp */; };
 		96A10BA51AC83B00005E3CFF /* RType.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 96A10BA31AC83B00005E3CFF /* RType.cpp */; };
 /* End PBXBuildFile section */
 
@@ -60,8 +60,8 @@
 		5E9044A41AC02ED1002F7C82 /* define.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = define.h; sourceTree = "<group>"; };
 		5E9044A51AC02ED1002F7C82 /* Lexer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Lexer.cpp; sourceTree = "<group>"; };
 		5E9044A61AC02ED1002F7C82 /* Lexer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Lexer.h; sourceTree = "<group>"; };
-		5E9044A71AC02ED1002F7C82 /* LexerPos.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LexerPos.cpp; sourceTree = "<group>"; };
-		5E9044A81AC02ED1002F7C82 /* LexerPos.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LexerPos.h; sourceTree = "<group>"; };
+		5E9044A71AC02ED1002F7C82 /* Location.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Location.cpp; sourceTree = "<group>"; };
+		5E9044A81AC02ED1002F7C82 /* Location.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Location.h; sourceTree = "<group>"; };
 		5E9044A91AC02ED1002F7C82 /* Log.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Log.cpp; sourceTree = "<group>"; };
 		5E9044AA1AC02ED1002F7C82 /* Log.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Log.h; sourceTree = "<group>"; };
 		5E9044AB1AC02ED1002F7C82 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
@@ -78,8 +78,8 @@
 		5E9044B71AC02ED1002F7C82 /* Token.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Token.h; sourceTree = "<group>"; };
 		968D55C71AC99F49006C7CAF /* GenCppPass.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GenCppPass.cpp; sourceTree = "<group>"; };
 		968D55C81AC99F49006C7CAF /* GenCppPass.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GenCppPass.h; sourceTree = "<group>"; };
-		96A10B9F1AC833FF005E3CFF /* ExprAST.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ExprAST.cpp; sourceTree = "<group>"; };
-		96A10BA01AC833FF005E3CFF /* ExprAST.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ExprAST.h; sourceTree = "<group>"; };
+		96A10B9F1AC833FF005E3CFF /* AST.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AST.cpp; sourceTree = "<group>"; };
+		96A10BA01AC833FF005E3CFF /* AST.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AST.h; sourceTree = "<group>"; };
 		96A10BA31AC83B00005E3CFF /* RType.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RType.cpp; sourceTree = "<group>"; };
 		96A10BA41AC83B00005E3CFF /* RType.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RType.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -131,12 +131,12 @@
 				5E9044A21AC02ED1002F7C82 /* DeclarationModifier.cpp */,
 				5E9044A31AC02ED1002F7C82 /* DeclarationModifier.h */,
 				5E9044A41AC02ED1002F7C82 /* define.h */,
-				96A10B9F1AC833FF005E3CFF /* ExprAST.cpp */,
-				96A10BA01AC833FF005E3CFF /* ExprAST.h */,
+				96A10B9F1AC833FF005E3CFF /* AST.cpp */,
+				96A10BA01AC833FF005E3CFF /* AST.h */,
 				5E9044A51AC02ED1002F7C82 /* Lexer.cpp */,
 				5E9044A61AC02ED1002F7C82 /* Lexer.h */,
-				5E9044A71AC02ED1002F7C82 /* LexerPos.cpp */,
-				5E9044A81AC02ED1002F7C82 /* LexerPos.h */,
+				5E9044A71AC02ED1002F7C82 /* Location.cpp */,
+				5E9044A81AC02ED1002F7C82 /* Location.h */,
 				5E9044A91AC02ED1002F7C82 /* Log.cpp */,
 				5E9044AA1AC02ED1002F7C82 /* Log.h */,
 				5E9044AB1AC02ED1002F7C82 /* main.cpp */,
@@ -251,7 +251,7 @@
 			files = (
 				5E9044C31AC02ED1002F7C82 /* SourceFile.cpp in Sources */,
 				5E9044C41AC02ED1002F7C82 /* Token.cpp in Sources */,
-				5E9044BD1AC02ED1002F7C82 /* LexerPos.cpp in Sources */,
+				5E9044BD1AC02ED1002F7C82 /* Location.cpp in Sources */,
 				5E9044C11AC02ED1002F7C82 /* MetaNode.cpp in Sources */,
 				5E9044BB1AC02ED1002F7C82 /* DeclarationModifier.cpp in Sources */,
 				5E9044BA1AC02ED1002F7C82 /* Compiler.cpp in Sources */,
@@ -261,7 +261,7 @@
 				5E9044BF1AC02ED1002F7C82 /* main.cpp in Sources */,
 				5E9044C01AC02ED1002F7C82 /* Metadata.cpp in Sources */,
 				5E9044BC1AC02ED1002F7C82 /* Lexer.cpp in Sources */,
-				96A10BA11AC833FF005E3CFF /* ExprAST.cpp in Sources */,
+				96A10BA11AC833FF005E3CFF /* AST.cpp in Sources */,
 				96A10BA51AC83B00005E3CFF /* RType.cpp in Sources */,
 				968D55C91AC99F49006C7CAF /* GenCppPass.cpp in Sources */,
 			);

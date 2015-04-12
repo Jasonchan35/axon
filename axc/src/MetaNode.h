@@ -11,7 +11,7 @@
 
 #include "Log.h"
 #include "DeclarationModifier.h"
-#include "ExprAST.h"
+#include "AST.h"
 
 namespace ax {
 namespace Compile {
@@ -19,7 +19,7 @@ namespace Compile {
 #define DefMetaNode(T,B)	\
 	ax_DefObject(T,B);	\
 public:	\
-	T( ax_NullableObj< MetaNode > parent, const ax_string & name, const LexerPos & pos ) \
+	T( ax_NullableObj< MetaNode > parent, const ax_string & name, const Location & pos ) \
 	: base( parent, name, pos ) { \
 		onInit(); \
 	} \
@@ -44,18 +44,18 @@ public:	\
 extern ax_string	k_ctor_name;
 
 class Func;
-class ExprAST;
+class AST;
 
 class TemplateParam;
 class TemplateReplaceReq;
 
-class LexerPos;
+class Location;
 class MetaNode : public System::Object {
 	ax_DefObject( MetaNode, System::Object )
 public:
 	struct	ax_type_on_gc_trace : public std::true_type {};
 
-	MetaNode( ax_NullableObj< MetaNode > parent, const ax_string & name, const LexerPos & pos );
+	MetaNode( ax_NullableObj< MetaNode > parent, const ax_string & name, const Location & pos );
 
 	template< typename T >
 	ax_NullableObj<T>	getUpperByType	() {
@@ -83,7 +83,7 @@ public:
 	ax_string			_cppName;
 	bool				macro_cppName;
 	
-	LexerPos			pos;
+	Location			pos;
 	bool				buildin;
 	bool				isTemplateInstance;
 		
@@ -138,7 +138,7 @@ public:
 class Namespace : public MetaNode {
 	DefMetaNode( Namespace, MetaNode )
 
-	ax_Obj< Namespace > getOrAddNamespace	( const ax_string & name, LexerPos & pos );
+	ax_Obj< Namespace > getOrAddNamespace	( const ax_string & name, Location & pos );
 
 };
 
@@ -147,7 +147,7 @@ class TypeNode : public MetaNode {
 	
 	DeclarationModifier						modifier;
 	
-	 ax_Obj< TemplateParam >				 addTemplateParam( const ax_string & name, const LexerPos & pos );
+	 ax_Obj< TemplateParam >				 addTemplateParam( const ax_string & name, const Location & pos );
 	
 	ax_Array_< ax_Obj< TemplateParam > >	_templateParams;
 	
@@ -157,7 +157,7 @@ class TypeNode : public MetaNode {
 		return true;
 	}
 		
-	ax_Obj< TypeNode >		getOrAddTemplateInstance( const ax_Array< RType > & params, const LexerPos & pos );
+	ax_Obj< TypeNode >		getOrAddTemplateInstance( const ax_Array< RType > & params, const Location & pos );
 	
 	virtual	void onVisit( TemplateReplaceReq & req );
 	
@@ -191,39 +191,39 @@ class Typename : public TypeNode {
 	void onInit_Typename();
 };
 
-class StructType : public TypeNode {
-	DefMetaNode( StructType, TypeNode )
+class CompositeType : public TypeNode {
+	DefMetaNode( CompositeType, TypeNode )
 	
-	ax_Array_< LexerPos >				baseOrInterfacePos;
+	ax_Array_< Location >				baseOrInterfacePos;
 
-	LexerPos							bodyPos;
+	Location							bodyPos;
 	
-	ax_NullableObj< StructType >		baseType;
-	ax_Array_< ax_Obj< StructType > >	interfaces;
+	ax_NullableObj< CompositeType >		baseType;
+	ax_Array_< ax_Obj< CompositeType > >	interfaces;
 			
 	bool			isNestedType;
 };
 
-class Interface : public StructType {
-	DefMetaNode( Interface, StructType );	
+class Interface : public CompositeType {
+	DefMetaNode( Interface, CompositeType );	
 };
 
-class Struct : public StructType {
-	DefMetaNode( Struct, StructType );
+class Struct : public CompositeType {
+	DefMetaNode( Struct, CompositeType );
 };
 
-class Class : public StructType {
-	DefMetaNode( Class, StructType );
+class Class : public CompositeType {
+	DefMetaNode( Class, CompositeType );
 };
 
 class Prop : public MetaNode {
 	DefMetaNode( Prop, MetaNode );
 	
-	LexerPos					initExprPos;
-	ax_NullableObj< ExprAST >	initExpr;
+	Location					initExprPos;
+	ax_NullableObj< AST >	initExpr;
 	
 	bool		is_let;
-	LexerPos	typePos;
+	Location	typePos;
 	RType		type;
 	
 	void OnStringReq( ax_ToStringReq & req ) const {
@@ -237,13 +237,13 @@ struct FuncParam {
 
 	FuncParam() : opt(false) {}
 
-	LexerPos	namePos;
+	Location	namePos;
 	ax_string	name;
 	
-	LexerPos	typePos;
+	Location	typePos;
 	RType		type;
 	
-	ax_NullableObj< ExprAST >	defaultValueExpr;
+	ax_NullableObj< AST >	defaultValueExpr;
 		
 	bool		opt;
 	
@@ -265,13 +265,13 @@ class FuncOverload : public TypeNode {
 
 	bool	isMatch		( const ax_Array<FuncParam> & callParams );
 
-	FuncParam &	addParam( const ax_string & name, const LexerPos & namePos, const RType & type, const LexerPos & typePos );
+	FuncParam &	addParam( const ax_string & name, const Location & namePos, const RType & type, const Location & typePos );
 
 	ax_Array_< FuncParam, 8 >	params;
 	
-	LexerPos		returnTypePos;
-	LexerPos		paramPos;
-	LexerPos		bodyPos;
+	Location		returnTypePos;
+	Location		paramPos;
+	Location		bodyPos;
 	
 	RType			returnType;
 	
@@ -285,7 +285,7 @@ class Func : public TypeNode {
 
 	ax_NullableObj< FuncOverload >		getOverload	( ax_Array< ax_Obj< FuncOverload > > & candidate, const ax_Array< FuncParam > & params );
 	
-	ax_Obj< FuncOverload >	addOverload( const LexerPos & pos );
+	ax_Obj< FuncOverload >	addOverload( const Location & pos );
 	
 	ax_Array_< ax_Obj< FuncOverload > >		overloads;	
 };

@@ -1,18 +1,18 @@
 //
-//  LexerPos.cpp
+//  Location.cpp
 //  Compile
 //
 //  Created by Jason on 2014-11-10.
 //  Copyright (c) 2014 Awenix. All rights reserved.
 //
 
-#include "LexerPos.h"
+#include "Location.h"
 #include "SourceFile.h"
 
 namespace ax {
 namespace Compile {
 
-void LexerPos::reset( ax_Obj< SourceFile > sourceFile ) {
+void Location::reset( ax_Obj< SourceFile > sourceFile ) {
 	valid = true;
 	file = sourceFile;
 	filePos = 0;
@@ -20,7 +20,7 @@ void LexerPos::reset( ax_Obj< SourceFile > sourceFile ) {
 	col  = 1;
 }
 
-ax_string LexerPos::getSourceLine () const {
+ax_string Location::getSourceLine () const {
 	ax_TempString str;
 
 	ax_if_not_let( file_, file ) {
@@ -40,7 +40,7 @@ ax_string LexerPos::getSourceLine () const {
 	}
 }
 
-ax_string LexerPos::dumpSourceLine() const {
+ax_string Location::dumpSourceLine() const {
 	ax_TempString		arrow;
 	ax_TempString		buf;
 	

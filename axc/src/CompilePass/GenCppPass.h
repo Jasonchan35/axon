@@ -16,7 +16,7 @@
 namespace ax {
 namespace Compile {
 
-class GenCppPass : public Parser, public IExprDispatcher {
+class GenCppPass : public Parser, public IASTDispatcher {
 public:
 	GenCppPass() : ob( *this ) {}
 
@@ -42,8 +42,8 @@ private:
 	void	genHdr_namespace	( ax_Obj< Namespace > node );
 	void	genCpp_namespace	( ax_Obj< Namespace > node );
 
-	void	genHdr_struct		( ax_Obj< StructType > node );
-	void	genCpp_struct		( ax_Obj< StructType > node );
+	void	genHdr_struct		( ax_Obj< CompositeType > node );
+	void	genCpp_struct		( ax_Obj< CompositeType > node );
 
 	void	genHdr_prop			( ax_Obj< Prop >	node );
 	void	genCpp_prop			( ax_Obj< Prop >	node );
@@ -69,7 +69,7 @@ private:
 	virtual	void	onAST( BinaryAST 		& p );
 	
 //	virtual	void	onAST( TupleAST 		& p );
-	virtual	void	onAST( FuncArgAST 		& p );
+	virtual	void	onAST( FuncParamAST 		& p );
 //	virtual	void	onAST( SubscriptArgAST 	& p );
 
 //	virtual	void	onAST( StatementsAST	& p );
@@ -112,8 +112,8 @@ private:
 		OutBuf & operator<< ( const TokenType 	& t  );
 		OutBuf & operator<< ( const RType 		& t  );
 		
-		OutBuf & operator<< ( ax_Obj< ExprAST >  expr );
-		OutBuf & operator<< ( ax_NullableObj< ExprAST > expr );
+		OutBuf & operator<< ( ax_Obj< AST >  expr );
+		OutBuf & operator<< ( ax_NullableObj< AST > expr );
 
 //		OutBuf & output		( const ax_Array< ax_Obj< TemplateParam > >	& tp, bool declare );
 		

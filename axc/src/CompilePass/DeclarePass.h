@@ -34,9 +34,9 @@ private:
 	void	parseNamespaceBody		();
 	
 	void	parseStructType			( DeclarationModifier & modifier );
-	void	parseStructTypeBody		( ax_Obj< StructType >	node );
+	void	parseStructTypeBody		( ax_Obj< CompositeType >	node );
 	
-	bool	resolveStructType		( ax_Obj< StructType > 	node );
+	bool	resolveStructType		( ax_Obj< CompositeType > 	node );
 	bool	resolveProp				( ax_Obj< Prop >		Prop );
 		
 	void	parseProp				( DeclarationModifier & modifier );

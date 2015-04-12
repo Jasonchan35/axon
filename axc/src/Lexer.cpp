@@ -34,7 +34,7 @@ bool Lexer::getToken( Token & token ) {
 	}
 }
 
-void	Lexer::setPos	( const LexerPos & pos ) {
+void	Lexer::setPos	( const Location & pos ) {
 	c.setPos( pos );
 }
 
@@ -429,12 +429,12 @@ void Lexer::_getToken_number( Token & token, bool dot ) {
 //================
 
 
-Lexer::Cursor::Cursor( LexerPos & pos_ ) : pos( pos_ ) {
+Lexer::Cursor::Cursor( Location & pos_ ) : pos( pos_ ) {
 	p = nullptr;
 	ch = 0;
 }
 
-void Lexer::Cursor::setPos( const LexerPos & pos ) {
+void Lexer::Cursor::setPos( const Location & pos ) {
 	this->pos = pos;
 	
 	p 	= nullptr;

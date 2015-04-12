@@ -1,12 +1,12 @@
 //
-//  ExprAST.cpp
+//  AST.cpp
 //  axc
 //
 //  Created by Jason on 2015-03-29.
 //  Copyright (c) 2015 Jason Chan. All rights reserved.
 //
 
-#include "ExprAST.h"
+#include "AST.h"
 #include "Log.h"
 #include "Compiler.h"
 #include "MetaNode.h"
@@ -14,10 +14,10 @@
 namespace ax {
 namespace Compile {
 
-ax_ImplObject( ExprAST );
+ax_ImplObject( AST );
 ax_ImplObject( PrefixAST );
 ax_ImplObject( PostfixAST );
-ax_ImplObject( FuncArgAST );
+ax_ImplObject( FuncParamAST );
 ax_ImplObject( PropAST );
 ax_ImplObject( TypeAST );
 ax_ImplObject( NumberLiteralAST );
@@ -25,13 +25,13 @@ ax_ImplObject( StringLiteralAST );
 ax_ImplObject( BinaryAST );
 
 
-ExprAST::ExprAST	( const LexerPos & pos_, const RType & returnType_ )
+AST::AST	( const Location & pos_, const RType & returnType_ )
 : pos(pos_)
 , returnType( returnType_ ) {
 }
 
 
-NumberLiteralAST::NumberLiteralAST( const LexerPos &_pos, const ax_string & _srcStr )
+NumberLiteralAST::NumberLiteralAST( const Location &_pos, const ax_string & _srcStr )
 : base(_pos, RType() )
 , srcStr(_srcStr)
 , numberType(t_none)
@@ -255,24 +255,24 @@ NumberLiteralAST::NumberLiteralAST( const LexerPos &_pos, const ax_string & _src
 	}
 }
 
-StringLiteralAST::StringLiteralAST( const LexerPos &pos_, const ax_string & value_ )
+StringLiteralAST::StringLiteralAST( const Location &pos_, const ax_string & value_ )
 : base(pos_, RType::MakeLiteral( g_metadata->type_string ) )
 , value(value_) {
 }
 
-PrefixAST::PrefixAST( const LexerPos &pos_,  ax_Obj< FuncOverload > fo_, ax_Obj< ExprAST > expr_  )
+PrefixAST::PrefixAST( const Location &pos_,  ax_Obj< FuncOverload > fo_, ax_Obj< AST > expr_  )
 : base(pos_, fo_->returnType )
 , funcOverload(fo_)
 , expr(expr_) {
 }
 
-PostfixAST::PostfixAST( const LexerPos &pos_, ax_Obj< FuncOverload > fo_, ax_Obj< ExprAST > expr_ )
+PostfixAST::PostfixAST( const Location &pos_, ax_Obj< FuncOverload > fo_, ax_Obj< AST > expr_ )
 : base(pos_, fo_->returnType )
 , funcOverload(fo_)
 , expr(expr_) {
 }
 
-BinaryAST::BinaryAST( const LexerPos & pos_, ax_Obj< FuncOverload > fo_, ax_Obj<ExprAST> lhs_, ax_Obj<ExprAST> rhs_, bool parenthesis_ )
+BinaryAST::BinaryAST( const Location & pos_, ax_Obj< FuncOverload > fo_, ax_Obj<AST> lhs_, ax_Obj<AST> rhs_, bool parenthesis_ )
 : base(pos_, fo_->returnType )
 , funcOverload(fo_)
 , lhs( lhs_ )
@@ -281,17 +281,17 @@ BinaryAST::BinaryAST( const LexerPos & pos_, ax_Obj< FuncOverload > fo_, ax_Obj<
 {
 }
 
-TypeAST::TypeAST( LexerPos &pos_, ax_Obj< TypeNode > node_ )
+TypeAST::TypeAST( Location &pos_, ax_Obj< TypeNode > node_ )
 : base( pos_, RType::MakeTypename( node_ )  )
 , node( node_ ) {
 }
 
-PropAST::PropAST( LexerPos &pos_, ax_Obj< Prop > node_ )
+PropAST::PropAST( Location &pos_, ax_Obj< Prop > node_ )
 : base( pos_, node_->type )
 , node( node_ ) {
 }
 
-FuncArgAST::FuncArgAST( const LexerPos &_pos )
+FuncParamAST::FuncParamAST( const Location &_pos )
 : base(_pos, RType() ) {
 }
 
