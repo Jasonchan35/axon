@@ -426,8 +426,10 @@ bool	FuncOverload::isMatch ( const ax_Array< FuncParam > & callParams ) {
 		if( i >= params.size() ) return false;
 		auto & p = params[i];
 		
-		if( c.type != p.type ) return false;
-
+		ax_if_not_let( pt, p.type ) return false;
+		ax_if_not_let( ct, c.type ) return false;
+		if( ! pt->canAssignFrom( ct ) ) return false;
+		
 		i++;
 	}
 	

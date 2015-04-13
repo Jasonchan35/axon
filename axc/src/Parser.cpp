@@ -369,7 +369,8 @@ ax_NullableObj< AST > Parser::parseExpr_BinaryOp( ax_int exprPrec, ax_Obj<AST>& 
 		}
 	
 		ax_if_not_let( lt, lhs->returnType ) {
-			Log::Error( lhs->pos, ax_txt("error return type") );
+//			Log::Error( lhs->pos, ax_txt("error return type") );
+			return nullptr;
 		}
 		
 		auto op = token.type;

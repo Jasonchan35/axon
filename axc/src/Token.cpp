@@ -15,6 +15,13 @@ namespace Compile {
 class TokenTable {
 public:
 	TokenTable() {
+		inited = false;
+	}
+	
+	void init() {
+		if( inited ) return;
+		inited = true;
+		
 	//init keywords
 		#define Token_KEYWORD(T) keywords.add( ax_txt(#T), TokenType::t_##T );
 			Token_KEYWORD_LIST
@@ -27,6 +34,8 @@ public:
 		ax_log("-- End of Keyword table --");
 		*/
 	}
+	
+	bool	inited;
 	
 	ax_Dict< ax_string, TokenType >	keywords;
 };
@@ -105,6 +114,8 @@ ax_string	Token::typeName() const {
 
 bool Token::checkKeyword() {
 	if( type != TokenType::t_identifier ) return false;
+	
+	table.init();
 	
 	ax_if_let( v, table.keywords.tryGetValue( str ) ) {
 		type = v;

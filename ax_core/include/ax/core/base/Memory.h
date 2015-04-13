@@ -24,6 +24,8 @@ namespace System {
 
 class Memory {
 public:
+	static	bool	inited;
+
 	template< typename T >
 	ax_ALWAYS_INLINE(	static	T*	Alloc ( ax_int n ) ) {
 		auto req_bytes = n * sizeof(T);
