@@ -251,10 +251,33 @@ ax_NullableObj<Type> Parser::parseTypename () {
 		return nullptr;
 	}
 	
-	ax_if_not_let( t, o->ax_as< TypeSpec >() ) {
+	ax_if_not_let( ts, o->ax_as< TypeSpec >() ) {
 		Log::Error( token, ax_txt("type expected") );
 	}
-	return Type::MakeTypename( t );
+	
+	auto t = Type::MakeTypename( ts );
+	
+	if( token.is_less() ) { // template parameter
+		nextToken();
+		
+		for(;;) {
+			if( token.is_greater() ) { nextToken(); break; }
+
+			ax_if_not_let( tp, parseTypename() ) {
+				Log::Error( token, ax_txt("template parameter expected") );
+			}
+						
+			t->templateParams.add( tp );
+			
+			if( token.is_comma() ) { nextToken(); continue; }
+			if( token.is_greater() ) { nextToken(); break; }
+			
+			Log::Error( token, ax_txt("unknown token") );
+		}
+		
+	}
+	
+	return t;
 }
 
 
